@@ -27,6 +27,7 @@ grant execute on function
   public.undos_remaining_this_month(),
   public.get_candidates(int),
   public.get_incoming_likes(),
+  public.get_profile(uuid),
   public.like_profile(uuid, public.like_target, uuid, text),
   public.pass_profile(uuid),
   public.undo_last_pass(),
@@ -37,13 +38,16 @@ to authenticated;
 -- Tabellen-Rechte (spaltengenau, wo Nutzer:innen selbst schreiben)
 -- ---------------------------------------------------------------------------
 
-grant select on public.profiles to authenticated;
-grant insert (id, display_name, birthdate, gender, interested_in, intention, bio, city,
-              age_min, age_max, max_distance_km)
-  on public.profiles to authenticated;
-grant update (display_name, gender, interested_in, intention, bio, city,
-              age_min, age_max, max_distance_km)
-  on public.profiles to authenticated;
+-- Andere sollen das Geburtsdatum nicht sehen (nur das Alter über get_profile/get_candidates),
+-- daher keine Spaltenrechte auf birthdate zum Lesen.
+grant select (id, display_name, gender, bio, city, verified_at, created_at) on public.profiles to authenticated;
+grant insert (id, display_name, birthdate, gender, bio, city) on public.profiles to authenticated;
+grant update (display_name, gender, bio, city) on public.profiles to authenticated;
+
+grant select, delete on public.match_preferences to authenticated;
+grant insert (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km),
+      update (interested_in, intention, intention_public, age_min, age_max, max_distance_km, updated_at)
+  on public.match_preferences to authenticated;
 
 grant select, delete on public.profile_locations to authenticated;
 grant insert (user_id, location), update (location, updated_at) on public.profile_locations to authenticated;
@@ -75,6 +79,7 @@ grant insert (reporter, reported, reason, details) on public.reports to authenti
 -- ---------------------------------------------------------------------------
 
 alter table public.profiles enable row level security;
+alter table public.match_preferences enable row level security;
 alter table public.profile_locations enable row level security;
 alter table public.photos enable row level security;
 alter table public.prompts enable row level security;
@@ -100,6 +105,12 @@ create policy profiles_update on public.profiles
   for update to authenticated
   using (id = (select auth.uid()))
   with check (id = (select auth.uid()));
+
+-- Matching-Präferenzen (Orientierung, Dating-Ziel, Alter, Entfernung): nur die eigenen
+create policy match_preferences_own on public.match_preferences
+  for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
 
 -- Standort: nur der eigene
 create policy profile_locations_own on public.profile_locations

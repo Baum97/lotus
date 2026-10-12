@@ -15,6 +15,9 @@ Eine Dating-App, die darauf ausgelegt ist, dass Menschen wirklich jemanden finde
 | Aktive Chats | max. 6, weitere Matches warten in einer Warteschlange |
 | Chatten | erst nach Selfie-Verifizierung |
 | Eingeschlafene Chats | werden nach 7 Tagen ohne Nachricht geschlossen |
+| Orientierung („Wen möchtest du kennenlernen?“) | privat, nur fürs Matching |
+| Dating-Ziel | immer fürs Matching, Anzeige optional privat |
+| Geburtsdatum, Standort | nie für andere sichtbar (nur Alter, gerundete Entfernung) |
 
 Das eigene Like-Verhalten beeinflusst **nie** die eigene Sichtbarkeit. Vorschläge werden nach
 gegenseitigen Filtern, gleicher Absicht und einem Fairness-Kontingent (seltener Gezeigte zuerst) sortiert.
@@ -37,8 +40,12 @@ scripts/test-db.sh                 Migrationen einspielen + Tests ausführen
 | `pass_profile(p_to)` | wegwischen |
 | `undo_last_pass()` | letztes Wegwischen rückgängig machen |
 | `get_incoming_likes()` | „Wer hat mich geliked“ |
+| `get_profile(p_user)` | Profilkarte (nur öffentliche Angaben) einer Person, die man sehen darf |
 | `likes_remaining_today()` / `undos_remaining_this_month()` | Restbudgets |
 | `close_match(p_match, p_goodbye)` | Gespräch beenden, optional mit Abschiedsnachricht |
+
+Hinweis: Auf `profiles` sind nur einzelne Spalten lesbar (kein Geburtsdatum) – in der App also
+`select('id, display_name, …')` statt `select('*')`, oder `get_profile` verwenden.
 
 Fehler kommen als stabile Schlüssel (`daily_like_limit_reached`, `monthly_undo_limit_reached`,
 `profile_not_available`, …), die die App übersetzt.

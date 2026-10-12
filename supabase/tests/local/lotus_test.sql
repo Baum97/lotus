@@ -55,6 +55,8 @@ grant execute on function test.login(uuid) to authenticated;
 --   D  Mann, 31, Stuttgart, sucht nur Männer     → passt nicht (Gegenseitigkeit)
 --   E  Mann, 33, München, sucht Frauen           → zu weit weg
 --   F  Mann, 50, Stuttgart, sucht Frauen         → außerhalb As Altersbereich
+--   G  divers, 29, Ulm, sucht alle               → passt nicht zu A (A sucht nur Männer)
+--   H  Mann, 34, Stuttgart, sucht Männer & diverse → passt zu D und G
 --   Füller 01–30: Männer, Stuttgart, suchen Frauen
 -- ---------------------------------------------------------------------------
 
@@ -67,6 +69,8 @@ language sql immutable as $$
     when 'D' then '00000000-0000-0000-0000-00000000000d'
     when 'E' then '00000000-0000-0000-0000-00000000000e'
     when 'F' then '00000000-0000-0000-0000-00000000000f'
+    when 'G' then '00000000-0000-0000-0000-000000000010'
+    when 'H' then '00000000-0000-0000-0000-000000000011'
     else ('10000000-0000-0000-0000-0000000000' || lpad(p_label, 2, '0'))
   end::uuid
 $$;
@@ -74,16 +78,20 @@ grant execute on function test.uid(text) to authenticated;
 
 create function test.seed_user(
   p_label text, p_gender public.gender, p_interested public.gender[], p_age int,
-  p_lon float8, p_lat float8, p_age_min int default 18, p_age_max int default 99
+  p_lon float8, p_lat float8, p_age_min int default 18, p_age_max int default 99,
+  p_intention public.intention default 'relationship', p_intention_public boolean default true,
+  p_max_distance_km int default 50
 ) returns void
 language plpgsql as $$
 declare
   v_id uuid := test.uid(p_label);
 begin
   insert into auth.users (id) values (v_id);
-  insert into public.profiles (id, display_name, birthdate, gender, interested_in, intention, city, age_min, age_max)
+  insert into public.profiles (id, display_name, birthdate, gender, city)
   values (v_id, 'User ' || p_label, (current_date - make_interval(years => p_age, days => 10))::date,
-          p_gender, p_interested, 'relationship', 'Stuttgart', p_age_min, p_age_max);
+          p_gender, 'Stuttgart');
+  insert into public.match_preferences (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km)
+  values (v_id, p_interested, p_intention, p_intention_public, p_age_min, p_age_max, p_max_distance_km);
   insert into public.profile_locations (user_id, location)
   values (v_id, extensions.st_setsrid(extensions.st_makepoint(p_lon, p_lat), 4326)::extensions.geography);
   insert into public.photos (user_id, storage_path, position, moderation)
@@ -95,10 +103,12 @@ $$;
 
 select test.seed_user('A', 'woman', '{man}', 30, 9.18, 48.78, 25, 40);
 select test.seed_user('B', 'man', '{woman}', 32, 9.17, 48.77);
-select test.seed_user('C', 'man', '{woman}', 28, 9.31, 48.74);
+select test.seed_user('C', 'man', '{woman}', 28, 9.31, 48.74, p_intention => 'unsure', p_intention_public => false);
 select test.seed_user('D', 'man', '{man}', 31, 9.18, 48.78);
 select test.seed_user('E', 'man', '{woman}', 33, 11.58, 48.14);
 select test.seed_user('F', 'man', '{woman}', 50, 9.18, 48.78);
+select test.seed_user('G', 'diverse', '{woman,man,diverse}', 29, 9.99, 48.40, p_max_distance_km => 150);
+select test.seed_user('H', 'man', '{man,diverse}', 34, 9.18, 48.78, p_max_distance_km => 100);
 select test.seed_user(n::text, 'man', '{woman}', 30, 9.18, 48.78) from generate_series(1, 30) n;
 
 -- ---------------------------------------------------------------------------
@@ -121,12 +131,39 @@ select test.ok(exists (select 1 from a_candidates where id = test.uid('C')), 'C 
 select test.ok(not exists (select 1 from a_candidates where id = test.uid('D')), 'D (sucht nur Männer) nicht');
 select test.ok(not exists (select 1 from a_candidates where id = test.uid('E')), 'E (München) nicht');
 select test.ok(not exists (select 1 from a_candidates where id = test.uid('F')), 'F (außerhalb Altersbereich) nicht');
+select test.ok(not exists (select 1 from a_candidates where id = test.uid('G')), 'G (divers) nicht, weil A nur Männer sucht');
+select test.ok((select intention from a_candidates where id = test.uid('B')) = 'relationship',
+  'öffentliches Dating-Ziel wird angezeigt');
+select test.ok((select intention from a_candidates where id = test.uid('C')) is null,
+  'privates Dating-Ziel wird nicht angezeigt');
 select test.ok((select count(*) from a_candidates) = 32, 'B, C und 30 Füller vorgeschlagen');
 select test.ok((select min(distance_km) from a_candidates) >= 1, 'Entfernung nur gerundet, mindestens 1 km');
 select test.ok((select count(*) from public.profiles where id = test.uid('B')) = 1,
   'vorgeschlagenes Profil ist danach lesbar');
 select test.ok((select count(*) from public.photos where user_id = test.uid('B')) = 1,
   'Fotos vorgeschlagener Profile sind lesbar');
+select test.ok((select count(*) from public.match_preferences) = 1,
+  'Orientierung & Präferenzen anderer sind nie lesbar, nur die eigenen');
+select test.throws($$select birthdate from public.profiles where id = test.uid('B')$$, 'permission denied',
+  'Geburtsdatum anderer ist nicht lesbar');
+select test.ok((select age from public.get_profile(test.uid('B'))) = 32, 'Profilkarte zeigt das Alter');
+select test.ok((select intention from public.get_profile(test.uid('C'))) is null,
+  'Profilkarte verbirgt privates Dating-Ziel');
+select test.ok(not exists (select 1 from public.get_profile(test.uid('E'))),
+  'Profilkarte nicht vorgeschlagener Personen ist nicht abrufbar');
+
+-- Gleichgeschlechtliche Suche und divers
+select test.login(test.uid('D'));
+select test.ok(exists (select 1 from public.get_candidates(50) where id = test.uid('H')),
+  'Mann sucht Mann: D bekommt H vorgeschlagen');
+select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('B')),
+  'D bekommt keine Männer, die Frauen suchen');
+select test.login(test.uid('G'));
+select test.ok(exists (select 1 from public.get_candidates(50) where id = test.uid('H')),
+  'divers: G (Ulm) bekommt H (Stuttgart, sucht auch diverse) vorgeschlagen');
+select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('C')),
+  'divers: G bekommt C (sucht nur Frauen) nicht');
+select test.login(test.uid('A'));
 
 -- ---------------------------------------------------------------------------
 -- Likes

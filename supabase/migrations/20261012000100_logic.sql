@@ -168,6 +168,8 @@ $$;
 --   3. Fairness: wer in den letzten 7 Tagen seltener gezeigt wurde, kommt zuerst
 --   4. Zufall
 -- Das Like-Verhalten der Kandidat:innen spielt keine Rolle.
+-- Orientierung und Dating-Ziel wirken immer im Matching; das Ziel wird nur ausgeliefert,
+-- wenn die Person es öffentlich gemacht hat (sonst null).
 create function public.get_candidates(p_limit int default 10)
 returns table (
   id uuid,
@@ -193,8 +195,10 @@ begin
 
   return query
   with me as (
-    select p.*, l.location
+    select p.id, p.gender, p.birthdate, mp.interested_in, mp.intention,
+           mp.age_min, mp.age_max, mp.max_distance_km, l.location
     from public.profiles p
+    join public.match_preferences mp on mp.user_id = p.id
     join public.profile_locations l on l.user_id = p.id
     where p.id = v_me
   ),
@@ -204,7 +208,7 @@ begin
       o.display_name,
       private.age_of(o.birthdate) as age,
       o.city,
-      o.intention,
+      case when op.intention_public then op.intention end as intention,
       o.bio,
       greatest(1, ceil(extensions.st_distance(ol.location, me.location) / 1000))::int as distance_km,
       o.verified_at is not null as verified,
@@ -212,7 +216,7 @@ begin
         select 1 from public.impressions i
         where i.viewer = v_me and i.shown = o.id and i.shown_on = v_today
       ) as shown_to_me_today,
-      (o.intention = me.intention) as same_intention,
+      (op.intention = me.intention) as same_intention,
       (
         select count(*) from public.impressions i
         where i.shown = o.id and i.shown_on > v_today - 7
@@ -223,15 +227,16 @@ begin
       ) as impressions_today
     from me
     join public.profiles o on o.id <> me.id
+    join public.match_preferences op on op.user_id = o.id
     join public.profile_locations ol on ol.user_id = o.id
     join private.trust t on t.user_id = o.id and t.status = 'active'
     where
       -- gegenseitige harte Filter
       o.gender = any (me.interested_in)
-      and me.gender = any (o.interested_in)
+      and me.gender = any (op.interested_in)
       and private.age_of(o.birthdate) between me.age_min and me.age_max
-      and private.age_of(me.birthdate) between o.age_min and o.age_max
-      and extensions.st_dwithin(ol.location, me.location, least(me.max_distance_km, o.max_distance_km) * 1000)
+      and private.age_of(me.birthdate) between op.age_min and op.age_max
+      and extensions.st_dwithin(ol.location, me.location, least(me.max_distance_km, op.max_distance_km) * 1000)
       and o.last_active_at > now() - make_interval(days => private.inactive_after_days())
       and exists (select 1 from public.photos ph where ph.user_id = o.id and ph.moderation = 'approved')
       -- noch nicht entschieden, keine Blockierung, kein Match
@@ -265,6 +270,29 @@ begin
   from picked
   order by picked.shown_to_me_today desc, picked.same_intention desc, picked.recent_impressions;
 end;
+$$;
+
+-- Profilkarte einer Person, die man sehen darf (Vorschlag, eingehendes Like oder Match).
+-- Liefert nur öffentliche Angaben: keine Orientierung, kein Geburtsdatum, kein Standort,
+-- das Dating-Ziel nur, wenn die Person es öffentlich gemacht hat.
+create function public.get_profile(p_user uuid)
+returns table (
+  id uuid,
+  display_name text,
+  age int,
+  gender public.gender,
+  city text,
+  intention public.intention,
+  bio text,
+  verified boolean
+)
+language sql stable security definer set search_path = '' as $$
+  select p.id, p.display_name, private.age_of(p.birthdate), p.gender, p.city,
+         case when mp.intention_public or p.id = auth.uid() then mp.intention end,
+         p.bio, p.verified_at is not null
+  from public.profiles p
+  left join public.match_preferences mp on mp.user_id = p.id
+  where p.id = p_user and private.can_view_profile(p_user)
 $$;
 
 -- "Wer hat mich geliked" – für alle gratis.

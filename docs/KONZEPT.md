@@ -1,6 +1,6 @@
 # Lotus – Konzept für eine faire Dating-App
 
-> Arbeitstitel: **Lotus**. Stand: Entwurf v0.3 – Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
+> Arbeitstitel: **Lotus** (Name kann sich noch ändern). Stand: Entwurf v0.4 – Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
 >
 > Rahmen: **Hobbyprojekt, kein Team, kein Budget.** Zielgruppe: Singles.
 
@@ -61,7 +61,11 @@ Lotus ist eine Dating-App, deren Erfolg daran gemessen wird, **wie viele Mensche
 
 ### 3.4 Absichten & Kompatibilität
 
-- Pflichtfeld „Was suchst du?“ (feste Beziehung, offen für Beziehung, noch unsicher …).
+- **Offen für alle Orientierungen** von Anfang an.
+- **Geschlecht** (vorerst): männlich, weiblich, divers.
+- **„Wen möchtest du kennenlernen?“** – ein oder mehrere Geschlechter. Diese Angabe ist **immer privat**: Sie wird nur für das Matching verwendet und nie im Profil angezeigt (sexuelle Orientierung ist nach DSGVO Art. 9 besonders geschützt).
+- **Dating-Ziel** „Was suchst du?“ (feste Beziehung, offen für Beziehung, noch unsicher) – wird immer fürs Matching verwendet; jede Person entscheidet selbst, ob es im Profil **öffentlich oder privat** ist (Standard: öffentlich).
+- Andere sehen nur das Alter, nie das Geburtsdatum, und nur eine gerundete Entfernung, nie den Standort.
 - Harte Filter wirken **gegenseitig** (Alter, Entfernung, Geschlecht/Interesse, Kinderwunsch optional) – man sieht nur Leute, für die man selbst auch in Frage kommt.
 - Prompts / Werte-Fragen als Grundlage für Kompatibilität und Gesprächseinstieg.
 
@@ -217,7 +221,8 @@ Die Pfeilrichtung ist bewusst: Discovery bekommt von Trust & Safety nur den Stat
 - `profiles` (user_id, name, birthdate, gender, interested_in, intention, bio, location)
 - `photos` (id, user_id, url, order, moderation_state)
 - `prompts` / `prompt_answers`
-- `preferences` (user_id, age_min/max, distance_km, dealbreakers)
+- `profile_locations` (user_id, location) – nur selbst lesbar
+- `match_preferences` (user_id, interested_in, intention, intention_public, age_min/max, max_distance_km) – nur selbst lesbar
 - `likes` (from, to, target_type, target_id, comment, created_at)
 - `passes` (from, to, created_at, undone_at)
 - `undo_usage` (user_id, month, count) – max. 3 pro Monat
@@ -285,7 +290,7 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 
 | Risiko | Gegenmaßnahme |
 |---|---|
-| Kaltstart / zu wenige Profile | Start in einer Stadt, Warteliste, Community-Events |
+| Kaltstart / zu wenige Profile | Start in Stuttgart + Ulm, Warteliste, Community-Events, gezielte Einladungen für kleinere Gruppen (z. B. Frauen, die Frauen suchen) |
 | Limits frustrieren Nutzer:innen | Limits erklären, mit Daten justieren, Fokus als Feature vermarkten |
 | Ungleiches Geschlechterverhältnis | Fairness-Kontingente, Freischaltung nach Balance pro Region |
 | Finanzierung | Free-Tier-Stack, Kosten erst ab Wachstum, Komfort-Abo + Beiträge |
@@ -306,10 +311,14 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 6 | Profile pro Tag | unbegrenzt, bis die 20 Likes aufgebraucht sind |
 | 7 | Chat-Limit erreicht | neue Matches kommen in eine Warteschlange |
 | 8 | Tech-Stack | Flutter + Supabase |
-| 9 | Beta-Region | Stuttgart und/oder Ulm |
+| 9 | Beta-Region | Stuttgart **und** Ulm |
+| 10 | Orientierungen | alle von Anfang an |
+| 11 | Geschlecht | vorerst männlich, weiblich, divers |
+| 12 | Orientierung im Profil | privat, nur fürs Matching |
+| 13 | Dating-Ziel im Profil | fürs Matching immer genutzt, Anzeige optional privat |
+| 14 | Name | „Lotus“ ist Arbeitstitel |
 
 ### Noch offen
 
-1. Altersgruppe / Orientierungen von Anfang an alle?
-2. Name: bleibt es bei „Lotus“?
-3. Start mit nur einer der beiden Städte oder beiden (Dichte vs. Reichweite)?
+1. Ulm ↔ Stuttgart liegen ~90 km auseinander: Standard-Suchradius 50 km lassen (zwei getrennte Pools) oder größer wählen?
+2. Weitere optionale Matching-Kriterien (z. B. Kinderwunsch, Rauchen) – und wenn ja, ebenfalls privat?

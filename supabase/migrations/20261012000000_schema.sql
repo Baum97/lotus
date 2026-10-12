@@ -10,7 +10,8 @@ create schema if not exists private;
 -- Typen
 -- ---------------------------------------------------------------------------
 
-create type public.gender as enum ('woman', 'man', 'nonbinary');
+-- Vorerst drei Optionen: weiblich, männlich, divers
+create type public.gender as enum ('woman', 'man', 'diverse');
 create type public.intention as enum ('relationship', 'open_to_relationship', 'unsure');
 create type public.like_target as enum ('photo', 'prompt');
 create type public.match_state as enum ('queued', 'active', 'closed');
@@ -28,18 +29,27 @@ create table public.profiles (
   display_name text not null check (char_length(display_name) between 1 and 40),
   birthdate date not null check (birthdate <= current_date - interval '18 years'),
   gender public.gender not null,
-  interested_in public.gender[] not null check (cardinality(interested_in) > 0),
-  intention public.intention not null,
   bio text check (char_length(bio) <= 500),
   city text check (char_length(city) <= 60),
-  -- Präferenzen (wirken gegenseitig, siehe get_candidates)
-  age_min smallint not null default 18 check (age_min >= 18),
-  age_max smallint not null default 99 check (age_max <= 99 and age_max >= age_min),
-  max_distance_km smallint not null default 50 check (max_distance_km between 1 and 300),
   -- Nur durch die Verifizierungs-Edge-Function (service_role) setzbar
   verified_at timestamptz,
   last_active_at timestamptz not null default now(),
   created_at timestamptz not null default now()
+);
+
+-- Matching-Präferenzen – privat, nur für die eigene Person lesbar (RLS) und für das Matching.
+-- Die Orientierung (interested_in) wird nie anderen angezeigt (DSGVO Art. 9).
+-- Das Dating-Ziel (intention) zählt immer fürs Matching; angezeigt wird es nur, wenn intention_public.
+create table public.match_preferences (
+  user_id uuid primary key references public.profiles (id) on delete cascade,
+  interested_in public.gender[] not null check (cardinality(interested_in) > 0),
+  intention public.intention not null,
+  intention_public boolean not null default true,
+  -- wirken gegenseitig, siehe get_candidates
+  age_min smallint not null default 18 check (age_min >= 18),
+  age_max smallint not null default 99 check (age_max <= 99 and age_max >= age_min),
+  max_distance_km smallint not null default 50 check (max_distance_km between 1 and 300),
+  updated_at timestamptz not null default now()
 );
 
 -- Exakter Standort getrennt von profiles, damit er nie an andere ausgeliefert wird
