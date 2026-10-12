@@ -1,6 +1,8 @@
 # Lotus – Konzept für eine faire Dating-App
 
-> Arbeitstitel: **Lotus**. Stand: Entwurf v0.1 – Grundlage für die gemeinsame Planung.
+> Arbeitstitel: **Lotus**. Stand: Entwurf v0.2 – erste Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
+>
+> Rahmen: **Hobbyprojekt, kein Team, kein Budget.** Zielgruppe: Singles.
 
 ## 1. Vision
 
@@ -30,23 +32,28 @@ Lotus ist eine Dating-App, deren Erfolg daran gemessen wird, **wie viele Mensche
 
 ### 3.1 Tägliche Auswahl statt Endlos-Stack
 
-- Jede Person bekommt pro Tag eine **kuratierte Auswahl** (Startwert: ~20 Profile).
+- Jede Person bekommt pro Tag eine **kuratierte Auswahl** (Startwert: **40 Profile**, also doppelt so viele wie Likes, damit man wirklich auswählen muss).
 - Ist die Auswahl durch, ist sie durch – kein „Mehr laden“.
 - Profile werden vollständig angezeigt (Fotos, Prompts, Absichten), nicht nur ein Bild.
 
 ### 3.2 Like-Budget
 
-- **Startwert: 8 Likes pro Tag**, nicht kaufbar, nicht verdienbar.
-- Optional: nicht genutzte Likes verfallen (verhindert Horten und Massen-Likes am Wochenende).
+- **20 Likes pro Tag** – für alle gleich, nicht kaufbar, nicht verdienbar.
+- Nicht genutzte Likes verfallen um Mitternacht (kein Horten).
 - Ein Like bezieht sich immer auf **ein konkretes Element** (Foto oder Prompt) und kann einen Kommentar enthalten – erzwingt, dass man sich das Profil anschaut.
-- „Pass“ kostet nichts, ist aber durch die Tagesauswahl ohnehin begrenzt.
-- Kein Super-Like. Stattdessen: Ein Like **mit** Kommentar wird dem Gegenüber hervorgehoben angezeigt – für alle gleich verfügbar.
+- **Zurück-Liken ist gratis:** Ein Like auf eine Person, die einen bereits geliked hat, kostet kein Budget – sonst würden beliebte Profile durch das Limit bestraft.
+- Kein Super-Like. Ein Like **mit** Kommentar wird dem Gegenüber hervorgehoben angezeigt – für alle gleich verfügbar.
+
+**Wegwischen rückgängig machen**
+- **3× pro Monat** kann ein „Pass“ rückgängig gemacht werden – für alle, auch ohne Abo.
+- Kontingent setzt sich am Monatsersten zurück, wird nicht übertragen.
+- Nur der jeweils letzte Pass ist rückgängig machbar (verhindert, dass man das Feature als zweiten Stapel missbraucht).
 
 ### 3.3 Begrenzte offene Gespräche
 
-- Maximal **5 aktive Chats** gleichzeitig (Wert zu testen).
-- Ist das Limit erreicht, gibt es keine neuen Vorschläge, bis man ein Gespräch beendet – fördert Fokus statt Sammeln.
-- Gespräche ohne Antwort über 5–7 Tage werden freundlich geschlossen („Gespräch eingeschlafen“), statt ewig zu ghosten.
+- Maximal **6 aktive Chats** gleichzeitig.
+- Ist das Limit erreicht, kann man weiter liken, aber neue Matches landen in einer **Warteschlange** und öffnen sich erst, wenn ein Chat frei wird (Alternative: keine neuen Likes – zu testen). Das Gegenüber sieht nur „Match – Chat öffnet sich bald“.
+- Gespräche ohne Antwort über 7 Tage werden freundlich geschlossen („Gespräch eingeschlafen“) und geben den Platz frei.
 - Beenden ist einfach und respektvoll: optional vorformulierte, freundliche Abschiedsnachricht.
 
 ### 3.4 Absichten & Kompatibilität
@@ -99,11 +106,12 @@ Weil Liken keine Konsequenz für das eigene Ranking hat, darf Missbrauch nicht �
 
 ### 5.1 Prävention (beim Onboarding)
 
-- Telefonnummer-Verifizierung (keine VoIP-/Wegwerfnummern).
-- **Selfie-Liveness-Check**, abgeglichen mit den Profilfotos → Verifiziert-Badge; Pflicht vor dem ersten Chat (Diskussionspunkt: Pflicht vor dem ersten Like?).
-- Geräte-Attestierung: Google Play Integrity API / Apple App Attest – erkennt Emulatoren, gerootete Geräte, modifizierte Clients.
-- Rate-Limits pro Gerät, IP-Bereich und Zahlungsmittel bei Registrierungen.
-- Bild-Abgleich gegen bekannte Stock-/gestohlene Fotos (Reverse Image / Perceptual Hashing).
+- Telefonnummer-Verifizierung bei Registrierung (keine VoIP-/Wegwerfnummern).
+- **Selfie-Verifizierung ist Pflicht vor dem ersten Chat**: Liken und Matchen geht ohne, Nachrichten schreiben erst danach. Verifizierte Profile bekommen ein Badge.
+  - Budget-Variante für den Start: **Gesten-Selfie** („Daumen hoch + linke Hand am Ohr“), automatischer Gesichtsabgleich mit den Profilfotos über eine Open-Source-Bibliothek (z. B. Face-Embeddings via ONNX), bei Unsicherheit manuelle Prüfung. Später ggf. kommerzieller Liveness-Anbieter.
+- Geräte-Attestierung: Google Play Integrity API / Apple App Attest (beide kostenlos) – erkennt Emulatoren, gerootete Geräte, modifizierte Clients.
+- Rate-Limits pro Gerät und IP-Bereich bei Registrierungen.
+- Bild-Abgleich über Perceptual Hashing gegen bereits gesperrte Accounts.
 
 ### 5.2 Laufende Verhaltenssignale
 
@@ -134,37 +142,53 @@ Dieser Status ist ein **Gate** (darf jemand angezeigt werden / schreiben?), kein
 
 ## 6. Monetarisierung ohne Cashgrab
 
-Ziel: kostendeckend und nachhaltig, ohne Anreiz, Menschen in der App zu halten.
+Ziel: die Betriebskosten decken, ohne Anreiz, Menschen in der App zu halten.
 
 **Regeln:**
-- Niemals kaufbar: Likes, Sichtbarkeit, Boosts, Infos über andere, Vorteile im Matching.
-- Alle Kernfunktionen sind für alle gleich.
+- Niemals kaufbar: Likes, Sichtbarkeit, Boosts, Infos über andere, Vorteile im Matching, Rückgängig-Kontingent.
+- Alles, was man zum Finden einer Person braucht, ist für alle gleich und kostenlos.
+- Keine Werbung.
 
-**Mögliche Modelle (zu entscheiden):**
+**Entschiedenes Modell – drei Säulen:**
 
-| Modell | Pro | Contra |
-|---|---|---|
-| A) Kleines Pauschal-Abo für alle (z. B. 4–6 €/Monat), erste Wochen gratis | gleiche Bedingungen, hält Bots/Fakes fern, planbare Einnahmen | Einstiegshürde, Kaltstart schwerer |
-| B) Kostenlos + freiwillige Unterstützer-Mitgliedschaft (rein kosmetisch / Dank) | niedrigste Hürde | unsichere Einnahmen |
-| C) Bezahlung bei Erfolg (einmaliger „Wir haben uns gefunden“-Beitrag, freiwillig) | Anreiz exakt auf Ziel ausgerichtet | kaum planbar |
-| D) Genossenschaft / gemeinnützige Struktur | Glaubwürdigkeit, kein Wachstumsdruck durch Investoren | Finanzierung des Starts |
+1. **Komfort-Abo („Lotus Plus“)** – nur Nicht-Essentielles, z. B.:
+   - Standort ändern / Reisemodus (Profile in einer anderen Stadt sehen, z. B. vor Umzug)
+   - Erweiterte Profilgestaltung (mehr Prompts, Farbthemen, Profil-Musik)
+   - Statistiken nur über sich selbst (z. B. „Welcher Prompt bekommt die meisten Kommentare?“)
+   - Chat-Extras (Sprachnachrichten-Länge, Sticker)
 
-**Empfehlung:** Kombination A + C – kurzer Gratis-Zeitraum, danach ein günstiges Pauschal-Abo mit Sozialtarif; beim „gefunden“-Abmelden optionaler Beitrag. Keine Werbung.
+   **Wichtig beim Reisemodus:** Wer seinen Standort ändert, erscheint in der Zielstadt **ganz normal** im Fairness-Kontingent – nicht bevorzugt. Und Leute in der Zielstadt sehen, dass die Person aktuell „zu Besuch / zieht bald her“ ist.
+
+2. **Freiwillige Beiträge** – jederzeit, „Pay what you want“, rein als Unterstützung (optional kleines Unterstützer-Badge, das man ausblenden kann).
+
+3. **Beitrag bei Erfolg** – beim Abmelden mit „Ich habe jemanden gefunden 🎉“ eine freundliche, freiwillige Bitte um einen einmaligen Beitrag.
+
+**Hinweis:** In-App-Käufe über App Store / Play Store kosten 15 % Provision (Small Business Program). Freiwillige Beiträge können je nach Store-Regeln ggf. über externe Plattformen laufen (z. B. Ko-fi, GitHub Sponsors) – vor dem Launch prüfen.
 
 ## 7. Technische Architektur (Vorschlag)
 
+Rahmen: **eine Person, kein Budget.** Deshalb so wenig eigene Infrastruktur wie möglich, alles mit kostenlosem Einstieg, und kein Lock-in, das später teuer wird.
+
 | Bereich | Vorschlag | Begründung |
 |---|---|---|
-| Mobile App | **Flutter** oder **React Native (Expo)** | eine Codebasis für iOS + Android |
-| Backend | **TypeScript (NestJS)** oder **Go** | schnelle Entwicklung, gute Typisierung |
-| Datenbank | **PostgreSQL + PostGIS** | relationale Daten + Geo-Abfragen |
-| Cache / Limits | **Redis** | Like-Budget, Rate-Limits, Tagesauswahl |
-| Chat | WebSockets (eigener Service) | keine Abhängigkeit von Drittanbietern bei sensiblen Daten |
-| Medien | S3-kompatibler Storage (EU-Region) + CDN | Fotos, Thumbnails |
-| Push | FCM / APNs | |
-| Verifizierung | Liveness-Anbieter (z. B. AWS Rekognition Face Liveness) oder eigenes Modell | Selfie-Check |
-| Attestierung | Play Integrity, App Attest | Bot-/Emulator-Erkennung |
-| Jobs | Queue (z. B. BullMQ / NATS) | Tagesauswahl berechnen, Moderation, Bot-Analyse |
+| Mobile App | **Flutter** | eine Codebasis für iOS + Android, sehr gute UI-Performance, gute Supabase-Integration |
+| Backend | **Supabase** (Free Tier, EU-Region) | liefert Postgres, Auth (inkl. Telefon-OTP), Storage, Realtime-Chat und Edge Functions in einem – ein eigener Server entfällt |
+| Datenbank | **Postgres + PostGIS** (in Supabase) | Geo-Abfragen; Limits & Regeln direkt per SQL-Funktionen und Row Level Security |
+| Logik | Postgres-Funktionen + **Supabase Edge Functions** (TypeScript) | Like-Budget, Tagesauswahl, Matching serverseitig – nichts davon im Client |
+| Chat | **Supabase Realtime** | kein eigener WebSocket-Server nötig |
+| Medien | Supabase Storage | Fotos, Thumbnails |
+| Push | Firebase Cloud Messaging (kostenlos, auch für iOS) | |
+| Jobs | `pg_cron` | Tagesauswahl nachts vorberechnen, Chats schließen, Kontingente zurücksetzen |
+| Verifizierung | Gesten-Selfie + Open-Source-Gesichtsabgleich | siehe 5.1 |
+| Attestierung | Play Integrity, App Attest | kostenlos |
+
+**Laufende Kosten (geschätzt):**
+- Entwicklung & Beta: **0 €** (Supabase Free Tier, Android-Testgeräte), einmalig 25 $ Google-Play-Konto.
+- iOS: 99 $/Jahr Apple Developer Program – erst nötig, wenn iOS-Beta startet.
+- Ab einigen tausend aktiven Nutzer:innen: Supabase Pro ~25 $/Monat → durch Abo/Beiträge zu decken.
+- Telefon-OTP per SMS kostet pro Nachricht (Twilio o. ä.) → für die Beta ggf. E-Mail-Login + Telefon erst vor dem Chat.
+
+Wichtig: Alle Limits (Likes, Rückgängig, Chats) werden **serverseitig** in der Datenbank durchgesetzt, nie nur in der App – sonst sind sie trivial zu umgehen.
 
 ### Services (logisch, anfangs als modularer Monolith)
 
@@ -193,8 +217,11 @@ Die Pfeilrichtung ist bewusst: Discovery bekommt von Trust & Safety nur den Stat
 - `preferences` (user_id, age_min/max, distance_km, dealbreakers)
 - `daily_batches` (user_id, date, candidate_ids[])
 - `likes` (from, to, target_type, target_id, comment, created_at)
-- `passes` (from, to, created_at)
-- `matches` (id, user_a, user_b, state, created_at, closed_at)
+- `passes` (from, to, created_at, undone_at)
+- `undo_usage` (user_id, month, count) – max. 3 pro Monat
+- `subscriptions` (user_id, plan, valid_until) – nur Komfort-Features
+- `contributions` (user_id, amount, kind: voluntary | success, created_at)
+- `matches` (id, user_a, user_b, state: queued | active | closed, created_at, closed_at) – max. 6 `active` pro Person
 - `messages` (id, match_id, sender, body, created_at)
 - `reports`, `blocks`
 - `trust_events` (user_id, signal, value, created_at) – nur für Trust & Safety lesbar
@@ -223,26 +250,34 @@ Weitere:
 
 ## 10. Roadmap
 
-### Phase 0 – Validierung (4–6 Wochen)
-- Interviews mit 15–20 Zielpersonen (Frust mit bestehenden Apps, Akzeptanz von Limits, Zahlungsbereitschaft)
-- Klickbarer Prototyp (Figma), Test der Limits
-- Entscheidung Monetarisierung + Tech-Stack
+Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich nutzbar.
 
-### Phase 1 – MVP (ca. 3–4 Monate)
-- Onboarding, Profil (Fotos, Prompts, Absichten), Telefon-Verifizierung
-- Tagesauswahl mit harten Filtern + einfacher Kompatibilität + Fairness-Kontingent
-- Like-Budget, Like mit Kommentar, Match, Chat, Chat-Limit
-- Selfie-Verifizierung, Melden/Blockieren, Basis-Moderation
+### Schritt 1 – Fundament (Wochenenden 1–4)
+- Flutter-Projekt + Supabase-Projekt (EU) aufsetzen
+- Datenbankschema inkl. Row Level Security
+- Registrierung/Login, Profil anlegen (Fotos, Prompts, Absichten, Präferenzen)
+
+### Schritt 2 – Kern-Loop (Wochenenden 5–10)
+- Tagesauswahl (40 Profile) mit gegenseitigen harten Filtern + Fairness-Kontingent
+- Like (20/Tag, auf Foto/Prompt, mit Kommentar), Pass, Rückgängig (3/Monat)
+- „Wer hat mich geliked“ mit gratis Zurück-Liken
+- Match + Warteschlange bei 6 aktiven Chats
+
+### Schritt 3 – Chat & Sicherheit (Wochenenden 11–16)
+- Realtime-Chat, Push-Benachrichtigungen, Chats nach 7 Tagen schließen
+- Selfie-Verifizierung als Chat-Voraussetzung
+- Melden, Blockieren, einfache Moderations-Ansicht (für dich als Admin)
 - Regelbasierte Bot-Erkennung (Rate-Limits, Attestierung, Nachrichten-Muster)
 
-### Phase 2 – Closed Beta in **einer** Stadt
-- Kaltstart lösen: Dichte schlägt Reichweite – Warteliste, Freischaltung erst ab kritischer Masse pro Region
-- Limits und Kontingente anhand echter Daten justieren
+### Schritt 4 – Closed Beta
+- Android zuerst (günstiger), Freundeskreis + Bekannte in **einer** Stadt
+- Kaltstart: Warteliste, Freischaltung erst ab kritischer Masse
+- Limits anhand echter Nutzung justieren
 
-### Phase 3 – Ausbau
-- Date-Planung, Post-Date-Feedback, Transparenz-Seite „Warum sehe ich diese Person?“
-- ML-gestützte Bot-Erkennung
-- Weitere Städte
+### Schritt 5 – Ausbau
+- iOS, Lotus Plus (Reisemodus etc.), Beiträge, „Gefunden“-Abmeldung
+- Transparenz-Seite „Warum sehe ich diese Person?“
+- Datenschutzerklärung, Impressum, DSFA vor öffentlichem Launch
 
 ## 11. Risiken
 
@@ -251,15 +286,27 @@ Weitere:
 | Kaltstart / zu wenige Profile | Start in einer Stadt, Warteliste, Community-Events |
 | Limits frustrieren Nutzer:innen | Limits erklären, mit Daten justieren, Fokus als Feature vermarkten |
 | Ungleiches Geschlechterverhältnis | Fairness-Kontingente, Freischaltung nach Balance pro Region |
-| Finanzierung | schlanker Stack, Abo-Modell früh testen |
+| Finanzierung | Free-Tier-Stack, Kosten erst ab Wachstum, Komfort-Abo + Beiträge |
+| Zeit (eine Person) | kleine Schritte, Supabase statt eigenem Backend, Scope strikt halten |
 | Romance-Scams | Verifizierung, Scam-Warnungen im Chat, schnelle Moderation |
 
 ## 12. Offene Entscheidungen
 
-1. Monetarisierungsmodell (A/B/C/D oder Kombination)?
-2. Zielgruppe zum Start (alle Orientierungen, Altersgruppe, Region)?
-3. Konkrete Limits: Likes/Tag, Profile/Tag, aktive Chats?
-4. Kostet ein Like-zurück auf ein eingehendes Like Budget?
-5. Verifizierung Pflicht vor erstem Like oder erst vor erstem Chat?
-6. Tech-Stack: Flutter vs. React Native, NestJS vs. Go?
-7. Team & Budget: Wer baut was, eigenes Projekt oder Gründung?
+### Entschieden
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| 1 | Monetarisierung | Komfort-Abo (nur Nicht-Essentielles, z. B. Standort ändern) + freiwillige Beiträge + Beitrag bei Erfolg |
+| 2 | Limits | 20 Likes/Tag · Pass 3×/Monat rückgängig · max. 6 aktive Chats |
+| 3 | Zurück-Liken | kostet kein Budget |
+| 4 | Verifizierung | Pflicht vor dem ersten Chat |
+| 5 | Zielgruppe / Rahmen | Singles · Hobbyprojekt, kein Team, kein Budget |
+
+### Noch offen
+
+1. Größe der Tagesauswahl – Vorschlag 40 Profile (2× Like-Budget)?
+2. Bei 6 aktiven Chats: neue Matches in Warteschlange oder Liken pausieren?
+3. Tech-Stack bestätigen: Flutter + Supabase?
+4. Startregion für die Beta?
+5. Altersgruppe / Orientierungen von Anfang an alle?
+6. Name: bleibt es bei „Lotus“?
