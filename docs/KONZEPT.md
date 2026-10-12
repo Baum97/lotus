@@ -1,6 +1,6 @@
 # Lotus – Konzept für eine faire Dating-App
 
-> Arbeitstitel: **Lotus** (Name kann sich noch ändern). Stand: Entwurf v0.4 – Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
+> Arbeitstitel: **Lotus** (Name kann sich noch ändern). Stand: v0.5 – Beta-Version implementiert – Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
 >
 > Rahmen: **Hobbyprojekt, kein Team, kein Budget.** Zielgruppe: Singles.
 
@@ -113,9 +113,9 @@ Weil Liken keine Konsequenz für das eigene Ranking hat, darf Missbrauch nicht �
 
 ### 5.1 Prävention (beim Onboarding)
 
-- Telefonnummer-Verifizierung bei Registrierung (keine VoIP-/Wegwerfnummern).
+- Beta: Anmeldung per **6-stelligem E-Mail-Code** (kostenlos). Später optional Telefonnummer (keine VoIP-/Wegwerfnummern) als zusätzliche Bot-Hürde.
 - **Selfie-Verifizierung ist Pflicht vor dem ersten Chat**: Liken und Matchen geht ohne, Nachrichten schreiben erst danach. Verifizierte Profile bekommen ein Badge.
-  - Budget-Variante für den Start: **Gesten-Selfie** („Daumen hoch + linke Hand am Ohr“), automatischer Gesichtsabgleich mit den Profilfotos über eine Open-Source-Bibliothek (z. B. Face-Embeddings via ONNX), bei Unsicherheit manuelle Prüfung. Später ggf. kommerzieller Liveness-Anbieter.
+  - Beta (umgesetzt): **Gesten-Selfie** mit zufälliger Geste; ein Admin vergleicht es im Admin-Bereich mit den Profilfotos und bestätigt oder lehnt ab. Später: automatischer Abgleich (Open-Source-Face-Embeddings) oder kommerzieller Liveness-Anbieter.
 - Geräte-Attestierung: Google Play Integrity API / Apple App Attest (beide kostenlos) – erkennt Emulatoren, gerootete Geräte, modifizierte Clients.
 - Rate-Limits pro Gerät und IP-Bereich bei Registrierungen.
 - Bild-Abgleich über Perceptual Hashing gegen bereits gesperrte Accounts.
@@ -259,32 +259,24 @@ Weitere:
 
 Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich nutzbar.
 
-### Schritt 1 – Fundament (Wochenenden 1–4)
-- ✅ Datenbankschema inkl. Row Level Security, Like-Budget, Rückgängig, Matches & Warteschlange (`supabase/migrations`, getestet)
-- Flutter-Projekt + Supabase-Projekt (EU) aufsetzen
-- Registrierung/Login, Profil anlegen (Fotos, Prompts, Absichten, Präferenzen)
+### ✅ Schritte 1–3 – Fundament, Kern-Loop, Chat & Sicherheit (umgesetzt)
+- Datenbank mit allen Regeln serverseitig (`supabase/migrations`, 104 Tests), lokal gegen echtes Supabase geprüft
+- Flutter-App: E-Mail-Code-Login, Onboarding (5 Schritte), Entdecken bis Like-Budget leer, Like auf Foto/Prompt mit Kommentar, Weiter, Rückgängig (3/Monat), „Wer dich mag“ mit gratis Zurück-Liken, Matches mit 6 Plätzen + Warteschlange, Realtime-Chat mit Sicherheitshinweisen, Gespräch beenden mit Abschiedsnachricht, Blockieren, Melden, Gesten-Selfie-Verifizierung, Konto löschen mit „Ich habe jemanden gefunden“
+- Admin-Bereich: Selfies prüfen, Fotos moderieren (sichtbar bis abgelehnt), Meldungen bearbeiten, Konten einschränken/sperren
+- Regelbasierte Bot-Erkennung: Like-Budget, Likes nur auf vorgeschlagene Profile, Pass-Obergrenze, Spam-Erkennung (gleiche Nachricht an viele Matches), Link-Sperre für eingeschränkte Konten
+- Push-Benachrichtigungen (Edge Function + FCM, optional zuschaltbar)
 
-### Schritt 2 – Kern-Loop (Wochenenden 5–10)
-- Vorschlags-Stapel (bis Like-Budget leer) mit gegenseitigen harten Filtern + Fairness-Kontingent
-- Like (20/Tag, auf Foto/Prompt, mit Kommentar), Pass, Rückgängig (3/Monat)
-- „Wer hat mich geliked“ mit gratis Zurück-Liken
-- Match + Warteschlange bei 6 aktiven Chats
-
-### Schritt 3 – Chat & Sicherheit (Wochenenden 11–16)
-- Realtime-Chat, Push-Benachrichtigungen, Chats nach 7 Tagen schließen
-- Selfie-Verifizierung als Chat-Voraussetzung
-- Melden, Blockieren, einfache Moderations-Ansicht (für dich als Admin)
-- Regelbasierte Bot-Erkennung (Rate-Limits, Attestierung, Nachrichten-Muster)
-
-### Schritt 4 – Closed Beta
-- Android zuerst (günstiger), Freundeskreis + Bekannte in **Stuttgart und Ulm**
-- Kaltstart: Warteliste, Freischaltung erst ab kritischer Masse
+### Schritt 4 – Closed Beta (als Nächstes)
+- Organisatorisches aus Abschnitt 12 „Noch offen“ erledigen (Konten, Rechtliches)
+- Android-Beta über den internen Test der Play Console, Freundeskreis + Bekannte in **Stuttgart und Ulm**
+- Kaltstart: gezielt einladen, auf ausgewogene Gruppen achten
 - Limits anhand echter Nutzung justieren
 
 ### Schritt 5 – Ausbau
-- iOS, Lotus Plus (Reisemodus etc.), Beiträge, „Gefunden“-Abmeldung
+- iOS, Lotus Plus (Reisemodus etc.), freiwillige Beiträge & Beitrag bei Erfolg (Zahlungsabwicklung)
+- Geräte-Attestierung (Play Integrity / App Attest), automatischer Selfie-Abgleich
 - Transparenz-Seite „Warum sehe ich diese Person?“
-- Datenschutzerklärung, Impressum, DSFA vor öffentlichem Launch
+- Englische Übersetzung
 
 ## 11. Risiken
 
@@ -318,7 +310,19 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 13 | Dating-Ziel im Profil | fürs Matching immer genutzt, Anzeige optional privat |
 | 14 | Name | „Lotus“ ist Arbeitstitel |
 
+| 15 | Sprache | vorerst nur Deutsch (Texte in Übersetzungsdatei, Englisch später möglich) |
+| 16 | Login | 6-stelliger Code per E-Mail |
+| 17 | Moderation (Beta) | Fotos sofort sichtbar, Admin kann ablehnen; Selfies prüft der Admin manuell |
+| 18 | Design | ruhig & warm: Rosé, Salbeigrün, Creme, weiche Rundungen |
+
 ### Noch offen
 
+**Produkt**
 1. Ulm ↔ Stuttgart liegen ~90 km auseinander: Standard-Suchradius 50 km lassen (zwei getrennte Pools) oder größer wählen?
 2. Weitere optionale Matching-Kriterien (z. B. Kinderwunsch, Rauchen) – und wenn ja, ebenfalls privat?
+3. Endgültiger Name und App-ID (`app.lotusdating.lotus` ist nach dem ersten Play-Store-Upload nicht mehr änderbar).
+
+**Organisatorisch (vor dem ersten fremden Nutzer)**
+4. Konten: Supabase (EU), Google-Play-Entwicklerkonto (25 $), optional Firebase (Push), SMTP-Versand für E-Mails.
+5. Rechtliches: Impressum, Datenschutzerklärung (Art. 9 DSGVO), Nutzungsbedingungen, DSFA, AV-Verträge.
+6. Wer moderiert außer dir (Urlaub, Krankheit)? Meldungen zu Scam/Minderjährigen sollten innerhalb eines Tages bearbeitet werden.

@@ -1,9 +1,11 @@
 # Lotus
 
 Eine Dating-App, die darauf ausgelegt ist, dass Menschen wirklich jemanden finden – kein Cashgrab.
+Arbeitstitel; Beta in Stuttgart und Ulm.
 
 - **Konzept & Entscheidungen:** [`docs/KONZEPT.md`](docs/KONZEPT.md)
-- **Stack:** Flutter (App) + Supabase (Postgres/PostGIS, Auth, Storage, Realtime)
+- **App (Flutter, Android-first):** [`app/`](app/README.md)
+- **Backend (Supabase: Postgres/PostGIS, Auth, Storage, Realtime):** [`supabase/`](supabase/)
 
 ## Regeln, die die Datenbank durchsetzt
 
@@ -13,11 +15,13 @@ Eine Dating-App, die darauf ausgelegt ist, dass Menschen wirklich jemanden finde
 | Zurück-Liken | kostet kein Budget |
 | Wegwischen rückgängig | 3× pro Monat, nur die letzte Entscheidung |
 | Aktive Chats | max. 6, weitere Matches warten in einer Warteschlange |
-| Chatten | erst nach Selfie-Verifizierung |
+| Chatten | erst nach Selfie-Verifizierung (in der Beta manuell im Admin-Bereich geprüft) |
 | Eingeschlafene Chats | werden nach 7 Tagen ohne Nachricht geschlossen |
 | Orientierung („Wen möchtest du kennenlernen?“) | privat, nur fürs Matching |
 | Dating-Ziel | immer fürs Matching, Anzeige optional privat |
 | Geburtsdatum, Standort | nie für andere sichtbar (nur Alter, gerundete Entfernung) |
+| Fotos | sofort sichtbar, bis ein Admin sie ablehnt |
+| Spam | gleiche Nachricht an ≥ 5 Matches → Konto eingeschränkt |
 
 Das eigene Like-Verhalten beeinflusst **nie** die eigene Sichtbarkeit. Vorschläge werden nach
 gegenseitigen Filtern, gleicher Absicht und einem Fairness-Kontingent (seltener Gezeigte zuerst) sortiert.
@@ -25,45 +29,88 @@ gegenseitigen Filtern, gleicher Absicht und einem Fairness-Kontingent (seltener 
 ## Struktur
 
 ```
-docs/KONZEPT.md                    Produktkonzept
-supabase/migrations/               Schema, Logik (RPC-Funktionen), Rechte & RLS
-supabase/tests/local/              Datenbank-Tests (laufen auf normalem Postgres)
-scripts/test-db.sh                 Migrationen einspielen + Tests ausführen
+docs/KONZEPT.md                    Produktkonzept & Entscheidungen
+app/                               Flutter-App (siehe app/README.md)
+supabase/migrations/               Schema, Logik (RPC-Funktionen), Rechte, RLS, Storage
+supabase/functions/notify/         Edge Function für Push-Benachrichtigungen (FCM)
+supabase/templates/                E-Mail-Vorlage für den Anmeldecode
+supabase/tests/local/              Datenbank-Tests (laufen auf normalem Postgres + PostGIS)
+scripts/test-db.sh                 Migrationen einspielen + Datenbank-Tests ausführen
+scripts/seed-demo.py               Demo-Profile in Stuttgart/Ulm für die lokale Entwicklung
+```
+
+## Lokal entwickeln
+
+Voraussetzungen: Docker, Node.js (für `npx supabase`), Flutter, Python 3 mit Pillow.
+
+```bash
+npx supabase start                       # lokales Supabase inkl. Migrationen
+python3 scripts/seed-demo.py             # 12 Demo-Profile (Platzhalterfotos)
+cd app && flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 \
+                      --dart-define=SUPABASE_KEY=<PUBLISHABLE_KEY aus `npx supabase status`>
+```
+
+- Anmeldecodes landen lokal im Mail-Postfach unter <http://127.0.0.1:54324>.
+- `python3 scripts/seed-demo.py --like-me du@example.com` lässt einige Demo-Personen dein Konto liken.
+- Dich selbst zum Admin machen (lokal per `psql postgresql://postgres:postgres@127.0.0.1:54322/postgres`,
+  online im SQL-Editor des Dashboards):
+  `insert into private.admins (user_id) select id from auth.users where email = 'du@example.com';`
+
+## Tests
+
+```bash
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 104 Datenbank-Prüfungen
+cd app && flutter analyze && flutter test                         # App
 ```
 
 ## Datenbank-API (für die App)
 
 | Funktion | Zweck |
 |---|---|
+| `get_my_status()` | Profil-/Onboarding-Status, Restbudgets, Verifizierung, Admin |
+| `save_profile(…)`, `set_location(lat, lon)` | Profil & Suchpräferenzen speichern, Standort (~1 km) setzen |
 | `get_candidates(p_limit)` | nächste Vorschläge (leer, wenn das Like-Budget aufgebraucht ist) |
 | `like_profile(p_to, p_target_type, p_target_id, p_comment)` | Like auf Foto/Prompt; gibt die Match-ID zurück, falls es ein Match ist |
-| `pass_profile(p_to)` | wegwischen |
-| `undo_last_pass()` | letztes Wegwischen rückgängig machen |
-| `get_incoming_likes()` | „Wer hat mich geliked“ |
+| `pass_profile(p_to)`, `undo_last_pass()` | wegwischen, letztes Wegwischen rückgängig machen |
+| `get_incoming_likes()` | „Wer dich mag“ |
 | `get_profile(p_user)` | Profilkarte (nur öffentliche Angaben) einer Person, die man sehen darf |
-| `likes_remaining_today()` / `undos_remaining_this_month()` | Restbudgets |
-| `close_match(p_match, p_goodbye)` | Gespräch beenden, optional mit Abschiedsnachricht |
-
-Hinweis: Auf `profiles` sind nur einzelne Spalten lesbar (kein Geburtsdatum) – in der App also
-`select('id, display_name, …')` statt `select('*')`, oder `get_profile` verwenden.
+| `get_matches()`, `close_match(p_match, p_goodbye)` | Chat-Übersicht, Gespräch beenden |
+| `start_verification()`, `submit_verification(…)` | Gesten-Selfie |
+| `delete_my_account(p_found_someone, p_feedback)` | Konto löschen, „jemanden gefunden“ anonym zählen |
+| `register_device_token(…)` | Push-Token speichern |
+| `admin_*` | Selfies prüfen, Fotos moderieren, Meldungen bearbeiten, Konten einschränken/sperren |
 
 Fehler kommen als stabile Schlüssel (`daily_like_limit_reached`, `monthly_undo_limit_reached`,
-`profile_not_available`, …), die die App übersetzt.
+`profile_not_available`, …), die die App übersetzt. Auf `profiles` sind nur einzelne Spalten lesbar
+(kein Geburtsdatum) – also `select('id, display_name, …')` statt `select('*')`.
 
-## Tests ausführen
+## Beta starten – Checkliste
 
-Benötigt Postgres 15+ mit PostGIS:
+**Supabase (kostenlos)**
+1. Projekt in der Region **EU (Frankfurt)** anlegen.
+2. `npx supabase link --project-ref <ref>` und `npx supabase db push`.
+3. Authentication → Email Templates: „Magic Link“ und „Confirm signup“ durch
+   `supabase/templates/login_code.html` ersetzen (Betreff „Dein Lotus-Code“) – oder `npx supabase config push`.
+4. Unter Integrations → Cron prüfen, dass die Jobs `lotus-close-stale-matches` und
+   `lotus-cleanup-impressions` angelegt sind (die Migrationen aktivieren `pg_cron` selbst).
+5. Dich als Admin eintragen (siehe oben).
+6. Für mehr als ein paar Tester:innen einen eigenen SMTP-Versand einrichten (Supabase verschickt ohne
+   SMTP nur wenige E-Mails pro Stunde), z. B. über einen EU-Anbieter mit Gratis-Kontingent.
 
-```bash
-PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh
-```
+**Push (optional, kostenlos)**
+1. Firebase-Projekt + Android-App (`app.lotusdating.lotus`) anlegen, Service-Account-JSON herunterladen.
+2. `npx supabase secrets set FIREBASE_SERVICE_ACCOUNT="$(cat service-account.json)" NOTIFY_WEBHOOK_SECRET=<zufällig>`
+3. `npx supabase functions deploy notify --no-verify-jwt`
+4. Database → Webhooks: je ein Webhook auf `messages` (INSERT) und `matches` (INSERT, UPDATE) →
+   Edge Function `notify`, Header `x-webhook-secret: <derselbe Wert>`.
+5. App mit den `FIREBASE_*`-Werten bauen (siehe `app/README.md`).
 
-## Auf Supabase einspielen
+**App verteilen**
+1. Google-Play-Entwicklerkonto (einmalig 25 $), App mit Signaturschlüssel bauen.
+2. „Interner Test“ in der Play Console – bis zu 100 Tester:innen per E-Mail-Liste, ohne Review-Wartezeit.
 
-```bash
-supabase init          # erzeugt supabase/config.toml
-supabase link --project-ref <ref>
-supabase db push
-```
-
-Projekt in der EU-Region anlegen. `pg_cron` im Dashboard aktivieren, damit eingeschlafene Chats automatisch geschlossen werden.
+**Rechtliches vor dem ersten fremden Nutzer** (siehe `docs/KONZEPT.md`, Abschnitt 8)
+- Impressum, Datenschutzerklärung (besondere Kategorien nach Art. 9 DSGVO: Orientierung), Nutzungsbedingungen
+  – in der App verlinken.
+- Datenschutz-Folgenabschätzung (DSFA) – bei Dating-Apps praktisch immer nötig.
+- Auftragsverarbeitungsverträge mit Supabase (und ggf. Firebase, SMTP-Anbieter).

@@ -1,0 +1,99 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lotus/data/models.dart';
+import 'package:lotus/features/profile/profile_forms.dart';
+
+void main() {
+  group('Datenbank-Werte', () {
+    test('Intention nutzt die Schlüssel der Datenbank', () {
+      expect(Intention.openToRelationship.db, 'open_to_relationship');
+      expect(Intention.fromDb('open_to_relationship'), Intention.openToRelationship);
+      expect(Intention.tryFromDb(null), isNull);
+    });
+
+    test('Geschlecht "divers" wird als diverse gespeichert', () {
+      expect(Gender.fromDb('diverse'), Gender.diverse);
+      expect(Gender.diverse.name, 'diverse');
+    });
+
+    test('Verifizierungsstatus wird gelesen', () {
+      expect(VerificationStatus.tryFromDb('awaiting_selfie'), VerificationStatus.awaitingSelfie);
+      expect(VerificationStatus.tryFromDb(null), isNull);
+    });
+  });
+
+  group('JSON aus den RPC-Funktionen', () {
+    test('MyStatus: Onboarding erst mit Profil, Foto, Prompt und Standort fertig', () {
+      final json = {
+        'has_profile': true,
+        'has_preferences': true,
+        'has_location': false,
+        'photo_count': 2,
+        'prompt_count': 1,
+        'display_name': 'Nina',
+        'verified': false,
+        'verification_status': null,
+        'trust_status': 'active',
+        'is_admin': false,
+        'likes_remaining': 20,
+        'undos_remaining': 3,
+        'active_chats': 0,
+      };
+      expect(MyStatus.fromJson(json).onboardingComplete, isFalse);
+      expect(MyStatus.fromJson({...json, 'has_location': true}).onboardingComplete, isTrue);
+      expect(MyStatus.fromJson(json).trustStatus, TrustStatus.active);
+    });
+
+    test('Vorschlag ohne öffentliches Dating-Ziel', () {
+      final summary = ProfileSummary.fromJson({
+        'id': 'a',
+        'display_name': 'Ben',
+        'age': 32,
+        'city': 'Ulm',
+        'intention': null,
+        'bio': null,
+        'distance_km': 3,
+        'verified': true,
+      });
+      expect(summary.intention, isNull);
+      expect(summary.distanceKm, 3);
+      expect(summary.verified, isTrue);
+    });
+
+    test('Nachricht mit Sicherheitshinweis', () {
+      final message = ChatMessage.fromJson({
+        'id': 'm',
+        'sender_id': 's',
+        'body': 'Kannst du mir Geld leihen?',
+        'created_at': '2026-10-12T10:00:00Z',
+        'safety_flag': 'money',
+      });
+      expect(message.safetyFlag, SafetyFlag.money);
+    });
+
+    test('Match in der Warteschlange', () {
+      final match = MatchSummary.fromJson({
+        'match_id': 'x',
+        'state': 'queued',
+        'close_reason': null,
+        'other_user': 'u',
+        'display_name': 'Mia',
+        'verified': false,
+        'created_at': '2026-10-12T10:00:00Z',
+        'last_activity_at': '2026-10-12T10:00:00Z',
+        'last_message': null,
+        'last_message_mine': null,
+      });
+      expect(match.state, MatchState.queued);
+      expect(match.lastMessageMine, isFalse);
+    });
+  });
+
+  group('Altersprüfung', () {
+    test('genau 18 ist erlaubt, einen Tag jünger nicht', () {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      expect(ProfileDraft.isAdult(DateTime(today.year - 18, today.month, today.day)), isTrue);
+      expect(ProfileDraft.isAdult(DateTime(today.year - 18, today.month, today.day + 1)), isFalse);
+    });
+  });
+}
