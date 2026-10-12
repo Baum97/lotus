@@ -1,0 +1,12 @@
+# Supabase
+supabase/.branches
+supabase/.temp
+.env
+.env.*
+
+# Flutter / Dart
+.dart_tool/
+build/
+*.iml
+.idea/
+.DS_Store

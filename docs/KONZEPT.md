@@ -255,8 +255,8 @@ Weitere:
 Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich nutzbar.
 
 ### Schritt 1 – Fundament (Wochenenden 1–4)
+- ✅ Datenbankschema inkl. Row Level Security, Like-Budget, Rückgängig, Matches & Warteschlange (`supabase/migrations`, getestet)
 - Flutter-Projekt + Supabase-Projekt (EU) aufsetzen
-- Datenbankschema inkl. Row Level Security
 - Registrierung/Login, Profil anlegen (Fotos, Prompts, Absichten, Präferenzen)
 
 ### Schritt 2 – Kern-Loop (Wochenenden 5–10)
