@@ -123,7 +123,7 @@ create policy photos_select on public.photos
   for select to authenticated
   using (
     user_id = (select auth.uid())
-    or (moderation = 'approved' and private.can_view_profile(user_id))
+    or (moderation <> 'rejected' and private.can_view_profile(user_id))
   );
 create policy photos_insert on public.photos
   for insert to authenticated

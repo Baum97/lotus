@@ -66,6 +66,7 @@ create table public.photos (
   user_id uuid not null references public.profiles (id) on delete cascade,
   storage_path text not null,
   position smallint not null check (position between 0 and 5),
+  -- Beta: Fotos sind sofort sichtbar ('pending' = noch nicht geprüft); abgelehnte werden ausgeblendet
   moderation public.moderation_state not null default 'pending',
   created_at timestamptz not null default now(),
   unique (user_id, position)

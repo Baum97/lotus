@@ -238,7 +238,7 @@ begin
       and private.age_of(me.birthdate) between op.age_min and op.age_max
       and extensions.st_dwithin(ol.location, me.location, least(me.max_distance_km, op.max_distance_km) * 1000)
       and o.last_active_at > now() - make_interval(days => private.inactive_after_days())
-      and exists (select 1 from public.photos ph where ph.user_id = o.id and ph.moderation = 'approved')
+      and exists (select 1 from public.photos ph where ph.user_id = o.id and ph.moderation <> 'rejected')
       -- noch nicht entschieden, keine Blockierung, kein Match
       and not exists (select 1 from public.likes l where l.from_user = v_me and l.to_user = o.id)
       -- wer mich schon geliked hat, steht in "Wer hat mich geliked" (Zurück-Liken ist gratis)
@@ -440,7 +440,7 @@ begin
     perform private.fail('invalid_like_target');
   end if;
   if p_target_type = 'photo' and not exists (
-    select 1 from public.photos ph where ph.id = p_target_id and ph.user_id = p_to and ph.moderation = 'approved'
+    select 1 from public.photos ph where ph.id = p_target_id and ph.user_id = p_to and ph.moderation <> 'rejected'
   ) then
     perform private.fail('invalid_like_target');
   end if;

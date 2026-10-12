@@ -344,3 +344,151 @@ select test.login(test.uid('B'));
 select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('C')),
   'gesperrte Accounts werden nicht vorgeschlagen');
 reset role;
+
+-- ---------------------------------------------------------------------------
+-- Onboarding: Profil speichern, Standort, Status
+-- ---------------------------------------------------------------------------
+
+insert into auth.users (id) values ('00000000-0000-0000-0000-0000000000aa');
+create function test.n() returns uuid language sql immutable as $$ select '00000000-0000-0000-0000-0000000000aa'::uuid $$;
+grant execute on function test.n() to authenticated;
+
+set role authenticated;
+select test.login(test.n());
+select test.ok((select not has_profile from public.get_my_status()), 'neue Person hat noch kein Profil');
+select test.throws($$select public.save_profile('Nina', current_date - 365 * 17, 'woman', null, 'Ulm',
+  '{man}', 'relationship', true, 25, 40, 50)$$, 'too_young', 'unter 18 wird abgelehnt');
+select public.save_profile('Nina', '1995-04-02', 'woman', 'Ich wandere gern.', 'Ulm',
+  '{man,diverse}', 'unsure', false, 25, 40, 80);
+select public.set_location(48.40, 9.99);
+select test.ok((select has_profile and has_preferences and has_location and likes_remaining = 20
+                from public.get_my_status()), 'Profil, Präferenzen und Standort gespeichert');
+select public.save_profile('Nina M.', '2000-01-01', 'woman', null, 'Ulm',
+  '{man}', 'relationship', true, 25, 40, 80);
+select test.ok((select display_name from public.get_my_status()) = 'Nina M.', 'Profil lässt sich ändern');
+select test.ok((select age from public.get_profile(test.n())) > 28, 'Geburtsdatum ändert sich beim Bearbeiten nicht');
+
+-- ---------------------------------------------------------------------------
+-- Datei-Speicher
+-- ---------------------------------------------------------------------------
+
+insert into storage.objects (bucket_id, name) values ('photos', test.n() || '/1.jpg');
+select test.throws(format($$insert into storage.objects (bucket_id, name) values ('photos', '%s/x.jpg')$$, test.uid('A')),
+  'row-level security', 'Fotos nur in den eigenen Ordner hochladen');
+select test.login(test.uid('D'));
+select test.ok((select count(*) from storage.objects where name like test.n() || '/%') = 0,
+  'Fotos fremder, nicht vorgeschlagener Profile sind nicht abrufbar');
+
+-- ---------------------------------------------------------------------------
+-- Selfie-Verifizierung & Admin
+-- ---------------------------------------------------------------------------
+
+reset role;
+insert into private.admins (user_id) values (test.uid('B'));
+set role authenticated;
+
+select test.login(test.n());
+create temp table n_verification as select * from public.start_verification();
+grant select on n_verification to authenticated;
+select test.ok((select status from n_verification) = 'awaiting_selfie', 'Verifizierung gestartet');
+reset role;
+select test.ok((select gesture from n_verification) = any (private.verification_gestures()), 'zufällige Geste vorgegeben');
+set role authenticated;
+select test.ok((select request_id from public.start_verification()) = (select request_id from n_verification),
+  'erneuter Start liefert dieselbe Anfrage');
+select test.throws(format($$select public.submit_verification(%L, '%s/selfie.jpg')$$,
+  (select request_id from n_verification), test.uid('A')), 'invalid_selfie_path', 'Selfie muss im eigenen Ordner liegen');
+insert into storage.objects (bucket_id, name) values ('selfies', test.n() || '/selfie.jpg');
+select public.submit_verification((select request_id from n_verification), test.n() || '/selfie.jpg');
+select test.ok((select verification_status from public.get_my_status()) = 'pending', 'Selfie eingereicht');
+
+select test.login(test.uid('D'));
+select test.throws($$select * from public.admin_pending_verifications()$$, 'not_admin', 'Admin-Funktionen nur für Admins');
+select test.ok((select count(*) from storage.objects where bucket_id = 'selfies') = 0, 'Selfies anderer sind privat');
+
+select test.login(test.uid('B'));
+select test.ok((select is_admin from public.get_my_status()), 'B ist Admin');
+select test.ok((select count(*) from public.admin_pending_verifications()) = 1, 'Admin sieht offene Verifizierung');
+select test.ok((select count(*) from storage.objects where bucket_id = 'selfies') = 1, 'Admin kann Selfie ansehen');
+select test.ok((select count(*) from storage.objects where bucket_id = 'photos') = 1, 'Admin kann alle Fotos ansehen');
+select public.admin_review_verification((select request_id from n_verification), true);
+
+select test.login(test.n());
+select test.ok((select verified and verification_status = 'approved' from public.get_my_status()), 'Person ist verifiziert');
+select test.throws($$select * from public.start_verification()$$, 'already_verified', 'keine zweite Verifizierung');
+
+-- Foto-Moderation: abgelehnte Fotos verschwinden, Profile ohne Foto werden nicht vorgeschlagen
+reset role;
+update public.photos set moderation = 'pending' where user_id = test.uid('H');
+set role authenticated;
+select test.login(test.uid('B'));
+select test.ok(exists (select 1 from public.admin_recent_photos() where user_id = test.uid('H')),
+  'Admin sieht ungeprüfte Fotos');
+select test.login(test.uid('D'));
+select test.ok(exists (select 1 from public.get_candidates(50) where id = test.uid('H')),
+  'ungeprüfte Fotos sind sofort sichtbar');
+select test.login(test.uid('B'));
+select public.admin_set_photo_moderation((select photo_id from public.admin_recent_photos(200) where user_id = test.uid('H')), 'rejected');
+select test.login(test.uid('D'));
+select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('H')),
+  'Profil ohne sichtbares Foto wird nicht mehr vorgeschlagen');
+select test.ok((select count(*) from public.photos where user_id = test.uid('H')) = 0, 'abgelehntes Foto ist nicht lesbar');
+
+-- Meldungen
+insert into public.reports (reporter, reported, reason, details) values (test.uid('D'), test.uid('H'), 'scam', 'Fragt nach Krypto');
+select test.login(test.uid('B'));
+select test.ok((select count(*) from public.admin_open_reports()) = 1, 'Admin sieht Meldung');
+select public.admin_resolve_report((select report_id from public.admin_open_reports()), 'suspended', 'Scam');
+select test.ok((select count(*) from public.admin_open_reports()) = 0, 'Meldung erledigt');
+reset role;
+select test.ok((select status from private.trust where user_id = test.uid('H')) = 'suspended', 'gemeldete Person gesperrt');
+set role authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Chat-Übersicht & Spam-Erkennung
+-- ---------------------------------------------------------------------------
+
+reset role;
+insert into public.likes (from_user, to_user, target_type, target_id)
+select test.uid('28'), test.uid('A'), 'photo', id from public.photos where user_id = test.uid('A');
+set role authenticated;
+select test.login(test.uid('A'));
+select public.like_profile(test.uid('28'));
+
+select test.ok((select count(*) from public.get_matches() where state = 'active') = 5, 'Übersicht zeigt 5 aktive Chats');
+select test.ok(exists (select 1 from public.get_matches() where state = 'closed' and close_reason = 'ended'),
+  'kürzlich beendete Chats werden angezeigt');
+select test.ok((select last_message from public.get_matches() where other_user = test.uid('B')) = 'Danke dir, alles Gute!',
+  'letzte Nachricht wird angezeigt');
+
+insert into public.messages (match_id, sender_id, body)
+select match_id, test.uid('A'), 'Hey, schau dir mal meine tolle Seite an, da gibt es mehr von mir'
+from public.get_matches() where state = 'active';
+reset role;
+select test.ok((select status from private.trust where user_id = test.uid('A')) = 'restricted',
+  'gleiche Nachricht an 5 Matches schränkt den Account ein');
+select test.ok(exists (select 1 from private.trust_events where user_id = test.uid('A') and signal = 'repeated_message'),
+  'Trust-Event wird protokolliert');
+set role authenticated;
+select test.login(test.uid('A'));
+select test.throws(format($$insert into public.messages (match_id, sender_id, body) values (%L, %L, 'www.example.com')$$,
+  (select match_id from public.get_matches() where state = 'active' limit 1), test.uid('A')),
+  'links_not_allowed', 'eingeschränkte Accounts dürfen keine Links senden');
+select test.login(test.uid('D'));
+select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('A')),
+  'eingeschränkte Accounts werden nicht vorgeschlagen');
+
+-- ---------------------------------------------------------------------------
+-- Push-Tokens & Konto löschen
+-- ---------------------------------------------------------------------------
+
+select test.login(test.n());
+select public.register_device_token('token-n', 'android');
+select test.ok((select count(*) from public.device_tokens) = 1, 'Push-Token gespeichert');
+select public.delete_my_account(true, 'Danke für alles!');
+reset role;
+select test.ok(not exists (select 1 from auth.users where id = test.n()), 'Konto gelöscht');
+select test.ok(not exists (select 1 from public.profiles where id = test.n()), 'Profil gelöscht');
+select test.ok(not exists (select 1 from public.device_tokens where token = 'token-n'), 'Push-Token gelöscht');
+select test.ok((select found_someone from private.account_deletions) and
+               (select count(*) from private.account_deletions) = 1, '"Jemanden gefunden" anonym gezählt');
