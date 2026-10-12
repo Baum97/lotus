@@ -363,7 +363,7 @@ select public.save_profile('Nina', '1995-04-02', 'woman', 'Ich wandere gern.', '
 select public.set_location(48.40, 9.99);
 select test.ok((select has_profile and has_preferences and has_location and likes_remaining = 20
                 from public.get_my_status()), 'Profil, Präferenzen und Standort gespeichert');
-select public.save_profile('Nina M.', '2000-01-01', 'woman', null, 'Ulm',
+select public.save_profile('Nina M.', null, 'woman', null, 'Ulm',
   '{man}', 'relationship', true, 25, 40, 80);
 select test.ok((select display_name from public.get_my_status()) = 'Nina M.', 'Profil lässt sich ändern');
 select test.ok((select age from public.get_profile(test.n())) > 28, 'Geburtsdatum ändert sich beim Bearbeiten nicht');

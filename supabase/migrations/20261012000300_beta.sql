@@ -89,7 +89,7 @@ $$;
 -- Profil & Status
 -- ---------------------------------------------------------------------------
 
--- Legt das eigene Profil an oder aktualisiert es (Geburtsdatum nur beim Anlegen).
+-- Legt das eigene Profil an oder aktualisiert es (Geburtsdatum nur beim Anlegen, beim Bearbeiten null).
 create function public.save_profile(
   p_display_name text,
   p_birthdate date,
@@ -113,17 +113,22 @@ begin
   if exists (select 1 from private.trust t where t.user_id = v_uid and t.status = 'suspended') then
     perform private.fail('account_suspended');
   end if;
-  if p_birthdate is null or p_birthdate > (private.berlin_today() - interval '18 years')::date then
+  -- Das Geburtsdatum wird nur beim Anlegen gesetzt (danach kann es nicht mehr geändert werden)
+  if not exists (select 1 from public.profiles p where p.id = v_uid)
+     and (p_birthdate is null or p_birthdate > (private.berlin_today() - interval '18 years')::date) then
     perform private.fail('too_young');
   end if;
 
-  insert into public.profiles (id, display_name, birthdate, gender, bio, city)
-  values (v_uid, btrim(p_display_name), p_birthdate, p_gender, nullif(btrim(p_bio), ''), nullif(btrim(p_city), ''))
-  on conflict (id) do update
-  set display_name = excluded.display_name,
-      gender = excluded.gender,
-      bio = excluded.bio,
-      city = excluded.city;
+  update public.profiles
+  set display_name = btrim(p_display_name),
+      gender = p_gender,
+      bio = nullif(btrim(p_bio), ''),
+      city = nullif(btrim(p_city), '')
+  where id = v_uid;
+  if not found then
+    insert into public.profiles (id, display_name, birthdate, gender, bio, city)
+    values (v_uid, btrim(p_display_name), p_birthdate, p_gender, nullif(btrim(p_bio), ''), nullif(btrim(p_city), ''));
+  end if;
 
   insert into public.match_preferences
     (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km)
