@@ -1,6 +1,6 @@
 # Lotus – Konzept für eine faire Dating-App
 
-> Arbeitstitel: **Lotus**. Stand: Entwurf v0.2 – erste Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
+> Arbeitstitel: **Lotus**. Stand: Entwurf v0.3 – Grundsatzentscheidungen getroffen (siehe Abschnitt 12).
 >
 > Rahmen: **Hobbyprojekt, kein Team, kein Budget.** Zielgruppe: Singles.
 
@@ -30,11 +30,13 @@ Lotus ist eine Dating-App, deren Erfolg daran gemessen wird, **wie viele Mensche
 
 ## 3. Kernmechaniken
 
-### 3.1 Tägliche Auswahl statt Endlos-Stack
+### 3.1 Profile anschauen, bis die Likes aufgebraucht sind
 
-- Jede Person bekommt pro Tag eine **kuratierte Auswahl** (Startwert: **40 Profile**, also doppelt so viele wie Likes, damit man wirklich auswählen muss).
-- Ist die Auswahl durch, ist sie durch – kein „Mehr laden“.
+- Es gibt **keine feste Anzahl Profile pro Tag**: Man bekommt so lange Vorschläge, bis die **20 Likes des Tages verbraucht** sind. Danach ist für heute Schluss (eingehende Likes beantworten geht weiterhin).
+- Das Like-Budget ist damit die einzige Grenze – Passen ist kostenlos, aber jedes Like ist eine bewusste Entscheidung.
 - Profile werden vollständig angezeigt (Fotos, Prompts, Absichten), nicht nur ein Bild.
+- Schutz gegen Dauer-Wegwischen durch Bots: eine großzügige technische Obergrenze für Passes (z. B. 300/Tag). Sie greift nur in der Bot-Erkennung (Trust & Safety) und beeinflusst **nie** das Ranking.
+- Gibt es in der Region keine passenden Kandidat:innen mehr, wird das ehrlich angezeigt („Für heute hast du alle passenden Profile gesehen“) statt Profile außerhalb der Präferenzen aufzufüllen.
 
 ### 3.2 Like-Budget
 
@@ -52,7 +54,8 @@ Lotus ist eine Dating-App, deren Erfolg daran gemessen wird, **wie viele Mensche
 ### 3.3 Begrenzte offene Gespräche
 
 - Maximal **6 aktive Chats** gleichzeitig.
-- Ist das Limit erreicht, kann man weiter liken, aber neue Matches landen in einer **Warteschlange** und öffnen sich erst, wenn ein Chat frei wird (Alternative: keine neuen Likes – zu testen). Das Gegenüber sieht nur „Match – Chat öffnet sich bald“.
+- Ist das Limit erreicht, kann man weiter liken, aber neue Matches landen in einer **Warteschlange** und öffnen sich (in Reihenfolge) erst, wenn ein Chat frei wird. Das Gegenüber sieht nur „Match – Chat öffnet sich bald“.
+- Ein Match ist erst aktiv, wenn **beide** Seiten einen freien Chat-Platz haben.
 - Gespräche ohne Antwort über 7 Tage werden freundlich geschlossen („Gespräch eingeschlafen“) und geben den Platz frei.
 - Beenden ist einfach und respektvoll: optional vorformulierte, freundliche Abschiedsnachricht.
 
@@ -88,7 +91,7 @@ Technisch wird das über eine **Datentrennung** abgesichert: Der Matching-Servic
 3. **Fairness-Re-Ranking** – jedes aktive Profil hat ein Mindest- und ein Höchstkontingent an Impressionen pro Tag/Woche:
    - Mindestkontingent: niemand verschwindet.
    - Höchstkontingent: sehr gefragte Profile werden nicht überflutet (besser für sie, und andere bekommen Aufmerksamkeit).
-4. **Ausspielung** als Tagesauswahl.
+4. **Ausspielung** als fortlaufender Stapel, bis das Like-Budget des Tages verbraucht ist.
 
 ### 4.3 „Wer hat mich geliked“
 
@@ -174,11 +177,11 @@ Rahmen: **eine Person, kein Budget.** Deshalb so wenig eigene Infrastruktur wie 
 | Mobile App | **Flutter** | eine Codebasis für iOS + Android, sehr gute UI-Performance, gute Supabase-Integration |
 | Backend | **Supabase** (Free Tier, EU-Region) | liefert Postgres, Auth (inkl. Telefon-OTP), Storage, Realtime-Chat und Edge Functions in einem – ein eigener Server entfällt |
 | Datenbank | **Postgres + PostGIS** (in Supabase) | Geo-Abfragen; Limits & Regeln direkt per SQL-Funktionen und Row Level Security |
-| Logik | Postgres-Funktionen + **Supabase Edge Functions** (TypeScript) | Like-Budget, Tagesauswahl, Matching serverseitig – nichts davon im Client |
+| Logik | Postgres-Funktionen + **Supabase Edge Functions** (TypeScript) | Like-Budget, Vorschläge, Matching serverseitig – nichts davon im Client |
 | Chat | **Supabase Realtime** | kein eigener WebSocket-Server nötig |
 | Medien | Supabase Storage | Fotos, Thumbnails |
 | Push | Firebase Cloud Messaging (kostenlos, auch für iOS) | |
-| Jobs | `pg_cron` | Tagesauswahl nachts vorberechnen, Chats schließen, Kontingente zurücksetzen |
+| Jobs | `pg_cron` | eingeschlafene Chats schließen, Warteschlange nachrücken lassen, Fairness-Kontingente zurücksetzen |
 | Verifizierung | Gesten-Selfie + Open-Source-Gesichtsabgleich | siehe 5.1 |
 | Attestierung | Play Integrity, App Attest | kostenlos |
 
@@ -215,7 +218,6 @@ Die Pfeilrichtung ist bewusst: Discovery bekommt von Trust & Safety nur den Stat
 - `photos` (id, user_id, url, order, moderation_state)
 - `prompts` / `prompt_answers`
 - `preferences` (user_id, age_min/max, distance_km, dealbreakers)
-- `daily_batches` (user_id, date, candidate_ids[])
 - `likes` (from, to, target_type, target_id, comment, created_at)
 - `passes` (from, to, created_at, undone_at)
 - `undo_usage` (user_id, month, count) – max. 3 pro Monat
@@ -258,7 +260,7 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 - Registrierung/Login, Profil anlegen (Fotos, Prompts, Absichten, Präferenzen)
 
 ### Schritt 2 – Kern-Loop (Wochenenden 5–10)
-- Tagesauswahl (40 Profile) mit gegenseitigen harten Filtern + Fairness-Kontingent
+- Vorschlags-Stapel (bis Like-Budget leer) mit gegenseitigen harten Filtern + Fairness-Kontingent
 - Like (20/Tag, auf Foto/Prompt, mit Kommentar), Pass, Rückgängig (3/Monat)
 - „Wer hat mich geliked“ mit gratis Zurück-Liken
 - Match + Warteschlange bei 6 aktiven Chats
@@ -270,7 +272,7 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 - Regelbasierte Bot-Erkennung (Rate-Limits, Attestierung, Nachrichten-Muster)
 
 ### Schritt 4 – Closed Beta
-- Android zuerst (günstiger), Freundeskreis + Bekannte in **einer** Stadt
+- Android zuerst (günstiger), Freundeskreis + Bekannte in **Stuttgart und Ulm**
 - Kaltstart: Warteliste, Freischaltung erst ab kritischer Masse
 - Limits anhand echter Nutzung justieren
 
@@ -301,12 +303,13 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 3 | Zurück-Liken | kostet kein Budget |
 | 4 | Verifizierung | Pflicht vor dem ersten Chat |
 | 5 | Zielgruppe / Rahmen | Singles · Hobbyprojekt, kein Team, kein Budget |
+| 6 | Profile pro Tag | unbegrenzt, bis die 20 Likes aufgebraucht sind |
+| 7 | Chat-Limit erreicht | neue Matches kommen in eine Warteschlange |
+| 8 | Tech-Stack | Flutter + Supabase |
+| 9 | Beta-Region | Stuttgart und/oder Ulm |
 
 ### Noch offen
 
-1. Größe der Tagesauswahl – Vorschlag 40 Profile (2× Like-Budget)?
-2. Bei 6 aktiven Chats: neue Matches in Warteschlange oder Liken pausieren?
-3. Tech-Stack bestätigen: Flutter + Supabase?
-4. Startregion für die Beta?
-5. Altersgruppe / Orientierungen von Anfang an alle?
-6. Name: bleibt es bei „Lotus“?
+1. Altersgruppe / Orientierungen von Anfang an alle?
+2. Name: bleibt es bei „Lotus“?
+3. Start mit nur einer der beiden Städte oder beiden (Dichte vs. Reichweite)?
