@@ -83,6 +83,28 @@ language sql stable security definer set search_path = '' as $$
   )
 $$;
 
+create function private.has_plus(p_user uuid) returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from private.entitlements e where e.user_id = p_user and e.valid_until > now())
+$$;
+
+-- Aktueller Suchstandort: Reiseziel, solange der Reisemodus läuft (nur mit Lotus Plus), sonst Wohnort.
+create function private.search_location(p_loc public.profile_locations) returns extensions.geography
+language sql stable security definer set search_path = '' as $$
+  select case
+    when p_loc.travel_until > now() and private.has_plus(p_loc.user_id) then p_loc.travel_location
+    else p_loc.location
+  end
+$$;
+
+create function private.is_traveling(p_user uuid) returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (
+    select 1 from public.profile_locations l
+    where l.user_id = p_user and l.travel_until > now() and private.has_plus(p_user)
+  )
+$$;
+
 create function private.is_available(p_user uuid) returns boolean
 language sql stable security definer set search_path = '' as $$
   select exists (select 1 from private.trust t where t.user_id = p_user and t.status = 'active')
@@ -179,7 +201,8 @@ returns table (
   intention public.intention,
   bio text,
   distance_km int,
-  verified boolean
+  verified boolean,
+  traveling boolean
 )
 language plpgsql security definer set search_path = '' as $$
 #variable_conflict use_column
@@ -196,7 +219,7 @@ begin
   return query
   with me as (
     select p.id, p.gender, p.birthdate, mp.interested_in, mp.intention,
-           mp.age_min, mp.age_max, mp.max_distance_km, l.location
+           mp.age_min, mp.age_max, mp.max_distance_km, private.search_location(l) as location
     from public.profiles p
     join public.match_preferences mp on mp.user_id = p.id
     join public.profile_locations l on l.user_id = p.id
@@ -210,8 +233,9 @@ begin
       o.city,
       case when op.intention_public then op.intention end as intention,
       o.bio,
-      greatest(1, ceil(extensions.st_distance(ol.location, me.location) / 1000))::int as distance_km,
+      greatest(1, ceil(extensions.st_distance(private.search_location(ol), me.location) / 1000))::int as distance_km,
       o.verified_at is not null as verified,
+      private.is_traveling(o.id) as traveling,
       exists (
         select 1 from public.impressions i
         where i.viewer = v_me and i.shown = o.id and i.shown_on = v_today
@@ -236,7 +260,7 @@ begin
       and me.gender = any (op.interested_in)
       and private.age_of(o.birthdate) between me.age_min and me.age_max
       and private.age_of(me.birthdate) between op.age_min and op.age_max
-      and extensions.st_dwithin(ol.location, me.location, least(me.max_distance_km, op.max_distance_km) * 1000)
+      and extensions.st_dwithin(private.search_location(ol), me.location, least(me.max_distance_km, op.max_distance_km) * 1000)
       and o.last_active_at > now() - make_interval(days => private.inactive_after_days())
       and exists (select 1 from public.photos ph where ph.user_id = o.id and ph.moderation <> 'rejected')
       -- noch nicht entschieden, keine Blockierung, kein Match
@@ -266,7 +290,7 @@ begin
     on conflict do nothing
   )
   select picked.id, picked.display_name, picked.age, picked.city, picked.intention,
-         picked.bio, picked.distance_km, picked.verified
+         picked.bio, picked.distance_km, picked.verified, picked.traveling
   from picked
   order by picked.shown_to_me_today desc, picked.same_intention desc, picked.recent_impressions;
 end;
@@ -284,12 +308,13 @@ returns table (
   city text,
   intention public.intention,
   bio text,
-  verified boolean
+  verified boolean,
+  traveling boolean
 )
 language sql stable security definer set search_path = '' as $$
   select p.id, p.display_name, private.age_of(p.birthdate), p.gender, p.city,
          case when mp.intention_public or p.id = auth.uid() then mp.intention end,
-         p.bio, p.verified_at is not null
+         p.bio, p.verified_at is not null, private.is_traveling(p.id)
   from public.profiles p
   left join public.match_preferences mp on mp.user_id = p.id
   where p.id = p_user and private.can_view_profile(p_user)

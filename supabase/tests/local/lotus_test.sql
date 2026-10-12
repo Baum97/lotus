@@ -492,3 +492,127 @@ select test.ok(not exists (select 1 from public.profiles where id = test.n()), '
 select test.ok(not exists (select 1 from public.device_tokens where token = 'token-n'), 'Push-Token gelöscht');
 select test.ok((select found_someone from private.account_deletions) and
                (select count(*) from private.account_deletions) = 1, '"Jemanden gefunden" anonym gezählt');
+
+-- ---------------------------------------------------------------------------
+-- Radius 1–150 km
+-- ---------------------------------------------------------------------------
+
+set role authenticated;
+select test.login(test.uid('D'));
+select test.throws($$select public.save_profile('D', null, 'man', null, 'Stuttgart', '{man}', 'relationship', true, 18, 99, 151)$$,
+  'max_distance_km', 'Radius über 150 km wird abgelehnt');
+select public.save_profile('D', null, 'man', null, 'Stuttgart', '{man}', 'relationship', true, 18, 99, 150);
+select test.ok(true, 'Radius 150 km ist erlaubt');
+reset role;
+
+-- ---------------------------------------------------------------------------
+-- Lotus Plus: Reisemodus & Statistiken
+-- ---------------------------------------------------------------------------
+
+select test.seed_user('40', 'woman', '{man}', 30, 9.99, 53.55);   -- Hamburg
+select test.seed_user('41', 'man', '{woman}', 31, 11.57, 48.14);  -- München
+update auth.users set email = 't40@test.local' where id = test.uid('40');
+
+set role authenticated;
+select test.login(test.uid('40'));
+select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('41')),
+  'ohne Reisemodus keine Profile aus München');
+select test.throws($$select public.set_travel_location(48.14, 11.57, 'München')$$, 'plus_required',
+  'Reisemodus nur mit Lotus Plus');
+select test.throws($$select public.get_my_stats()$$, 'plus_required', 'Statistiken nur mit Lotus Plus');
+select test.throws($$select public.admin_grant_plus('t40@test.local')$$, 'not_admin', 'Plus vergeben nur für Admins');
+
+select test.login(test.uid('B'));
+select test.ok(public.admin_grant_plus('T40@test.local', 30) > now() + interval '29 days', 'Admin vergibt Plus (Beta)');
+
+select test.login(test.uid('40'));
+select test.ok((select plus_until is not null from public.get_my_status()), 'Plus im Status sichtbar');
+select public.set_travel_location(48.14, 11.57, 'München', 60);
+select test.ok((select travel_city = 'München' and travel_until < now() + interval '31 days' from public.get_my_status()),
+  'Reisemodus aktiv, höchstens 30 Tage');
+select test.ok(exists (select 1 from public.get_candidates(50) where id = test.uid('41') and not traveling),
+  'im Reisemodus werden Profile am Reiseziel vorgeschlagen');
+select test.ok((select (public.get_my_stats() ->> 'impressions_7d') is not null), 'Statistiken abrufbar');
+
+select test.login(test.uid('41'));
+select test.ok(exists (select 1 from public.get_candidates(50) where id = test.uid('40') and traveling),
+  'Reisende erscheinen am Reiseziel mit Hinweis "zu Besuch"');
+select test.ok((select traveling from public.get_profile(test.uid('40'))), 'Profilkarte zeigt "zu Besuch"');
+
+select test.login(test.uid('40'));
+select public.clear_travel_location();
+select test.ok((select travel_city is null from public.get_my_status()), 'Reisemodus beendet');
+
+-- Plus läuft ab → Reisemodus wirkt nicht mehr
+select public.set_travel_location(48.14, 11.57, 'München');
+reset role;
+update private.entitlements set valid_until = now() - interval '1 minute' where user_id = test.uid('40');
+set role authenticated;
+select test.login(test.uid('41'));
+select test.ok(not (select traveling from public.get_profile(test.uid('40'))), 'ohne Plus endet der Reisemodus sofort');
+
+-- ---------------------------------------------------------------------------
+-- Käufe (nur über die Edge Function / service_role)
+-- ---------------------------------------------------------------------------
+
+select test.throws($$select public.record_purchase(test.uid('41'), 'spende_5', 'tok-1', 'donation')$$,
+  'permission denied', 'Käufe kann niemand selbst eintragen');
+reset role;
+grant usage on schema test to service_role;
+grant execute on function test.uid(text) to service_role;
+set role service_role;
+select public.record_purchase(test.uid('41'), 'spende_5', 'tok-1', 'donation', null, 5000000, 'EUR');
+select public.record_purchase(test.uid('41'), 'spende_5', 'tok-1', 'donation', null, 5000000, 'EUR');
+select public.record_purchase(test.uid('41'), 'lotus_plus_monatlich', 'tok-2', 'plus', now() + interval '30 days');
+reset role;
+select test.ok((select count(*) from public.contributions where purchase_token = 'tok-1') = 1, 'Kauf-Token wird nur einmal gezählt');
+select test.ok(private.has_plus(test.uid('41')), 'Abo-Kauf schaltet Plus frei');
+
+set role authenticated;
+select test.login(test.uid('41'));
+select test.ok((select count(*) from public.contributions) = 1, 'eigene Spenden sind sichtbar');
+select test.login(test.uid('40'));
+select test.ok((select count(*) from public.contributions) = 0, 'Spenden anderer nicht');
+
+-- ---------------------------------------------------------------------------
+-- Benachrichtigungen
+-- ---------------------------------------------------------------------------
+
+insert into public.notification_settings (user_id, likes) values (test.uid('40'), false);
+select test.ok((select not likes and messages from public.notification_settings), 'eigene Push-Einstellungen gespeichert');
+select test.login(test.uid('41'));
+select test.ok((select count(*) from public.notification_settings) = 0, 'Push-Einstellungen anderer nicht lesbar');
+
+reset role;
+insert into private.settings (key, value) values ('notify_url', 'http://localhost:9/notify'), ('notify_secret', 's');
+insert into public.likes (from_user, to_user, target_type, target_id)
+select test.uid('41'), test.uid('40'), 'photo', id from public.photos where user_id = test.uid('40');
+select test.ok(true, 'Push-Trigger stört ohne pg_net nicht');
+
+-- Nachgebautes pg_net: zeichnet Aufrufe auf statt HTTP zu senden
+create schema net;
+create table test.http_calls (body jsonb, headers jsonb);
+create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}',
+                              headers jsonb default '{}', timeout_milliseconds int default 5000) returns bigint
+language sql as $$ insert into test.http_calls values (body, headers) returning 1::bigint $$;
+
+set role authenticated;
+select test.login(test.uid('40'));
+select public.like_profile(test.uid('41'));  -- Zurück-Like → Match
+reset role;
+select test.ok((select count(*) from test.http_calls where body->>'table' = 'likes') = 0,
+  'Zurück-Like löst keine Like-Benachrichtigung aus');
+select test.ok((select count(*) from test.http_calls where body->>'table' = 'matches' and body->>'type' = 'INSERT') = 1,
+  'neues Match löst Benachrichtigung aus (und bricht nicht ab)');
+select test.ok((select headers->>'x-webhook-secret' from test.http_calls limit 1) = 's', 'Secret wird mitgeschickt');
+insert into public.likes (from_user, to_user, target_type, target_id)
+select test.uid('E'), test.uid('40'), 'photo', id from public.photos where user_id = test.uid('40');
+select test.ok((select count(*) from test.http_calls where body->>'table' = 'likes') = 1, 'neues Like löst Benachrichtigung aus');
+
+-- Like-Benachrichtigungen höchstens alle 6 Stunden, und nur wenn eingeschaltet
+grant usage on schema test to service_role;
+set role service_role;
+select test.ok(public.claim_like_push(test.uid('41')), 'erste Like-Benachrichtigung erlaubt');
+select test.ok(public.claim_like_push(test.uid('41')) is null, 'zweite innerhalb von 6 h nicht');
+select test.ok(public.claim_like_push(test.uid('40')) is null, 'bei ausgeschalteten Like-Pushes nie');
+reset role;

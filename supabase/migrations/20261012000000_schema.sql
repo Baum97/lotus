@@ -48,7 +48,7 @@ create table public.match_preferences (
   -- wirken gegenseitig, siehe get_candidates
   age_min smallint not null default 18 check (age_min >= 18),
   age_max smallint not null default 99 check (age_max <= 99 and age_max >= age_min),
-  max_distance_km smallint not null default 50 check (max_distance_km between 1 and 300),
+  max_distance_km smallint not null default 50 check (max_distance_km between 1 and 150),
   updated_at timestamptz not null default now()
 );
 
@@ -57,7 +57,13 @@ create table public.match_preferences (
 create table public.profile_locations (
   user_id uuid primary key references public.profiles (id) on delete cascade,
   location extensions.geography(point, 4326) not null,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- Reisemodus (Lotus Plus): solange aktiv, wird von hier aus gesucht und gefunden.
+  -- Andere sehen "zu Besuch" – der Reisemodus verschafft keine zusätzliche Sichtbarkeit.
+  travel_location extensions.geography(point, 4326),
+  travel_city text check (char_length(travel_city) <= 60),
+  travel_until timestamptz,
+  check ((travel_location is null) = (travel_until is null))
 );
 create index profile_locations_location_idx on public.profile_locations using gist (location);
 
@@ -207,6 +213,17 @@ create table private.trust_events (
   created_at timestamptz not null default now()
 );
 create index trust_events_user_idx on private.trust_events (user_id, created_at desc);
+
+-- Lotus Plus (nur Komfort-Funktionen, nie Vorteile beim Matching).
+-- Quelle: Kauf im Play Store (geprüft von der Edge Function verify-purchase) oder Admin (Beta).
+create table private.entitlements (
+  user_id uuid primary key references public.profiles (id) on delete cascade,
+  plan text not null default 'plus' check (plan = 'plus'),
+  source text not null check (source in ('play', 'admin')),
+  valid_until timestamptz not null,
+  purchase_token text,
+  updated_at timestamptz not null default now()
+);
 
 -- ---------------------------------------------------------------------------
 -- Prompt-Katalog

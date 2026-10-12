@@ -1,17 +1,20 @@
 // Lotus – Push-Benachrichtigungen über Firebase Cloud Messaging (HTTP v1).
 //
-// Wird von Supabase Database Webhooks aufgerufen:
-//   * INSERT auf public.messages          → "Neue Nachricht von …" an die andere Person
-//   * INSERT/UPDATE auf public.matches    → "Neues Match" bzw. "Euer Chat ist jetzt offen"
+// Wird von den Datenbank-Triggern (private.notify_push, Format wie Supabase-Webhooks) aufgerufen:
+//   * INSERT messages                 → "Neue Nachricht" an die andere Person
+//   * INSERT matches                  → "Neues Match" an beide
+//   * UPDATE matches queued → active  → "Euer Chat ist offen" an beide
+//   * INSERT likes (kein Zurück-Like) → "Jemand mag dich" (höchstens alle 6 Stunden)
+// Jede Person kann jede Art in der App abschalten (public.notification_settings).
 //
-// Benötigte Secrets (supabase secrets set …):
-//   FIREBASE_SERVICE_ACCOUNT  JSON des Firebase-Service-Accounts
-//   NOTIFY_WEBHOOK_SECRET     gleicher Wert wie im Header "x-webhook-secret" des Webhooks
-// SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase automatisch bereit.
+// Secrets: FIREBASE_SERVICE_ACCOUNT (JSON), NOTIFY_WEBHOOK_SECRET.
+// SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase bereit.
+// Nur für Tests: FCM_BASE_URL und GOOGLE_TOKEN_URL überschreiben die Google-Endpunkte.
 //
-// Datenschutz: Benachrichtigungen enthalten nie den Nachrichtentext, nur den Vornamen.
+// Datenschutz: Benachrichtigungen enthalten nie Nachrichtentexte, bei Likes nicht einmal den Namen.
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { getGoogleAccessToken, type ServiceAccount } from "../_shared/google.ts";
 
 type WebhookPayload = {
   type: "INSERT" | "UPDATE" | "DELETE";
@@ -20,14 +23,12 @@ type WebhookPayload = {
   old_record: Record<string, unknown> | null;
 };
 
-type Notification = { userId: string; title: string; body: string; data: Record<string, string> };
+type Kind = "messages" | "matches" | "likes";
+type Notification = { userId: string; kind: Kind; title: string; body: string; data: Record<string, string> };
 
-type ServiceAccount = { client_email: string; private_key: string; project_id: string };
+const FCM_BASE_URL = Deno.env.get("FCM_BASE_URL") ?? "https://fcm.googleapis.com";
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-);
+const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
 Deno.serve(async (req) => {
   if (req.headers.get("x-webhook-secret") !== Deno.env.get("NOTIFY_WEBHOOK_SECRET")) {
@@ -35,16 +36,17 @@ Deno.serve(async (req) => {
   }
 
   const payload = (await req.json()) as WebhookPayload;
-  const notifications = await buildNotifications(payload);
-  if (notifications.length === 0) {
-    return Response.json({ sent: 0 });
+  const notifications = [];
+  for (const n of await buildNotifications(payload)) {
+    if (await wanted(n)) notifications.push(n);
   }
+  if (notifications.length === 0) return Response.json({ sent: 0 });
 
   const serviceAccount = JSON.parse(Deno.env.get("FIREBASE_SERVICE_ACCOUNT")!) as ServiceAccount;
-  const accessToken = await getAccessToken(serviceAccount);
+  const accessToken = await getGoogleAccessToken(serviceAccount, "https://www.googleapis.com/auth/firebase.messaging");
   let sent = 0;
-  for (const notification of notifications) {
-    sent += await sendToUser(serviceAccount.project_id, accessToken, notification);
+  for (const n of notifications) {
+    sent += await sendToUser(serviceAccount.project_id, accessToken, n);
   }
   return Response.json({ sent });
 });
@@ -64,6 +66,7 @@ async function buildNotifications(payload: WebhookPayload): Promise<Notification
     const senderName = await displayName(record.sender_id as string);
     return [{
       userId: recipient,
+      kind: "messages",
       title: "Neue Nachricht",
       body: `${senderName} hat dir geschrieben.`,
       data: { type: "message", match_id: match.id },
@@ -75,22 +78,44 @@ async function buildNotifications(payload: WebhookPayload): Promise<Notification
     // Ein Match aus der Warteschlange wurde freigeschaltet
     const unlocked = payload.type === "UPDATE" && record.state === "active" &&
       payload.old_record?.state === "queued";
-    if (isNew || unlocked) {
-      const userA = record.user_a as string;
-      const userB = record.user_b as string;
-      const [nameA, nameB] = await Promise.all([displayName(userA), displayName(userB)]);
-      const title = isNew ? "Neues Match 🌸" : "Euer Chat ist offen 💬";
-      const text = (other: string) =>
-        isNew ? `Du und ${other} mögt euch.` : `Du kannst jetzt mit ${other} schreiben.`;
-      const data = { type: "match", match_id: String(record.id) };
-      return [
-        { userId: userA, title, body: text(nameB), data },
-        { userId: userB, title, body: text(nameA), data },
-      ];
-    }
+    if (!isNew && !unlocked) return [];
+    const userA = record.user_a as string;
+    const userB = record.user_b as string;
+    const [nameA, nameB] = await Promise.all([displayName(userA), displayName(userB)]);
+    const title = isNew ? "Neues Match 🌸" : "Euer Chat ist offen 💬";
+    const text = (other: string) => isNew ? `Du und ${other} mögt euch.` : `Du kannst jetzt mit ${other} schreiben.`;
+    const data = { type: "match", match_id: String(record.id) };
+    return [
+      { userId: userA, kind: "matches", title, body: text(nameB), data },
+      { userId: userB, kind: "matches", title, body: text(nameA), data },
+    ];
+  }
+
+  if (payload.table === "likes" && payload.type === "INSERT" && !record.is_like_back) {
+    return [{
+      userId: record.to_user as string,
+      kind: "likes",
+      title: "Jemand mag dich 🌸",
+      body: "Schau nach, wer es ist – Zurück-Liken ist gratis.",
+      data: { type: "like" },
+    }];
   }
 
   return [];
+}
+
+/// Prüft die Einstellungen der Person; Likes höchstens alle 6 Stunden (atomar in der Datenbank).
+async function wanted(n: Notification): Promise<boolean> {
+  if (n.kind === "likes") {
+    const { data } = await supabase.rpc("claim_like_push", { p_user: n.userId });
+    return data === true;
+  }
+  const { data: settings } = await supabase
+    .from("notification_settings")
+    .select("messages, matches")
+    .eq("user_id", n.userId)
+    .maybeSingle();
+  return !settings || settings[n.kind] !== false;
 }
 
 async function displayName(userId: string): Promise<string> {
@@ -102,7 +127,7 @@ async function sendToUser(projectId: string, accessToken: string, n: Notificatio
   const { data: tokens } = await supabase.from("device_tokens").select("token").eq("user_id", n.userId);
   let sent = 0;
   for (const { token } of tokens ?? []) {
-    const response = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+    const response = await fetch(`${FCM_BASE_URL}/v1/projects/${projectId}/messages:send`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${accessToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -122,47 +147,4 @@ async function sendToUser(projectId: string, accessToken: string, n: Notificatio
     }
   }
   return sent;
-}
-
-// OAuth-Token für FCM aus dem Service-Account (JWT, RS256) holen.
-async function getAccessToken(sa: ServiceAccount): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  const encode = (value: unknown) => base64url(new TextEncoder().encode(JSON.stringify(value)));
-  const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({
-    iss: sa.client_email,
-    scope: "https://www.googleapis.com/auth/firebase.messaging",
-    aud: "https://oauth2.googleapis.com/token",
-    iat: now,
-    exp: now + 3600,
-  })}`;
-
-  const pem = sa.private_key.replace(/-----[^-]+-----/g, "").replace(/\s/g, "");
-  const key = await crypto.subtle.importKey(
-    "pkcs8",
-    Uint8Array.from(atob(pem), (c) => c.charCodeAt(0)),
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const signature = new Uint8Array(
-    await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(unsigned)),
-  );
-
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: `${unsigned}.${base64url(signature)}`,
-    }),
-  });
-  const json = await response.json();
-  if (!response.ok) throw new Error(`FCM auth failed: ${JSON.stringify(json)}`);
-  return json.access_token as string;
-}
-
-function base64url(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
