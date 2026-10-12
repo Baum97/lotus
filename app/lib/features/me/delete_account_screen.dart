@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../providers.dart';
+import '../../services/store.dart';
 import '../../widgets/common.dart';
+import '../support/support_screen.dart';
 
 /// Konto löschen – mit der wichtigsten Frage: Hast du jemanden gefunden?
 class DeleteAccountScreen extends ConsumerStatefulWidget {
@@ -16,9 +20,17 @@ class DeleteAccountScreen extends ConsumerStatefulWidget {
 class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   bool? _foundSomeone;
   final _feedback = TextEditingController();
+  StreamSubscription<StoreEvent>? _events;
+
+  @override
+  void initState() {
+    super.initState();
+    _events = ref.read(storeProvider).events.listen(handleStoreEvent(context, ref));
+  }
 
   @override
   void dispose() {
+    _events?.cancel();
     _feedback.dispose();
     super.dispose();
   }
@@ -44,6 +56,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final success = ref.watch(storeProductsProvider).value?[StoreProducts.success];
     return Scaffold(
       appBar: AppBar(title: Text(l.deleteTitle)),
       body: SingleChildScrollView(
@@ -59,6 +72,26 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
               RadioListTile<bool>(contentPadding: EdgeInsets.zero, value: false, title: Text(l.deleteFoundNo)),
             ]),
           ),
+          if (_foundSomeone == true && success != null) ...[
+            const SizedBox(height: 8),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Text(l.successContributionTitle, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 6),
+                  Text(l.successContributionText),
+                  const SizedBox(height: 12),
+                  AsyncButton(
+                    outlined: true,
+                    icon: Icons.volunteer_activism_outlined,
+                    label: l.successContributionButton(success.price),
+                    onPressed: () => ref.read(storeProvider).buy(success),
+                  ),
+                ]),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           TextField(
             controller: _feedback,

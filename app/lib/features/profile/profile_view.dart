@@ -96,6 +96,7 @@ class _Header extends StatelessWidget {
             summary.age.toString(),
             if (summary.gender != null) genderLabel(l, summary.gender!),
             if (summary.city != null) summary.city!,
+            if (summary.traveling) l.travelVisiting,
             if (summary.distanceKm != null) l.distanceKm(summary.distanceKm!),
           ].join(' · '),
           style: muted,

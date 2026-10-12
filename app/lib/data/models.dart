@@ -81,6 +81,9 @@ class MyStatus {
     required this.likesRemaining,
     required this.undosRemaining,
     required this.activeChats,
+    this.plusUntil,
+    this.travelCity,
+    this.travelUntil,
   });
 
   final bool hasProfile;
@@ -96,6 +99,11 @@ class MyStatus {
   final int likesRemaining;
   final int undosRemaining;
   final int activeChats;
+  final DateTime? plusUntil;
+  final String? travelCity;
+  final DateTime? travelUntil;
+
+  bool get hasPlus => plusUntil != null;
 
   /// Onboarding ist abgeschlossen, wenn alles für Vorschläge Nötige vorhanden ist.
   bool get onboardingComplete => hasProfile && hasPreferences && hasLocation && photoCount > 0 && promptCount > 0;
@@ -114,6 +122,9 @@ class MyStatus {
         likesRemaining: json['likes_remaining'] as int,
         undosRemaining: json['undos_remaining'] as int,
         activeChats: json['active_chats'] as int,
+        plusUntil: _date(json['plus_until']),
+        travelCity: json['travel_city'] as String?,
+        travelUntil: _date(json['travel_until']),
       );
 }
 
@@ -129,6 +140,7 @@ class ProfileSummary {
     this.bio,
     this.distanceKm,
     required this.verified,
+    this.traveling = false,
   });
 
   final String id;
@@ -141,6 +153,9 @@ class ProfileSummary {
   final int? distanceKm;
   final bool verified;
 
+  /// Ist gerade im Reisemodus hier ("zu Besuch").
+  final bool traveling;
+
   factory ProfileSummary.fromJson(Map<String, dynamic> json) => ProfileSummary(
         id: json['id'] as String,
         displayName: json['display_name'] as String,
@@ -151,6 +166,7 @@ class ProfileSummary {
         bio: json['bio'] as String?,
         distanceKm: json['distance_km'] as int?,
         verified: json['verified'] as bool? ?? false,
+        traveling: json['traveling'] as bool? ?? false,
       );
 }
 
@@ -451,5 +467,70 @@ class AdminReport {
         details: json['details'] as String?,
         reportsAgainstUser: json['reports_against_user'] as int,
         trustStatus: TrustStatus.tryFromDb(json['trust_status']),
+      );
+}
+
+// --- Lotus Plus & Benachrichtigungen -----------------------------------------
+
+class StatElement {
+  const StatElement({required this.isPhoto, required this.label, required this.likes, required this.comments});
+
+  final bool isPhoto;
+  final String label;
+  final int likes;
+  final int comments;
+}
+
+class MyStats {
+  const MyStats({
+    required this.impressions7d,
+    required this.likes30d,
+    required this.comments30d,
+    required this.matches30d,
+    required this.elements,
+  });
+
+  final int impressions7d;
+  final int likes30d;
+  final int comments30d;
+  final int matches30d;
+  final List<StatElement> elements;
+
+  factory MyStats.fromJson(Map<String, dynamic> json) => MyStats(
+        impressions7d: json['impressions_7d'] as int,
+        likes30d: json['likes_30d'] as int,
+        comments30d: json['comments_30d'] as int,
+        matches30d: json['matches_30d'] as int,
+        elements: [
+          for (final e in json['elements'] as List)
+            StatElement(
+              isPhoto: (e as Map)['type'] == 'photo',
+              label: e['label'] as String,
+              likes: e['likes'] as int,
+              comments: e['comments'] as int,
+            ),
+        ],
+      );
+}
+
+class NotificationSettings {
+  const NotificationSettings({this.messages = true, this.matches = true, this.likes = true});
+
+  final bool messages;
+  final bool matches;
+  final bool likes;
+
+  NotificationSettings copyWith({bool? messages, bool? matches, bool? likes}) => NotificationSettings(
+        messages: messages ?? this.messages,
+        matches: matches ?? this.matches,
+        likes: likes ?? this.likes,
+      );
+
+  Map<String, bool> toJson() => {'messages': messages, 'matches': matches, 'likes': likes};
+
+  factory NotificationSettings.fromJson(Map<String, dynamic> json) => NotificationSettings(
+        messages: json['messages'] as bool,
+        matches: json['matches'] as bool,
+        likes: json['likes'] as bool,
       );
 }

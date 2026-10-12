@@ -11,6 +11,9 @@ import 'providers.dart';
 import 'theme.dart';
 import 'widgets/common.dart';
 
+/// Für Hinweise außerhalb eines bestimmten Screens (z. B. Push im Vordergrund).
+final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 class LotusApp extends StatelessWidget {
   const LotusApp({super.key});
 
@@ -19,6 +22,7 @@ class LotusApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lotus',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: scaffoldMessengerKey,
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
       locale: const Locale('de'),

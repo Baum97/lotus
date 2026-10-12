@@ -657,4 +657,221 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorRateLimit => 'Zu viele Versuche. Bitte warte kurz.';
+
+  @override
+  String get supportTitle => 'Lotus Plus & Unterstützen';
+
+  @override
+  String get supportIntro =>
+      'Lotus ist kostenlos und bleibt fair: Geld kauft hier keine Likes, keine Sichtbarkeit und keine Vorteile beim Matching. Mit Plus oder einer Spende hilfst du, die Server zu bezahlen – und bekommst ein bisschen Komfort.';
+
+  @override
+  String get plusTitle => 'Lotus Plus';
+
+  @override
+  String get plusFeatureTravel =>
+      'Reisemodus: Profile in einer anderen Stadt sehen, z. B. vor einem Umzug';
+
+  @override
+  String get plusFeatureStats =>
+      'Statistiken über dein Profil: Welche Fotos und Antworten gut ankommen';
+
+  @override
+  String get plusFeatureFair =>
+      'Kein Einfluss auf deine Sichtbarkeit oder deine Likes – versprochen';
+
+  @override
+  String plusPerMonth(String price) {
+    return '$price pro Monat';
+  }
+
+  @override
+  String get plusSubscribe => 'Lotus Plus abonnieren';
+
+  @override
+  String plusActiveUntil(String date) {
+    return 'Aktiv bis $date';
+  }
+
+  @override
+  String get plusManageHint =>
+      'Kündigen kannst du jederzeit in Google Play unter „Abos“.';
+
+  @override
+  String get plusRequired => 'Diese Funktion gehört zu Lotus Plus.';
+
+  @override
+  String get restorePurchases => 'Käufe wiederherstellen';
+
+  @override
+  String get donateTitle => 'Spenden';
+
+  @override
+  String get donateText =>
+      'Einmalig und freiwillig. Jeder Beitrag hält Lotus werbefrei.';
+
+  @override
+  String get donateThanks => 'Danke für deine Unterstützung! 🌸';
+
+  @override
+  String get purchasePending => 'Zahlung wird bearbeitet …';
+
+  @override
+  String get purchaseFailed =>
+      'Der Kauf konnte nicht abgeschlossen werden. Dir wird nichts berechnet, wenn er nicht bestätigt wird.';
+
+  @override
+  String get storeUnavailable =>
+      'Käufe sind in dieser Version noch nicht möglich. In der Beta ist Lotus Plus kostenlos – frag einfach nach.';
+
+  @override
+  String get successContributionTitle => 'Danke sagen?';
+
+  @override
+  String get successContributionText =>
+      'Wenn Lotus dir geholfen hat: Ein einmaliger Beitrag hilft, dass andere auch jemanden finden. Ganz freiwillig.';
+
+  @override
+  String successContributionButton(String price) {
+    return 'Beitrag leisten ($price)';
+  }
+
+  @override
+  String get travelTitle => 'Reisemodus';
+
+  @override
+  String get travelIntro =>
+      'Sieh Profile an einem anderen Ort – z. B. vor einem Umzug oder einer längeren Reise. Dort wirst du mit dem Hinweis „zu Besuch“ angezeigt, nicht häufiger als andere.';
+
+  @override
+  String get travelCity => 'Ziel';
+
+  @override
+  String travelDays(int days) {
+    return 'Dauer: $days Tage';
+  }
+
+  @override
+  String get travelStart => 'Reisemodus starten';
+
+  @override
+  String travelActive(String city, String date) {
+    return 'Du bist gerade in $city – bis $date.';
+  }
+
+  @override
+  String get travelEnd => 'Reisemodus beenden';
+
+  @override
+  String get travelVisiting => 'zu Besuch';
+
+  @override
+  String get statsTitle => 'Deine Statistiken';
+
+  @override
+  String get statsImpressions =>
+      'So oft wurdest du in den letzten 7 Tagen gezeigt';
+
+  @override
+  String get statsLikes => 'Likes in den letzten 30 Tagen';
+
+  @override
+  String get statsComments => 'davon mit Kommentar';
+
+  @override
+  String get statsMatches => 'Matches in den letzten 30 Tagen';
+
+  @override
+  String get statsElements => 'Was gut ankommt';
+
+  @override
+  String statsElementLine(int likes, int comments) {
+    return '$likes Likes · $comments Kommentare';
+  }
+
+  @override
+  String get notificationsTitle => 'Benachrichtigungen';
+
+  @override
+  String get notificationsIntro =>
+      'Lotus schickt nur das Nötigste – nie Werbung und nie Nachrichtentexte.';
+
+  @override
+  String get notifyMessages => 'Neue Nachrichten';
+
+  @override
+  String get notifyMatches => 'Neue Matches & freie Chats';
+
+  @override
+  String get notifyLikes => 'Jemand mag dich (höchstens alle 6 Stunden)';
+
+  @override
+  String get pushOpen => 'Öffnen';
+
+  @override
+  String get imprint => 'Impressum';
+
+  @override
+  String get imprintIncomplete =>
+      'Impressum unvollständig – bitte app/lib/legal/legal_info.dart ausfüllen.';
+
+  @override
+  String get imprintProvider => 'Angaben gemäß § 5 DDG';
+
+  @override
+  String get imprintContact => 'Kontakt';
+
+  @override
+  String get imprintPhone => 'Telefon';
+
+  @override
+  String get imprintEmail => 'E-Mail';
+
+  @override
+  String get imprintVat =>
+      'Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG';
+
+  @override
+  String get imprintEconomicId =>
+      'Wirtschafts-Identifikationsnummer gemäß § 139c AO';
+
+  @override
+  String get imprintResponsible =>
+      'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV';
+
+  @override
+  String get imprintDsa => 'Zentrale Kontaktstelle nach Art. 11 und 12 DSA';
+
+  @override
+  String imprintDsaText(String email) {
+    return 'Für Behörden, die EU-Kommission, das Gremium für digitale Dienste sowie für Nutzer:innen: $email. Wir kommunizieren auf Deutsch und Englisch. Anfragen werden von einem Menschen bearbeitet.';
+  }
+
+  @override
+  String get imprintDispute => 'Verbraucherstreitbeilegung';
+
+  @override
+  String get imprintDisputeText =>
+      'Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.';
+
+  @override
+  String get adminGrantPlus => 'Lotus Plus vergeben';
+
+  @override
+  String get adminGrantPlusHint => 'E-Mail-Adresse des Kontos';
+
+  @override
+  String adminGrantPlusDone(String date) {
+    return 'Plus aktiv bis $date';
+  }
+
+  @override
+  String get errorPlusRequired => 'Diese Funktion gehört zu Lotus Plus.';
+
+  @override
+  String get errorPurchase => 'Der Kauf konnte nicht bestätigt werden.';
+
+  @override
+  String get errorProfileNotFound =>
+      'Kein Profil mit dieser E-Mail-Adresse gefunden.';
 }

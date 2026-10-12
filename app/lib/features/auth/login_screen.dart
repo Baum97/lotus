@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../../legal/impressum_screen.dart';
 import '../../providers.dart';
 import '../../widgets/common.dart';
 
@@ -101,6 +102,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Text(l.loginLegal,
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     textAlign: TextAlign.center),
+                TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => const ImpressumScreen()),
+                  ),
+                  child: Text(l.imprint),
+                ),
               ]),
             ),
           ),

@@ -314,6 +314,67 @@ class LotusApi {
         await _client.rpc('submit_verification', params: {'p_request': requestId, 'p_selfie_path': path});
       });
 
+  // --- Lotus Plus, Spenden ------------------------------------------------------
+
+  /// Lässt einen Kauf serverseitig bei Google prüfen und freischalten.
+  Future<void> verifyPurchase({
+    required String productId,
+    required String purchaseToken,
+    int? amountMicros,
+    String? currency,
+  }) =>
+      _guard(() async {
+        try {
+          await _client.functions.invoke('verify-purchase', body: {
+            'productId': productId,
+            'purchaseToken': purchaseToken,
+            'amountMicros': amountMicros,
+            'currency': currency,
+          });
+        } on FunctionException catch (e) {
+          final details = e.details;
+          throw LotusException(details is Map && details['error'] is String ? details['error'] as String : 'purchase_failed', e);
+        }
+      });
+
+  Future<DateTime> setTravelLocation({required double lat, required double lon, required String city, required int days}) =>
+      _guard(() async {
+        final until = await _client.rpc('set_travel_location',
+            params: {'p_lat': lat, 'p_lon': lon, 'p_city': city, 'p_days': days});
+        return DateTime.parse(until as String).toLocal();
+      });
+
+  Future<void> clearTravelLocation() => _guard(() => _client.rpc('clear_travel_location'));
+
+  Future<MyStats> myStats() => _guard(() async {
+        final json = await _client.rpc('get_my_stats');
+        return MyStats.fromJson(json as Map<String, dynamic>);
+      });
+
+  Future<DateTime> adminGrantPlus(String email, {int days = 30}) => _guard(() async {
+        final until = await _client.rpc('admin_grant_plus', params: {'p_email': email.trim(), 'p_days': days});
+        return DateTime.parse(until as String).toLocal();
+      });
+
+  // --- Benachrichtigungen -------------------------------------------------------
+
+  Future<NotificationSettings> notificationSettings() => _guard(() async {
+        final row = await _client
+            .from('notification_settings')
+            .select('messages, matches, likes')
+            .eq('user_id', currentUserId!)
+            .maybeSingle();
+        return row == null ? const NotificationSettings() : NotificationSettings.fromJson(row);
+      });
+
+  Future<void> saveNotificationSettings(NotificationSettings settings) => _guard(() async {
+        final values = settings.toJson();
+        final updated = await _client.from('notification_settings').update(values).eq('user_id', currentUserId!).select();
+        if (updated.isEmpty) {
+          await _client.from('notification_settings').insert({'user_id': currentUserId, ...values});
+        }
+      });
+
   // --- Push -------------------------------------------------------------------
 
   Future<void> registerDeviceToken(String token, String platform) => _guard(

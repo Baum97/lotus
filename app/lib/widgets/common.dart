@@ -20,6 +20,10 @@ String errorText(BuildContext context, Object error) {
     'links_not_allowed' => l.errorLinksNotAllowed,
     'already_verified' => l.errorAlreadyVerified,
     'not_allowed' => l.errorNotAllowed,
+    'plus_required' => l.errorPlusRequired,
+    'profile_not_found' => l.errorProfileNotFound,
+    'purchase_failed' || 'purchase_not_found' || 'purchase_not_active' || 'purchase_account_mismatch' ||
+    'purchase_not_completed' || 'invalid_product' => l.errorPurchase,
     'otp_expired' || 'invalid_credentials' => l.errorInvalidCode,
     'over_email_send_rate_limit' || 'over_request_rate_limit' => l.errorRateLimit,
     _ => l.errorGeneric,

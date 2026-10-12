@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'data/lotus_api.dart';
 import 'data/models.dart';
+import 'services/store.dart';
 
 final apiProvider = Provider<LotusApi>((ref) => LotusApi(Supabase.instance.client));
 
@@ -54,3 +55,16 @@ final fullProfileProvider = FutureProvider.family<FullProfile?, String>((ref, us
 final chatMessagesProvider = StreamProvider.family<List<ChatMessage>, String>(
   (ref, matchId) => ref.watch(apiProvider).messages(matchId),
 );
+
+final storeProvider = Provider<Store>((ref) {
+  final store = Store(ref.watch(apiProvider));
+  ref.onDispose(store.dispose);
+  return store;
+});
+
+final storeProductsProvider = FutureProvider((ref) => ref.watch(storeProvider).products());
+
+final myStatsProvider = FutureProvider<MyStats>((ref) => ref.watch(apiProvider).myStats());
+
+final notificationSettingsProvider =
+    FutureProvider<NotificationSettings>((ref) => ref.watch(apiProvider).notificationSettings());

@@ -1,7 +1,6 @@
 {
   "@@locale": "de",
   "appName": "Lotus",
-
   "ok": "OK",
   "cancel": "Abbrechen",
   "save": "Speichern",
@@ -11,20 +10,24 @@
   "retry": "Erneut versuchen",
   "close": "Schließen",
   "delete": "Löschen",
-
   "loginTitle": "Willkommen bei Lotus",
   "loginSubtitle": "Weniger wischen, mehr kennenlernen.",
   "emailLabel": "E-Mail-Adresse",
   "sendCode": "Code senden",
   "codeSentTo": "Wir haben dir einen 6-stelligen Code an {email} geschickt.",
-  "@codeSentTo": {"placeholders": {"email": {"type": "String"}}},
+  "@codeSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "codeLabel": "Code",
   "verifyCode": "Anmelden",
   "changeEmail": "Andere E-Mail verwenden",
   "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein.",
   "loginLegal": "Mit der Anmeldung bestätigst du, dass du mindestens 18 Jahre alt bist.",
   "notConfigured": "Die App ist noch nicht mit einem Server verbunden. Starte sie mit --dart-define=SUPABASE_URL=… und --dart-define=SUPABASE_KEY=… (siehe README).",
-
   "onboardingTitle": "Dein Profil",
   "stepBasics": "Über dich",
   "stepPreferences": "Wen suchst du?",
@@ -32,7 +35,16 @@
   "stepPrompts": "Deine Prompts",
   "stepLocation": "Dein Standort",
   "stepOf": "Schritt {step} von {total}",
-  "@stepOf": {"placeholders": {"step": {"type": "int"}, "total": {"type": "int"}}},
+  "@stepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "nameLabel": "Vorname",
   "birthdateLabel": "Geburtsdatum",
   "birthdateHint": "Wird nie angezeigt – andere sehen nur dein Alter.",
@@ -52,9 +64,24 @@
   "intentionPublicLabel": "Im Profil anzeigen",
   "intentionPublicHint": "Dein Ziel zählt immer fürs Matching. Du entscheidest, ob andere es sehen.",
   "ageRangeLabel": "Alter: {min}–{max}",
-  "@ageRangeLabel": {"placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}},
+  "@ageRangeLabel": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "distanceLabel": "Entfernung: bis {km} km",
-  "@distanceLabel": {"placeholders": {"km": {"type": "int"}}},
+  "@distanceLabel": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
   "photosHint": "Mindestens 1, höchstens 6 Fotos. Auf dem ersten Foto sollte man dich gut erkennen.",
   "addPhoto": "Foto hinzufügen",
   "deletePhotoTitle": "Foto löschen?",
@@ -72,16 +99,26 @@
   "interestedInRequired": "Bitte wähle mindestens eine Option.",
   "photoRequired": "Bitte füge mindestens ein Foto hinzu.",
   "promptRequired": "Bitte beantworte mindestens einen Prompt.",
-
   "tabDiscover": "Entdecken",
   "tabLikes": "Likes",
   "tabChats": "Chats",
   "tabMe": "Profil",
-
   "likesLeft": "{count, plural, =0{Keine Likes mehr} =1{1 Like übrig} other{{count} Likes übrig}}",
-  "@likesLeft": {"placeholders": {"count": {"type": "int"}}},
+  "@likesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "undoButton": "Rückgängig ({count})",
-  "@undoButton": {"placeholders": {"count": {"type": "int"}}},
+  "@undoButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "undoDone": "Rückgängig gemacht",
   "likesUsedUpTitle": "Für heute ist Schluss",
   "likesUsedUpBody": "Du hast heute alle 20 Likes vergeben. Morgen gibt es neue – bis dahin kannst du deine Likes und Chats ansehen.",
@@ -94,16 +131,36 @@
   "likeThis": "Gefällt mir",
   "matchTitle": "Ihr mögt euch! 🌸",
   "matchBody": "Du und {name} habt ein Match.",
-  "@matchBody": {"placeholders": {"name": {"type": "String"}}},
+  "@matchBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "matchQueued": "Euer Chat öffnet sich, sobald ihr beide einen freien Chat-Platz habt.",
   "openChats": "Zu den Chats",
   "keepDiscovering": "Weiter entdecken",
   "distanceKm": "{km} km entfernt",
-  "@distanceKm": {"placeholders": {"km": {"type": "int"}}},
+  "@distanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
   "verifiedBadge": "Verifiziert",
   "ageAndCity": "{age} · {city}",
-  "@ageAndCity": {"placeholders": {"age": {"type": "int"}, "city": {"type": "String"}}},
-
+  "@ageAndCity": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
   "likesTitle": "Wer dich mag",
   "likesSubtitle": "Zurück-liken kostet keine Likes.",
   "likesEmpty": "Noch keine Likes. Gute Dinge brauchen manchmal etwas Zeit.",
@@ -112,7 +169,6 @@
   "likedYou": "mag dich",
   "likeBack": "Zurück-liken",
   "decline": "Ablehnen",
-
   "chatsTitle": "Chats",
   "chatsEmpty": "Noch keine Matches. Wenn ihr euch gegenseitig mögt, erscheint der Chat hier.",
   "chatQueued": "Wartet auf einen freien Chat-Platz",
@@ -120,9 +176,21 @@
   "chatClosedStale": "Eingeschlafen",
   "chatNoMessages": "Sagt Hallo 👋",
   "chatYou": "Du: {message}",
-  "@chatYou": {"placeholders": {"message": {"type": "String"}}},
+  "@chatYou": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "chatSlots": "{count} von 6 Chats aktiv",
-  "@chatSlots": {"placeholders": {"count": {"type": "int"}}},
+  "@chatSlots": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "messageHint": "Nachricht schreiben …",
   "verifyToChat": "Bitte verifiziere dich, bevor du schreibst – so wissen alle, dass du echt bist.",
   "verifyNow": "Jetzt verifizieren",
@@ -138,11 +206,23 @@
   "goodbyeLabel": "Abschiedsnachricht (optional)",
   "block": "Blockieren",
   "blockTitle": "{name} blockieren?",
-  "@blockTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@blockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "blockBody": "Ihr seht euch nicht mehr und euer Chat wird beendet.",
   "report": "Melden",
   "reportTitle": "{name} melden",
-  "@reportTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@reportTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "reportReasonFake": "Fake-Profil",
   "reportReasonScam": "Betrug / fragt nach Geld",
   "reportReasonHarassment": "Belästigung",
@@ -153,7 +233,6 @@
   "reportSend": "Meldung senden",
   "reportSent": "Danke. Wir sehen uns die Meldung an.",
   "viewProfile": "Profil ansehen",
-
   "meTitle": "Dein Profil",
   "previewProfile": "So sehen dich andere",
   "editProfile": "Über dich",
@@ -170,12 +249,10 @@
   "signOut": "Abmelden",
   "deleteAccount": "Konto löschen",
   "accountRestricted": "Dein Konto ist eingeschränkt: Du wirst gerade niemandem vorgeschlagen und kannst keine Links senden.",
-
   "verificationTitle": "Selfie-Verifizierung",
   "verificationIntro": "Mach ein Selfie mit dieser Geste. Wir vergleichen es mit deinen Fotos – das Selfie sieht niemand außer dem Lotus-Team.",
   "takeSelfie": "Selfie aufnehmen",
   "verificationSubmitted": "Danke! Wir prüfen dein Selfie so schnell wie möglich.",
-
   "deleteTitle": "Konto löschen",
   "deleteFoundQuestion": "Hast du jemanden gefunden?",
   "deleteFoundYes": "Ja, ich habe jemanden gefunden 🎉",
@@ -184,7 +261,6 @@
   "deleteWarning": "Alle deine Daten, Fotos, Matches und Nachrichten werden unwiderruflich gelöscht.",
   "deleteConfirm": "Endgültig löschen",
   "deleteCongrats": "Wie schön! Genau dafür gibt es Lotus. Alles Gute euch beiden!",
-
   "adminTitle": "Admin",
   "adminVerifications": "Selfies",
   "adminReports": "Meldungen",
@@ -193,17 +269,34 @@
   "approve": "Bestätigen",
   "reject": "Ablehnen",
   "gestureLabel": "Geste: {gesture}",
-  "@gestureLabel": {"placeholders": {"gesture": {"type": "String"}}},
+  "@gestureLabel": {
+    "placeholders": {
+      "gesture": {
+        "type": "String"
+      }
+    }
+  },
   "selfieLabel": "Selfie",
   "profilePhotosLabel": "Profilfotos",
   "reportsAgainst": "{count, plural, =1{1 Meldung gegen diese Person} other{{count} Meldungen gegen diese Person}}",
-  "@reportsAgainst": {"placeholders": {"count": {"type": "int"}}},
+  "@reportsAgainst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reportedBy": "gemeldet von {name}",
-  "@reportedBy": {"placeholders": {"name": {"type": "String"}}},
+  "@reportedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dismiss": "Verwerfen",
   "restrict": "Einschränken",
   "suspend": "Sperren",
-
   "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuch es noch einmal.",
   "errorDailyLikeLimit": "Deine 20 Likes für heute sind aufgebraucht.",
   "errorMonthlyUndoLimit": "Du hast diesen Monat schon 3-mal rückgängig gemacht.",
@@ -217,5 +310,128 @@
   "errorAlreadyVerified": "Du bist bereits verifiziert.",
   "errorNotAllowed": "Das ist gerade nicht möglich.",
   "errorInvalidCode": "Der Code ist falsch oder abgelaufen.",
-  "errorRateLimit": "Zu viele Versuche. Bitte warte kurz."
+  "errorRateLimit": "Zu viele Versuche. Bitte warte kurz.",
+  "supportTitle": "Lotus Plus & Unterstützen",
+  "supportIntro": "Lotus ist kostenlos und bleibt fair: Geld kauft hier keine Likes, keine Sichtbarkeit und keine Vorteile beim Matching. Mit Plus oder einer Spende hilfst du, die Server zu bezahlen – und bekommst ein bisschen Komfort.",
+  "plusTitle": "Lotus Plus",
+  "plusFeatureTravel": "Reisemodus: Profile in einer anderen Stadt sehen, z. B. vor einem Umzug",
+  "plusFeatureStats": "Statistiken über dein Profil: Welche Fotos und Antworten gut ankommen",
+  "plusFeatureFair": "Kein Einfluss auf deine Sichtbarkeit oder deine Likes – versprochen",
+  "plusPerMonth": "{price} pro Monat",
+  "@plusPerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "plusSubscribe": "Lotus Plus abonnieren",
+  "plusActiveUntil": "Aktiv bis {date}",
+  "@plusActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "plusManageHint": "Kündigen kannst du jederzeit in Google Play unter „Abos“.",
+  "plusRequired": "Diese Funktion gehört zu Lotus Plus.",
+  "restorePurchases": "Käufe wiederherstellen",
+  "donateTitle": "Spenden",
+  "donateText": "Einmalig und freiwillig. Jeder Beitrag hält Lotus werbefrei.",
+  "donateThanks": "Danke für deine Unterstützung! 🌸",
+  "purchasePending": "Zahlung wird bearbeitet …",
+  "purchaseFailed": "Der Kauf konnte nicht abgeschlossen werden. Dir wird nichts berechnet, wenn er nicht bestätigt wird.",
+  "storeUnavailable": "Käufe sind in dieser Version noch nicht möglich. In der Beta ist Lotus Plus kostenlos – frag einfach nach.",
+  "successContributionTitle": "Danke sagen?",
+  "successContributionText": "Wenn Lotus dir geholfen hat: Ein einmaliger Beitrag hilft, dass andere auch jemanden finden. Ganz freiwillig.",
+  "successContributionButton": "Beitrag leisten ({price})",
+  "@successContributionButton": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "travelTitle": "Reisemodus",
+  "travelIntro": "Sieh Profile an einem anderen Ort – z. B. vor einem Umzug oder einer längeren Reise. Dort wirst du mit dem Hinweis „zu Besuch“ angezeigt, nicht häufiger als andere.",
+  "travelCity": "Ziel",
+  "travelDays": "Dauer: {days} Tage",
+  "@travelDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "travelStart": "Reisemodus starten",
+  "travelActive": "Du bist gerade in {city} – bis {date}.",
+  "@travelActive": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "travelEnd": "Reisemodus beenden",
+  "travelVisiting": "zu Besuch",
+  "statsTitle": "Deine Statistiken",
+  "statsImpressions": "So oft wurdest du in den letzten 7 Tagen gezeigt",
+  "statsLikes": "Likes in den letzten 30 Tagen",
+  "statsComments": "davon mit Kommentar",
+  "statsMatches": "Matches in den letzten 30 Tagen",
+  "statsElements": "Was gut ankommt",
+  "statsElementLine": "{likes} Likes · {comments} Kommentare",
+  "@statsElementLine": {
+    "placeholders": {
+      "likes": {
+        "type": "int"
+      },
+      "comments": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsTitle": "Benachrichtigungen",
+  "notificationsIntro": "Lotus schickt nur das Nötigste – nie Werbung und nie Nachrichtentexte.",
+  "notifyMessages": "Neue Nachrichten",
+  "notifyMatches": "Neue Matches & freie Chats",
+  "notifyLikes": "Jemand mag dich (höchstens alle 6 Stunden)",
+  "pushOpen": "Öffnen",
+  "imprint": "Impressum",
+  "imprintIncomplete": "Impressum unvollständig – bitte app/lib/legal/legal_info.dart ausfüllen.",
+  "imprintProvider": "Angaben gemäß § 5 DDG",
+  "imprintContact": "Kontakt",
+  "imprintPhone": "Telefon",
+  "imprintEmail": "E-Mail",
+  "imprintVat": "Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG",
+  "imprintEconomicId": "Wirtschafts-Identifikationsnummer gemäß § 139c AO",
+  "imprintResponsible": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV",
+  "imprintDsa": "Zentrale Kontaktstelle nach Art. 11 und 12 DSA",
+  "imprintDsaText": "Für Behörden, die EU-Kommission, das Gremium für digitale Dienste sowie für Nutzer:innen: {email}. Wir kommunizieren auf Deutsch und Englisch. Anfragen werden von einem Menschen bearbeitet.",
+  "@imprintDsaText": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "imprintDispute": "Verbraucherstreitbeilegung",
+  "imprintDisputeText": "Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.",
+  "adminGrantPlus": "Lotus Plus vergeben",
+  "adminGrantPlusHint": "E-Mail-Adresse des Kontos",
+  "adminGrantPlusDone": "Plus aktiv bis {date}",
+  "@adminGrantPlusDone": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "errorPlusRequired": "Diese Funktion gehört zu Lotus Plus.",
+  "errorPurchase": "Der Kauf konnte nicht bestätigt werden.",
+  "errorProfileNotFound": "Kein Profil mit dieser E-Mail-Adresse gefunden."
 }

@@ -5,7 +5,10 @@ import '../../data/models.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../providers.dart';
 import '../../widgets/common.dart';
+import '../../legal/impressum_screen.dart';
 import '../admin/admin_screen.dart';
+import '../settings/notification_settings_screen.dart';
+import '../support/support_screen.dart';
 import '../profile/location_section.dart';
 import '../profile/photos_editor.dart';
 import '../profile/profile_view.dart';
@@ -93,6 +96,20 @@ class MeScreen extends ConsumerWidget {
               }
             },
           ),
+          const Divider(height: 24),
+          _Tile(
+            icon: Icons.spa_outlined,
+            title: l.supportTitle,
+            subtitle: status.hasPlus
+                ? l.plusActiveUntil(MaterialLocalizations.of(context).formatMediumDate(status.plusUntil!))
+                : null,
+            onTap: () => _open(context, const SupportScreen()),
+          ),
+          _Tile(
+            icon: Icons.notifications_outlined,
+            title: l.notificationsTitle,
+            onTap: () => _open(context, const NotificationSettingsScreen()),
+          ),
           if (status.isAdmin) ...[
             const Divider(height: 24),
             _Tile(
@@ -102,6 +119,7 @@ class MeScreen extends ConsumerWidget {
             ),
           ],
           const Divider(height: 24),
+          _Tile(icon: Icons.info_outline, title: l.imprint, onTap: () => _open(context, const ImpressumScreen())),
           _Tile(icon: Icons.logout, title: l.signOut, onTap: () => ref.read(apiProvider).signOut()),
           _Tile(
             icon: Icons.delete_outline,

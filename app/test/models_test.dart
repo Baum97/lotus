@@ -41,6 +41,10 @@ void main() {
       expect(MyStatus.fromJson(json).onboardingComplete, isFalse);
       expect(MyStatus.fromJson({...json, 'has_location': true}).onboardingComplete, isTrue);
       expect(MyStatus.fromJson(json).trustStatus, TrustStatus.active);
+      expect(MyStatus.fromJson(json).hasPlus, isFalse);
+      final plus = MyStatus.fromJson({...json, 'plus_until': '2026-11-12T10:00:00Z', 'travel_city': 'München'});
+      expect(plus.hasPlus, isTrue);
+      expect(plus.travelCity, 'München');
     });
 
     test('Vorschlag ohne öffentliches Dating-Ziel', () {

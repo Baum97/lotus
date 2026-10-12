@@ -275,9 +275,9 @@ class _PreferencesSectionState extends State<PreferencesSection> {
       _SectionLabel(l.distanceLabel(draft.distanceKm.round())),
       Slider(
         value: draft.distanceKm,
-        min: 5,
-        max: 300,
-        divisions: 59,
+        min: 1,
+        max: 150,
+        divisions: 149,
         semanticFormatterCallback: (value) => '${value.round()} km',
         onChanged: (value) => _update(() => draft.distanceKm = value),
       ),

@@ -22,6 +22,8 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 | Geburtsdatum, Standort | nie für andere sichtbar (nur Alter, gerundete Entfernung) |
 | Fotos | sofort sichtbar, bis ein Admin sie ablehnt |
 | Spam | gleiche Nachricht an ≥ 5 Matches → Konto eingeschränkt |
+| Suchradius | 1–150 km (Standard 50 km) |
+| Lotus Plus | nur Komfort (Reisemodus, eigene Statistiken) – kein Einfluss auf Sichtbarkeit oder Likes |
 
 Das eigene Like-Verhalten beeinflusst **nie** die eigene Sichtbarkeit. Vorschläge werden nach
 gegenseitigen Filtern, gleicher Absicht und einem Fairness-Kontingent (seltener Gezeigte zuerst) sortiert.
@@ -33,6 +35,8 @@ docs/KONZEPT.md                    Produktkonzept & Entscheidungen
 app/                               Flutter-App (siehe app/README.md)
 supabase/migrations/               Schema, Logik (RPC-Funktionen), Rechte, RLS, Storage
 supabase/functions/notify/         Edge Function für Push-Benachrichtigungen (FCM)
+supabase/functions/verify-purchase/ Edge Function: Käufe bei Google Play prüfen und freischalten
+docs/IMPRESSUM.md                  Impressum-Vorlage mit Ausfüllhilfe
 supabase/templates/                E-Mail-Vorlage für den Anmeldecode
 supabase/tests/local/              Datenbank-Tests (laufen auf normalem Postgres + PostGIS)
 scripts/test-db.sh                 Migrationen einspielen + Datenbank-Tests ausführen
@@ -59,7 +63,7 @@ cd app && flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 \
 ## Tests
 
 ```bash
-PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 104 Datenbank-Prüfungen
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 134 Datenbank-Prüfungen
 cd app && flutter analyze && flutter test                         # App
 ```
 
@@ -78,6 +82,7 @@ cd app && flutter analyze && flutter test                         # App
 | `start_verification()`, `submit_verification(…)` | Gesten-Selfie |
 | `delete_my_account(p_found_someone, p_feedback)` | Konto löschen, „jemanden gefunden“ anonym zählen |
 | `register_device_token(…)` | Push-Token speichern |
+| `set_travel_location(…)`, `clear_travel_location()`, `get_my_stats()` | Lotus Plus: Reisemodus, eigene Statistiken |
 | `admin_*` | Selfies prüfen, Fotos moderieren, Meldungen bearbeiten, Konten einschränken/sperren |
 
 Fehler kommen als stabile Schlüssel (`daily_like_limit_reached`, `monthly_undo_limit_reached`,
@@ -97,20 +102,39 @@ Fehler kommen als stabile Schlüssel (`daily_like_limit_reached`, `monthly_undo_
 6. Für mehr als ein paar Tester:innen einen eigenen SMTP-Versand einrichten (Supabase verschickt ohne
    SMTP nur wenige E-Mails pro Stunde), z. B. über einen EU-Anbieter mit Gratis-Kontingent.
 
-**Push (optional, kostenlos)**
-1. Firebase-Projekt + Android-App (`app.lotusdating.lotus`) anlegen, Service-Account-JSON herunterladen.
-2. `npx supabase secrets set FIREBASE_SERVICE_ACCOUNT="$(cat service-account.json)" NOTIFY_WEBHOOK_SECRET=<zufällig>`
+**Push-Benachrichtigungen (kostenlos)**
+
+Benachrichtigt werden: neue Nachrichten, neue Matches, freigewordene Chats, „Jemand mag dich“ (höchstens alle
+6 Stunden). Nie mit Nachrichtentext. Jede Art lässt sich in der App unter Profil → Benachrichtigungen abschalten.
+1. Firebase-Projekt anlegen, darin eine Android-App mit Paketname `app.lotusdating.lotus`.
+   Projekteinstellungen → Dienstkonten → „Neuen privaten Schlüssel generieren“ (JSON).
+2. `npx supabase secrets set FIREBASE_SERVICE_ACCOUNT="$(cat service-account.json)" NOTIFY_WEBHOOK_SECRET=<langer Zufallswert>`
 3. `npx supabase functions deploy notify --no-verify-jwt`
-4. Database → Webhooks: je ein Webhook auf `messages` (INSERT) und `matches` (INSERT, UPDATE) →
-   Edge Function `notify`, Header `x-webhook-secret: <derselbe Wert>`.
+4. Im SQL-Editor die Datenbank mit der Function verbinden (die Trigger sind schon angelegt):
+   ```sql
+   insert into private.settings (key, value) values
+     ('notify_url', 'https://<projekt>.supabase.co/functions/v1/notify'),
+     ('notify_secret', '<derselbe Zufallswert>');
+   ```
 5. App mit den `FIREBASE_*`-Werten bauen (siehe `app/README.md`).
+
+**Lotus Plus & Spenden (Google Play)**
+1. Play Console → Monetarisierung: ein Abo `lotus_plus_monatlich` und die In-App-Produkte `spende_klein`,
+   `spende_mittel`, `spende_gross`, `beitrag_erfolg` anlegen (IDs genau so, Preise frei wählbar).
+   Dafür braucht die Play Console ein Händlerkonto (siehe `docs/IMPRESSUM.md` → „Was sich ändert …“).
+2. Google Cloud: Dienstkonto anlegen, in der Play Console unter Nutzer & Berechtigungen einladen
+   (Recht „Finanzdaten ansehen“ bzw. „Bestellungen und Abos verwalten“), JSON-Schlüssel herunterladen.
+3. `npx supabase secrets set GOOGLE_PLAY_SERVICE_ACCOUNT="$(cat play-service-account.json)" ANDROID_PACKAGE_NAME=app.lotusdating.lotus`
+4. `npx supabase functions deploy verify-purchase`
+5. Beta ohne Zahlungen: Admin-Bereich → Lotus-Symbol oben rechts → Plus per E-Mail-Adresse für 30 Tage vergeben.
 
 **App verteilen**
 1. Google-Play-Entwicklerkonto (einmalig 25 $), App mit Signaturschlüssel bauen.
 2. „Interner Test“ in der Play Console – bis zu 100 Tester:innen per E-Mail-Liste, ohne Review-Wartezeit.
 
 **Rechtliches vor dem ersten fremden Nutzer** (siehe `docs/KONZEPT.md`, Abschnitt 8)
-- Impressum, Datenschutzerklärung (besondere Kategorien nach Art. 9 DSGVO: Orientierung), Nutzungsbedingungen
+- Impressum: Angaben in `app/lib/legal/legal_info.dart` und `docs/IMPRESSUM.md` eintragen (Vorlage mit Ausfüllhilfe).
+- Datenschutzerklärung (besondere Kategorien nach Art. 9 DSGVO: Orientierung), Nutzungsbedingungen
   – in der App verlinken.
 - Datenschutz-Folgenabschätzung (DSFA) – bei Dating-Apps praktisch immer nötig.
 - Auftragsverarbeitungsverträge mit Supabase (und ggf. Firebase, SMTP-Anbieter).

@@ -27,6 +27,19 @@ class Push {
     }
   }
 
+  /// Reagiert auf Benachrichtigungen: [onForeground] während die App offen ist,
+  /// [onOpen] wenn die App über eine Benachrichtigung geöffnet wird (Daten: type = message|match|like).
+  static Future<void> listen({
+    required void Function(String title, Map<String, dynamic> data) onForeground,
+    required void Function(Map<String, dynamic> data) onOpen,
+  }) async {
+    if (!_enabled) return;
+    FirebaseMessaging.onMessage.listen((m) => onForeground(m.notification?.title ?? '', m.data));
+    FirebaseMessaging.onMessageOpenedApp.listen((m) => onOpen(m.data));
+    final initial = await FirebaseMessaging.instance.getInitialMessage();
+    if (initial != null) onOpen(initial.data);
+  }
+
   /// Fragt die Berechtigung an und meldet das Gerät beim Server an.
   static Future<void> registerToken(LotusApi api) async {
     if (!_enabled) return;

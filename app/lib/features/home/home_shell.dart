@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../providers.dart';
 import '../../services/push.dart';
@@ -33,6 +34,31 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     super.initState();
     // Profil ist vollständig → Gerät für Push-Benachrichtigungen anmelden (falls konfiguriert)
     Push.registerToken(ref.read(apiProvider));
+    Push.listen(onForeground: _onForegroundPush, onOpen: _openFromPush);
+    // Käufe, die beim letzten Start offen geblieben sind, jetzt prüfen lassen
+    ref.read(storeProvider).start();
+  }
+
+  HomeTab _tabFor(Map<String, dynamic> data) => data['type'] == 'like' ? HomeTab.likes : HomeTab.chats;
+
+  void _refresh() {
+    ref.invalidate(matchesProvider);
+    ref.invalidate(incomingLikesProvider);
+    ref.invalidate(myStatusProvider);
+  }
+
+  void _openFromPush(Map<String, dynamic> data) {
+    _refresh();
+    ref.read(homeTabProvider.notifier).select(_tabFor(data));
+  }
+
+  void _onForegroundPush(String title, Map<String, dynamic> data) {
+    _refresh();
+    final l = AppLocalizations.of(context);
+    scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+      content: Text(title),
+      action: SnackBarAction(label: l.pushOpen, onPressed: () => _openFromPush(data)),
+    ));
   }
 
   @override

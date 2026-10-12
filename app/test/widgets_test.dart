@@ -7,6 +7,7 @@ import 'package:lotus/data/models.dart';
 import 'package:lotus/features/auth/login_screen.dart';
 import 'package:lotus/features/profile/profile_forms.dart';
 import 'package:lotus/features/profile/profile_view.dart';
+import 'package:lotus/legal/impressum_screen.dart';
 import 'package:lotus/l10n/gen/app_localizations.dart';
 import 'package:lotus/theme.dart';
 import 'package:lotus/widgets/common.dart';
@@ -102,5 +103,34 @@ void main() {
     expect(errorText(captured, const LotusException('monthly_undo_limit_reached')),
         'Du hast diesen Monat schon 3-mal rückgängig gemacht.');
     expect(errorText(captured, Exception('x')), 'Etwas ist schiefgelaufen. Bitte versuch es noch einmal.');
+  });
+
+  testWidgets('Suchradius geht von 1 bis 150 km', (tester) async {
+    final draft = ProfileDraft();
+    await tester.pumpWidget(wrap(SingleChildScrollView(child: PreferencesSection(draft: draft, onChanged: () {}))));
+    final slider = tester.widget<Slider>(find.byType(Slider));
+    expect(slider.min, 1);
+    expect(slider.max, 150);
+  });
+
+  testWidgets('Profil im Reisemodus zeigt "zu Besuch"', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const visiting = FullProfile(
+      summary: ProfileSummary(id: 'x', displayName: 'Mia', age: 29, city: 'Ulm', verified: false, traveling: true),
+      photos: [],
+      prompts: [],
+    );
+    await tester.pumpWidget(wrap(const ProfileView(profile: visiting)));
+    expect(find.textContaining('Ulm · zu Besuch'), findsOneWidget);
+  });
+
+  testWidgets('Impressum warnt, solange Pflichtangaben fehlen', (tester) async {
+    await tester.pumpWidget(wrap(const ImpressumScreen()));
+    expect(find.text('Angaben gemäß § 5 DDG'), findsOneWidget);
+    expect(find.text('Zentrale Kontaktstelle nach Art. 11 und 12 DSA'), findsOneWidget);
+    expect(find.textContaining('Impressum unvollständig'), findsOneWidget);
+    expect(find.textContaining('Online-Streitbeilegung'), findsNothing); // OS-Plattform seit 20.07.2025 abgeschaltet
   });
 }

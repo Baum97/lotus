@@ -1233,6 +1233,372 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Zu viele Versuche. Bitte warte kurz.'**
   String get errorRateLimit;
+
+  /// No description provided for @supportTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus Plus & Unterstützen'**
+  String get supportTitle;
+
+  /// No description provided for @supportIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus ist kostenlos und bleibt fair: Geld kauft hier keine Likes, keine Sichtbarkeit und keine Vorteile beim Matching. Mit Plus oder einer Spende hilfst du, die Server zu bezahlen – und bekommst ein bisschen Komfort.'**
+  String get supportIntro;
+
+  /// No description provided for @plusTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus Plus'**
+  String get plusTitle;
+
+  /// No description provided for @plusFeatureTravel.
+  ///
+  /// In de, this message translates to:
+  /// **'Reisemodus: Profile in einer anderen Stadt sehen, z. B. vor einem Umzug'**
+  String get plusFeatureTravel;
+
+  /// No description provided for @plusFeatureStats.
+  ///
+  /// In de, this message translates to:
+  /// **'Statistiken über dein Profil: Welche Fotos und Antworten gut ankommen'**
+  String get plusFeatureStats;
+
+  /// No description provided for @plusFeatureFair.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Einfluss auf deine Sichtbarkeit oder deine Likes – versprochen'**
+  String get plusFeatureFair;
+
+  /// No description provided for @plusPerMonth.
+  ///
+  /// In de, this message translates to:
+  /// **'{price} pro Monat'**
+  String plusPerMonth(String price);
+
+  /// No description provided for @plusSubscribe.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus Plus abonnieren'**
+  String get plusSubscribe;
+
+  /// No description provided for @plusActiveUntil.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktiv bis {date}'**
+  String plusActiveUntil(String date);
+
+  /// No description provided for @plusManageHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Kündigen kannst du jederzeit in Google Play unter „Abos“.'**
+  String get plusManageHint;
+
+  /// No description provided for @plusRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Funktion gehört zu Lotus Plus.'**
+  String get plusRequired;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In de, this message translates to:
+  /// **'Käufe wiederherstellen'**
+  String get restorePurchases;
+
+  /// No description provided for @donateTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Spenden'**
+  String get donateTitle;
+
+  /// No description provided for @donateText.
+  ///
+  /// In de, this message translates to:
+  /// **'Einmalig und freiwillig. Jeder Beitrag hält Lotus werbefrei.'**
+  String get donateText;
+
+  /// No description provided for @donateThanks.
+  ///
+  /// In de, this message translates to:
+  /// **'Danke für deine Unterstützung! 🌸'**
+  String get donateThanks;
+
+  /// No description provided for @purchasePending.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlung wird bearbeitet …'**
+  String get purchasePending;
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Kauf konnte nicht abgeschlossen werden. Dir wird nichts berechnet, wenn er nicht bestätigt wird.'**
+  String get purchaseFailed;
+
+  /// No description provided for @storeUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Käufe sind in dieser Version noch nicht möglich. In der Beta ist Lotus Plus kostenlos – frag einfach nach.'**
+  String get storeUnavailable;
+
+  /// No description provided for @successContributionTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Danke sagen?'**
+  String get successContributionTitle;
+
+  /// No description provided for @successContributionText.
+  ///
+  /// In de, this message translates to:
+  /// **'Wenn Lotus dir geholfen hat: Ein einmaliger Beitrag hilft, dass andere auch jemanden finden. Ganz freiwillig.'**
+  String get successContributionText;
+
+  /// No description provided for @successContributionButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Beitrag leisten ({price})'**
+  String successContributionButton(String price);
+
+  /// No description provided for @travelTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Reisemodus'**
+  String get travelTitle;
+
+  /// No description provided for @travelIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Sieh Profile an einem anderen Ort – z. B. vor einem Umzug oder einer längeren Reise. Dort wirst du mit dem Hinweis „zu Besuch“ angezeigt, nicht häufiger als andere.'**
+  String get travelIntro;
+
+  /// No description provided for @travelCity.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel'**
+  String get travelCity;
+
+  /// No description provided for @travelDays.
+  ///
+  /// In de, this message translates to:
+  /// **'Dauer: {days} Tage'**
+  String travelDays(int days);
+
+  /// No description provided for @travelStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Reisemodus starten'**
+  String get travelStart;
+
+  /// No description provided for @travelActive.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist gerade in {city} – bis {date}.'**
+  String travelActive(String city, String date);
+
+  /// No description provided for @travelEnd.
+  ///
+  /// In de, this message translates to:
+  /// **'Reisemodus beenden'**
+  String get travelEnd;
+
+  /// No description provided for @travelVisiting.
+  ///
+  /// In de, this message translates to:
+  /// **'zu Besuch'**
+  String get travelVisiting;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Statistiken'**
+  String get statsTitle;
+
+  /// No description provided for @statsImpressions.
+  ///
+  /// In de, this message translates to:
+  /// **'So oft wurdest du in den letzten 7 Tagen gezeigt'**
+  String get statsImpressions;
+
+  /// No description provided for @statsLikes.
+  ///
+  /// In de, this message translates to:
+  /// **'Likes in den letzten 30 Tagen'**
+  String get statsLikes;
+
+  /// No description provided for @statsComments.
+  ///
+  /// In de, this message translates to:
+  /// **'davon mit Kommentar'**
+  String get statsComments;
+
+  /// No description provided for @statsMatches.
+  ///
+  /// In de, this message translates to:
+  /// **'Matches in den letzten 30 Tagen'**
+  String get statsMatches;
+
+  /// No description provided for @statsElements.
+  ///
+  /// In de, this message translates to:
+  /// **'Was gut ankommt'**
+  String get statsElements;
+
+  /// No description provided for @statsElementLine.
+  ///
+  /// In de, this message translates to:
+  /// **'{likes} Likes · {comments} Kommentare'**
+  String statsElementLine(int likes, int comments);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Benachrichtigungen'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus schickt nur das Nötigste – nie Werbung und nie Nachrichtentexte.'**
+  String get notificationsIntro;
+
+  /// No description provided for @notifyMessages.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Nachrichten'**
+  String get notifyMessages;
+
+  /// No description provided for @notifyMatches.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Matches & freie Chats'**
+  String get notifyMatches;
+
+  /// No description provided for @notifyLikes.
+  ///
+  /// In de, this message translates to:
+  /// **'Jemand mag dich (höchstens alle 6 Stunden)'**
+  String get notifyLikes;
+
+  /// No description provided for @pushOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'Öffnen'**
+  String get pushOpen;
+
+  /// No description provided for @imprint.
+  ///
+  /// In de, this message translates to:
+  /// **'Impressum'**
+  String get imprint;
+
+  /// No description provided for @imprintIncomplete.
+  ///
+  /// In de, this message translates to:
+  /// **'Impressum unvollständig – bitte app/lib/legal/legal_info.dart ausfüllen.'**
+  String get imprintIncomplete;
+
+  /// No description provided for @imprintProvider.
+  ///
+  /// In de, this message translates to:
+  /// **'Angaben gemäß § 5 DDG'**
+  String get imprintProvider;
+
+  /// No description provided for @imprintContact.
+  ///
+  /// In de, this message translates to:
+  /// **'Kontakt'**
+  String get imprintContact;
+
+  /// No description provided for @imprintPhone.
+  ///
+  /// In de, this message translates to:
+  /// **'Telefon'**
+  String get imprintPhone;
+
+  /// No description provided for @imprintEmail.
+  ///
+  /// In de, this message translates to:
+  /// **'E-Mail'**
+  String get imprintEmail;
+
+  /// No description provided for @imprintVat.
+  ///
+  /// In de, this message translates to:
+  /// **'Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG'**
+  String get imprintVat;
+
+  /// No description provided for @imprintEconomicId.
+  ///
+  /// In de, this message translates to:
+  /// **'Wirtschafts-Identifikationsnummer gemäß § 139c AO'**
+  String get imprintEconomicId;
+
+  /// No description provided for @imprintResponsible.
+  ///
+  /// In de, this message translates to:
+  /// **'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV'**
+  String get imprintResponsible;
+
+  /// No description provided for @imprintDsa.
+  ///
+  /// In de, this message translates to:
+  /// **'Zentrale Kontaktstelle nach Art. 11 und 12 DSA'**
+  String get imprintDsa;
+
+  /// No description provided for @imprintDsaText.
+  ///
+  /// In de, this message translates to:
+  /// **'Für Behörden, die EU-Kommission, das Gremium für digitale Dienste sowie für Nutzer:innen: {email}. Wir kommunizieren auf Deutsch und Englisch. Anfragen werden von einem Menschen bearbeitet.'**
+  String imprintDsaText(String email);
+
+  /// No description provided for @imprintDispute.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbraucherstreitbeilegung'**
+  String get imprintDispute;
+
+  /// No description provided for @imprintDisputeText.
+  ///
+  /// In de, this message translates to:
+  /// **'Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.'**
+  String get imprintDisputeText;
+
+  /// No description provided for @adminGrantPlus.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus Plus vergeben'**
+  String get adminGrantPlus;
+
+  /// No description provided for @adminGrantPlusHint.
+  ///
+  /// In de, this message translates to:
+  /// **'E-Mail-Adresse des Kontos'**
+  String get adminGrantPlusHint;
+
+  /// No description provided for @adminGrantPlusDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Plus aktiv bis {date}'**
+  String adminGrantPlusDone(String date);
+
+  /// No description provided for @errorPlusRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Funktion gehört zu Lotus Plus.'**
+  String get errorPlusRequired;
+
+  /// No description provided for @errorPurchase.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Kauf konnte nicht bestätigt werden.'**
+  String get errorPurchase;
+
+  /// No description provided for @errorProfileNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Profil mit dieser E-Mail-Adresse gefunden.'**
+  String get errorProfileNotFound;
 }
 
 class _AppLocalizationsDelegate

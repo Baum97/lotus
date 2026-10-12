@@ -147,6 +147,16 @@ Dieser Status ist ein **Gate** (darf jemand angezeigt werden / schreiben?), kein
 - Meldungen mit Kategorien; schwere Fälle (Scam, Belästigung) priorisiert.
 - Warnhinweis im Chat bei Geld-/Krypto-/Link-Anfragen („Die Person hat nach Geld gefragt – Vorsicht“).
 
+### 5.5 Moderation: Bot + Mensch (entschieden)
+
+- **Bald:** ein Bot sortiert Meldungen vor (Dringlichkeit, Kategorie, Duplikate) und beantwortet einfache Anfragen.
+- **Händisch:** alle tiefergehenden Beschwerden, Sperren und Einsprüche.
+- **Pflicht nach DSA (Art. 12, 17, 20):** Nutzer:innen müssen immer einen Menschen erreichen können; Sperren werden
+  begründet, Einsprüche von einem Menschen geprüft. Der Bot darf also vorsortieren und vorschlagen, aber nie
+  allein sperren.
+- Datenschutz: Wenn der Bot ein externes KI-Modell nutzt, gehen Meldungstexte an diesen Anbieter →
+  Auftragsverarbeitung, EU-Verarbeitung bzw. Standardvertragsklauseln, in der Datenschutzerklärung nennen.
+
 ## 6. Monetarisierung ohne Cashgrab
 
 Ziel: die Betriebskosten decken, ohne Anreiz, Menschen in der App zu halten.
@@ -272,8 +282,15 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 - Kaltstart: gezielt einladen, auf ausgewogene Gruppen achten
 - Limits anhand echter Nutzung justieren
 
+### ✅ Zusätzlich umgesetzt
+- Push-Benachrichtigungen direkt aus der Datenbank (Nachrichten, Matches, freie Chats, Likes max. alle 6 h), in der App einzeln abschaltbar
+- Lotus Plus (Reisemodus, eigene Statistiken), Spenden und Beitrag bei Erfolg über Google Play, serverseitig bei Google geprüft
+- Suchradius 1–150 km
+- Impressum (App + Vorlage `docs/IMPRESSUM.md`)
+
 ### Schritt 5 – Ausbau
-- iOS, Lotus Plus (Reisemodus etc.), freiwillige Beiträge & Beitrag bei Erfolg (Zahlungsabwicklung)
+- iOS
+- Moderations-Bot (siehe 5.5)
 - Geräte-Attestierung (Play Integrity / App Attest), automatischer Selfie-Abgleich
 - Transparenz-Seite „Warum sehe ich diese Person?“
 - Englische Übersetzung
@@ -315,14 +332,27 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 17 | Moderation (Beta) | Fotos sofort sichtbar, Admin kann ablehnen; Selfies prüft der Admin manuell |
 | 18 | Design | ruhig & warm: Rosé, Salbeigrün, Creme, weiche Rundungen |
 
+| 19 | Suchradius | 1–150 km, Standard 50 km |
+| 20 | Name | „Lotus“ bleibt (vorbehaltlich Markenprüfung, siehe unten) |
+| 21 | Konten & Organisatorisches | übernimmst du |
+| 22 | Moderation | bald ein Bot zur Vorsortierung, tiefergehende Beschwerden händisch |
+| 23 | Lotus Plus | Reisemodus + eigene Statistiken; Spenden & Beitrag bei Erfolg über Google Play |
+
 ### Noch offen
 
 **Produkt**
-1. Ulm ↔ Stuttgart liegen ~90 km auseinander: Standard-Suchradius 50 km lassen (zwei getrennte Pools) oder größer wählen?
-2. Weitere optionale Matching-Kriterien (z. B. Kinderwunsch, Rauchen) – und wenn ja, ebenfalls privat?
-3. Endgültiger Name und App-ID (`app.lotusdating.lotus` ist nach dem ersten Play-Store-Upload nicht mehr änderbar).
+1. Weitere optionale Matching-Kriterien (z. B. Kinderwunsch, Rauchen) – und wenn ja, ebenfalls privat?
+2. Preise für Lotus Plus und die drei Spendenstufen (Vorschlag: 3,99 €/Monat; 3 €, 5 €, 10 €; Beitrag bei Erfolg 15 €).
 
-**Organisatorisch (vor dem ersten fremden Nutzer)**
-4. Konten: Supabase (EU), Google-Play-Entwicklerkonto (25 $), optional Firebase (Push), SMTP-Versand für E-Mails.
-5. Rechtliches: Impressum, Datenschutzerklärung (Art. 9 DSGVO), Nutzungsbedingungen, DSFA, AV-Verträge.
-6. Wer moderiert außer dir (Urlaub, Krankheit)? Meldungen zu Scam/Minderjährigen sollten innerhalb eines Tages bearbeitet werden.
+**Name „Lotus“**
+3. Keine bekannte Dating-App „Lotus“ gefunden (nur eine vietnamesische Social-App und Chat-App, ein
+   Glücksspielangebot „Lotus365“ und eine kleine Seite „Lotusdates“). „LOTUS“ ist aber als Automarke sehr
+   bekannt, und im Februar 2026 wurde in Großbritannien „LOTUS“ u. a. für Klasse 45 angemeldet
+   (Partnervermittlung gehört zu Klasse 45). Vor dem öffentlichen Start im DPMAregister und bei EUIPO eSearch
+   nach „Lotus“ in Klasse 9, 42 und 45 suchen. Bei Treffern eine unterscheidbare Variante wählen
+   (z. B. „Lotus Dating“, „lotusly“) und am besten selbst eine Wortmarke anmelden (DPMA ab 290 €).
+
+**Organisatorisch (übernimmst du)**
+4. Konten: Supabase (EU), Google Play (25 $, mit Händlerkonto für Plus/Spenden), Firebase, SMTP-Versand.
+5. Rechtliches: Impressum ausfüllen, Datenschutzerklärung, Nutzungsbedingungen, DSFA, AV-Verträge,
+   Gewerbeanmeldung, sobald Geld fließt (siehe `docs/IMPRESSUM.md`).

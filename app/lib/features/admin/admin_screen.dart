@@ -33,6 +33,13 @@ class AdminScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.adminTitle),
+          actions: [
+            IconButton(
+              tooltip: l.adminGrantPlus,
+              icon: const Icon(Icons.spa_outlined),
+              onPressed: () => showDialog<void>(context: context, builder: (_) => const _GrantPlusDialog()),
+            ),
+          ],
           bottom: TabBar(tabs: [
             Tab(text: l.adminVerifications),
             Tab(text: l.adminReports),
@@ -41,6 +48,49 @@ class AdminScreen extends StatelessWidget {
         ),
         body: const TabBarView(children: [_VerificationsTab(), _ReportsTab(), _PhotosTab()]),
       ),
+    );
+  }
+}
+
+/// Beta: Lotus Plus kostenlos an Tester:innen vergeben (30 Tage).
+class _GrantPlusDialog extends ConsumerStatefulWidget {
+  const _GrantPlusDialog();
+
+  @override
+  ConsumerState<_GrantPlusDialog> createState() => _GrantPlusDialogState();
+}
+
+class _GrantPlusDialogState extends ConsumerState<_GrantPlusDialog> {
+  final _email = TextEditingController();
+
+  @override
+  void dispose() {
+    _email.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l.adminGrantPlus),
+      content: TextField(
+        controller: _email,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(labelText: l.adminGrantPlusHint),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
+        AsyncButton(
+          label: l.save,
+          onPressed: () async {
+            final until = await ref.read(apiProvider).adminGrantPlus(_email.text);
+            if (!context.mounted) return;
+            Navigator.pop(context);
+            showMessage(context, l.adminGrantPlusDone(MaterialLocalizations.of(context).formatMediumDate(until)));
+          },
+        ),
+      ],
     );
   }
 }
