@@ -433,5 +433,19 @@
   },
   "errorPlusRequired": "Diese Funktion gehört zu Lotus Plus.",
   "errorPurchase": "Der Kauf konnte nicht bestätigt werden.",
-  "errorProfileNotFound": "Kein Profil mit dieser E-Mail-Adresse gefunden."
+  "errorProfileNotFound": "Kein Profil mit dieser E-Mail-Adresse gefunden.",
+  "optionalHint": "Optional – tippe erneut, um die Auswahl aufzuheben.",
+  "childrenLabel": "Kinderwunsch",
+  "childrenWant": "Möchte Kinder",
+  "childrenDontWant": "Möchte keine Kinder",
+  "childrenOpen": "Offen",
+  "childrenHave": "Habe Kinder",
+  "childrenDealbreaker": "Nur Menschen mit passendem Kinderwunsch zeigen",
+  "smokingLabel": "Rauchen",
+  "smokingNever": "Nichtraucher:in",
+  "smokingSometimes": "Gelegentlich",
+  "smokingRegularly": "Raucher:in",
+  "smokingDealbreaker": "Keine Raucher:innen zeigen",
+  "lifestylePublicLabel": "Kinderwunsch & Rauchen im Profil anzeigen",
+  "lifestylePublicHint": "Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen."
 }

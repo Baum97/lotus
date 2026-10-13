@@ -15,6 +15,13 @@ void main() {
       expect(Gender.diverse.name, 'diverse');
     });
 
+    test('Kinderwunsch und Rauchen nutzen die Datenbank-Schlüssel', () {
+      expect(ChildrenWish.dontWant.db, 'dont_want');
+      expect(ChildrenWish.tryFromDb('have_kids'), ChildrenWish.haveKids);
+      expect(Smoking.tryFromDb('regularly'), Smoking.regularly);
+      expect(Smoking.tryFromDb(null), isNull);
+    });
+
     test('Verifizierungsstatus wird gelesen', () {
       expect(VerificationStatus.tryFromDb('awaiting_selfie'), VerificationStatus.awaitingSelfie);
       expect(VerificationStatus.tryFromDb(null), isNull);

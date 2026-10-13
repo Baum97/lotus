@@ -19,7 +19,12 @@ class ProfileDraft {
         ..intention = preferences.intention
         ..intentionPublic = preferences.intentionPublic
         ..ages = RangeValues(preferences.ageMin.toDouble(), preferences.ageMax.toDouble())
-        ..distanceKm = preferences.maxDistanceKm.toDouble();
+        ..distanceKm = preferences.maxDistanceKm.toDouble()
+        ..children = preferences.children
+        ..smoking = preferences.smoking
+        ..lifestylePublic = preferences.lifestylePublic
+        ..childrenDealbreaker = preferences.childrenDealbreaker
+        ..smokingDealbreaker = preferences.smokingDealbreaker;
     }
     return draft;
   }
@@ -34,6 +39,11 @@ class ProfileDraft {
   bool intentionPublic = true;
   RangeValues ages = const RangeValues(20, 45);
   double distanceKm = 50;
+  ChildrenWish? children;
+  Smoking? smoking;
+  bool lifestylePublic = true;
+  bool childrenDealbreaker = false;
+  bool smokingDealbreaker = false;
 
   MatchPreferences toPreferences() => MatchPreferences(
         interestedIn: interestedIn,
@@ -42,6 +52,11 @@ class ProfileDraft {
         ageMin: ages.start.round(),
         ageMax: ages.end.round(),
         maxDistanceKm: distanceKm.round(),
+        children: children,
+        smoking: smoking,
+        lifestylePublic: lifestylePublic,
+        childrenDealbreaker: childrenDealbreaker && children != null && children != ChildrenWish.open,
+        smokingDealbreaker: smokingDealbreaker,
       );
 
   /// Gibt eine Fehlermeldung zurück, falls die Grundangaben unvollständig sind.
@@ -75,6 +90,19 @@ String intentionLabel(AppLocalizations l, Intention intention) => switch (intent
       Intention.relationship => l.intentionRelationship,
       Intention.openToRelationship => l.intentionOpen,
       Intention.unsure => l.intentionUnsure,
+    };
+
+String childrenLabel(AppLocalizations l, ChildrenWish value) => switch (value) {
+      ChildrenWish.want => l.childrenWant,
+      ChildrenWish.dontWant => l.childrenDontWant,
+      ChildrenWish.open => l.childrenOpen,
+      ChildrenWish.haveKids => l.childrenHave,
+    };
+
+String smokingLabel(AppLocalizations l, Smoking value) => switch (value) {
+      Smoking.never => l.smokingNever,
+      Smoking.sometimes => l.smokingSometimes,
+      Smoking.regularly => l.smokingRegularly,
     };
 
 class _SectionLabel extends StatelessWidget {
@@ -280,6 +308,45 @@ class _PreferencesSectionState extends State<PreferencesSection> {
         divisions: 149,
         semanticFormatterCallback: (value) => '${value.round()} km',
         onChanged: (value) => _update(() => draft.distanceKm = value),
+      ),
+      // Optional: Kinderwunsch & Rauchen – erneutes Antippen hebt die Auswahl auf
+      _SectionLabel(l.childrenLabel, hint: l.optionalHint),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final value in ChildrenWish.values)
+          ChoiceChip(
+            label: Text(childrenLabel(l, value)),
+            selected: draft.children == value,
+            onSelected: (selected) => _update(() => draft.children = selected ? value : null),
+          ),
+      ]),
+      if (draft.children != null && draft.children != ChildrenWish.open)
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: draft.childrenDealbreaker,
+          title: Text(l.childrenDealbreaker),
+          onChanged: (value) => _update(() => draft.childrenDealbreaker = value),
+        ),
+      _SectionLabel(l.smokingLabel, hint: l.optionalHint),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final value in Smoking.values)
+          ChoiceChip(
+            label: Text(smokingLabel(l, value)),
+            selected: draft.smoking == value,
+            onSelected: (selected) => _update(() => draft.smoking = selected ? value : null),
+          ),
+      ]),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: draft.smokingDealbreaker,
+        title: Text(l.smokingDealbreaker),
+        onChanged: (value) => _update(() => draft.smokingDealbreaker = value),
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: draft.lifestylePublic,
+        title: Text(l.lifestylePublicLabel),
+        subtitle: Text(l.lifestylePublicHint),
+        onChanged: (value) => _update(() => draft.lifestylePublic = value),
       ),
     ]);
   }

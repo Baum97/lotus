@@ -105,6 +105,22 @@ language sql stable security definer set search_path = '' as $$
   )
 $$;
 
+-- Passt der Kinderwunsch von p_other nicht zu dem von p_holder? Ohne Angabe gibt es keinen Konflikt.
+--   möchte Kinder / hat Kinder  ↔  möchte keine Kinder
+create function private.children_conflict(p_holder public.children_wish, p_other public.children_wish)
+returns boolean
+language sql immutable set search_path = '' as $$
+  select coalesce(
+    (p_holder in ('want', 'have_kids') and p_other = 'dont_want')
+    or (p_holder = 'dont_want' and p_other in ('want', 'have_kids')),
+    false)
+$$;
+
+create function private.smokes(p_value public.smoking) returns boolean
+language sql immutable set search_path = '' as $$
+  select coalesce(p_value in ('sometimes', 'regularly'), false)
+$$;
+
 create function private.is_available(p_user uuid) returns boolean
 language sql stable security definer set search_path = '' as $$
   select exists (select 1 from private.trust t where t.user_id = p_user and t.status = 'active')
@@ -202,7 +218,9 @@ returns table (
   bio text,
   distance_km int,
   verified boolean,
-  traveling boolean
+  traveling boolean,
+  children public.children_wish,
+  smoking public.smoking
 )
 language plpgsql security definer set search_path = '' as $$
 #variable_conflict use_column
@@ -219,7 +237,8 @@ begin
   return query
   with me as (
     select p.id, p.gender, p.birthdate, mp.interested_in, mp.intention,
-           mp.age_min, mp.age_max, mp.max_distance_km, private.search_location(l) as location
+           mp.age_min, mp.age_max, mp.max_distance_km, private.search_location(l) as location,
+           mp.children, mp.smoking, mp.children_dealbreaker, mp.smoking_dealbreaker
     from public.profiles p
     join public.match_preferences mp on mp.user_id = p.id
     join public.profile_locations l on l.user_id = p.id
@@ -236,6 +255,8 @@ begin
       greatest(1, ceil(extensions.st_distance(private.search_location(ol), me.location) / 1000))::int as distance_km,
       o.verified_at is not null as verified,
       private.is_traveling(o.id) as traveling,
+      case when op.lifestyle_public then op.children end as children,
+      case when op.lifestyle_public then op.smoking end as smoking,
       exists (
         select 1 from public.impressions i
         where i.viewer = v_me and i.shown = o.id and i.shown_on = v_today
@@ -261,6 +282,11 @@ begin
       and private.age_of(o.birthdate) between me.age_min and me.age_max
       and private.age_of(me.birthdate) between op.age_min and op.age_max
       and extensions.st_dwithin(private.search_location(ol), me.location, least(me.max_distance_km, op.max_distance_km) * 1000)
+      -- optionale Ausschlusskriterien, gegenseitig
+      and not (me.children_dealbreaker and private.children_conflict(me.children, op.children))
+      and not (op.children_dealbreaker and private.children_conflict(op.children, me.children))
+      and not (me.smoking_dealbreaker and private.smokes(op.smoking))
+      and not (op.smoking_dealbreaker and private.smokes(me.smoking))
       and o.last_active_at > now() - make_interval(days => private.inactive_after_days())
       and exists (select 1 from public.photos ph where ph.user_id = o.id and ph.moderation <> 'rejected')
       -- noch nicht entschieden, keine Blockierung, kein Match
@@ -290,7 +316,7 @@ begin
     on conflict do nothing
   )
   select picked.id, picked.display_name, picked.age, picked.city, picked.intention,
-         picked.bio, picked.distance_km, picked.verified, picked.traveling
+         picked.bio, picked.distance_km, picked.verified, picked.traveling, picked.children, picked.smoking
   from picked
   order by picked.shown_to_me_today desc, picked.same_intention desc, picked.recent_impressions;
 end;
@@ -309,12 +335,16 @@ returns table (
   intention public.intention,
   bio text,
   verified boolean,
-  traveling boolean
+  traveling boolean,
+  children public.children_wish,
+  smoking public.smoking
 )
 language sql stable security definer set search_path = '' as $$
   select p.id, p.display_name, private.age_of(p.birthdate), p.gender, p.city,
          case when mp.intention_public or p.id = auth.uid() then mp.intention end,
-         p.bio, p.verified_at is not null, private.is_traveling(p.id)
+         p.bio, p.verified_at is not null, private.is_traveling(p.id),
+         case when mp.lifestyle_public or p.id = auth.uid() then mp.children end,
+         case when mp.lifestyle_public or p.id = auth.uid() then mp.smoking end
   from public.profiles p
   left join public.match_preferences mp on mp.user_id = p.id
   where p.id = p_user and private.can_view_profile(p_user)

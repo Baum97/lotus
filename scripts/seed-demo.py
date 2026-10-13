@@ -139,7 +139,9 @@ def main():
             "bio": bio, "city": city})
         api.request("POST", "/rest/v1/match_preferences", {
             "user_id": uid, "interested_in": interested, "intention": intention, "intention_public": public,
-            "age_min": 22, "age_max": 45, "max_distance_km": 60})
+            "age_min": 22, "age_max": 45, "max_distance_km": 60,
+            "children": ["want", "open", "dont_want", "have_kids", None][i % 5],
+            "smoking": ["never", "never", "sometimes", None][i % 4]})
         api.request("POST", "/rest/v1/profile_locations", {"user_id": uid, "location": f"SRID=4326;POINT({lon} {lat})"})
         for p in range(2):
             path = f"{uid}/{p}.jpg"

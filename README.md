@@ -6,6 +6,7 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 - **Konzept & Entscheidungen:** [`docs/KONZEPT.md`](docs/KONZEPT.md)
 - **App (Flutter, Android-first):** [`app/`](app/README.md)
 - **Backend (Supabase: Postgres/PostGIS, Auth, Storage, Realtime):** [`supabase/`](supabase/)
+- **Einrichtung – wer macht was:** [`docs/EINRICHTUNG.md`](docs/EINRICHTUNG.md) · Deploy: `scripts/deploy.sh`
 
 ## Regeln, die die Datenbank durchsetzt
 
@@ -23,6 +24,7 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 | Fotos | sofort sichtbar, bis ein Admin sie ablehnt |
 | Spam | gleiche Nachricht an ≥ 5 Matches → Konto eingeschränkt |
 | Suchradius | 1–150 km (Standard 50 km) |
+| Kinderwunsch, Rauchen | optional; Anzeige abschaltbar; optionale Ausschlusskriterien wirken gegenseitig |
 | Lotus Plus | nur Komfort (Reisemodus, eigene Statistiken) – kein Einfluss auf Sichtbarkeit oder Likes |
 
 Das eigene Like-Verhalten beeinflusst **nie** die eigene Sichtbarkeit. Vorschläge werden nach
@@ -63,7 +65,7 @@ cd app && flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 \
 ## Tests
 
 ```bash
-PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 134 Datenbank-Prüfungen
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 142 Datenbank-Prüfungen
 cd app && flutter analyze && flutter test                         # App
 ```
 

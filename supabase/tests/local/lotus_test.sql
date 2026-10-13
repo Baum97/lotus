@@ -616,3 +616,45 @@ select test.ok(public.claim_like_push(test.uid('41')), 'erste Like-Benachrichtig
 select test.ok(public.claim_like_push(test.uid('41')) is null, 'zweite innerhalb von 6 h nicht');
 select test.ok(public.claim_like_push(test.uid('40')) is null, 'bei ausgeschalteten Like-Pushes nie');
 reset role;
+
+-- ---------------------------------------------------------------------------
+-- Kinderwunsch & Rauchen (optional, Anzeige optional, Ausschlusskriterien gegenseitig)
+-- ---------------------------------------------------------------------------
+
+select test.seed_user('50', 'woman', '{man}', 33, 8.40, 49.01);  -- Karlsruhe
+select test.seed_user('51', 'man', '{woman}', 34, 8.40, 49.01);
+select test.seed_user('52', 'man', '{woman}', 35, 8.40, 49.01);
+select test.seed_user('53', 'man', '{woman}', 36, 8.40, 49.01);
+update public.match_preferences set children = 'want', children_dealbreaker = true, smoking = 'never',
+  smoking_dealbreaker = true where user_id = test.uid('50');
+update public.match_preferences set children = 'dont_want', smoking = 'never', lifestyle_public = false
+  where user_id = test.uid('51');                                         -- passt nicht (Kinder)
+update public.match_preferences set children = 'open', smoking = 'regularly' where user_id = test.uid('52');  -- passt nicht (Rauchen)
+update public.match_preferences set children = 'have_kids', smoking = 'never' where user_id = test.uid('53'); -- passt
+
+set role authenticated;
+select test.login(test.uid('50'));
+create temp table ka as select * from public.get_candidates(50);
+grant select on ka to authenticated;
+select test.ok(not exists (select 1 from ka where id = test.uid('51')), 'Ausschluss: möchte keine Kinder ↔ möchte Kinder');
+select test.ok(not exists (select 1 from ka where id = test.uid('52')), 'Ausschluss: raucht');
+select test.ok(exists (select 1 from ka where id = test.uid('53')), 'hat Kinder + Nichtraucher passt');
+select test.ok((select children = 'have_kids' and smoking = 'never' from ka where id = test.uid('53')),
+  'öffentliche Angaben werden angezeigt');
+
+-- Gegenseitig: 51 sieht 50 auch nicht, obwohl 51 selbst keinen Ausschluss gesetzt hat
+select test.login(test.uid('51'));
+select test.ok(not exists (select 1 from public.get_candidates(50) where id = test.uid('50')),
+  'Ausschlusskriterien wirken in beide Richtungen');
+reset role;
+update public.match_preferences set children_dealbreaker = false where user_id = test.uid('50');
+set role authenticated;
+select test.login(test.uid('50'));
+select test.ok((select children is null and smoking is null from public.get_candidates(50) where id = test.uid('51')),
+  'private Angaben bleiben verborgen, zählen aber fürs Matching');
+select test.ok((select children = 'want' from public.get_profile(test.uid('50'))), 'eigene Angaben sind sichtbar');
+select public.save_profile('Fünfzig', null, 'woman', null, 'Karlsruhe', '{man}', 'relationship', true, 25, 45, 50,
+                           'open', 'sometimes', false, false, false);
+reset role;
+select test.ok((select children = 'open' and smoking = 'sometimes' and not lifestyle_public
+                from public.match_preferences where user_id = test.uid('50')), 'save_profile speichert die neuen Angaben');

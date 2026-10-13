@@ -45,8 +45,10 @@ grant insert (id, display_name, birthdate, gender, bio, city) on public.profiles
 grant update (display_name, gender, bio, city) on public.profiles to authenticated;
 
 grant select, delete on public.match_preferences to authenticated;
-grant insert (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km),
-      update (interested_in, intention, intention_public, age_min, age_max, max_distance_km, updated_at)
+grant insert (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km,
+              children, smoking, lifestyle_public, children_dealbreaker, smoking_dealbreaker),
+      update (interested_in, intention, intention_public, age_min, age_max, max_distance_km,
+              children, smoking, lifestyle_public, children_dealbreaker, smoking_dealbreaker, updated_at)
   on public.match_preferences to authenticated;
 
 grant select, delete on public.profile_locations to authenticated;

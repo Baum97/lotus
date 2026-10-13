@@ -1599,6 +1599,90 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Kein Profil mit dieser E-Mail-Adresse gefunden.'**
   String get errorProfileNotFound;
+
+  /// No description provided for @optionalHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Optional – tippe erneut, um die Auswahl aufzuheben.'**
+  String get optionalHint;
+
+  /// No description provided for @childrenLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Kinderwunsch'**
+  String get childrenLabel;
+
+  /// No description provided for @childrenWant.
+  ///
+  /// In de, this message translates to:
+  /// **'Möchte Kinder'**
+  String get childrenWant;
+
+  /// No description provided for @childrenDontWant.
+  ///
+  /// In de, this message translates to:
+  /// **'Möchte keine Kinder'**
+  String get childrenDontWant;
+
+  /// No description provided for @childrenOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get childrenOpen;
+
+  /// No description provided for @childrenHave.
+  ///
+  /// In de, this message translates to:
+  /// **'Habe Kinder'**
+  String get childrenHave;
+
+  /// No description provided for @childrenDealbreaker.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur Menschen mit passendem Kinderwunsch zeigen'**
+  String get childrenDealbreaker;
+
+  /// No description provided for @smokingLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Rauchen'**
+  String get smokingLabel;
+
+  /// No description provided for @smokingNever.
+  ///
+  /// In de, this message translates to:
+  /// **'Nichtraucher:in'**
+  String get smokingNever;
+
+  /// No description provided for @smokingSometimes.
+  ///
+  /// In de, this message translates to:
+  /// **'Gelegentlich'**
+  String get smokingSometimes;
+
+  /// No description provided for @smokingRegularly.
+  ///
+  /// In de, this message translates to:
+  /// **'Raucher:in'**
+  String get smokingRegularly;
+
+  /// No description provided for @smokingDealbreaker.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Raucher:innen zeigen'**
+  String get smokingDealbreaker;
+
+  /// No description provided for @lifestylePublicLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Kinderwunsch & Rauchen im Profil anzeigen'**
+  String get lifestylePublicLabel;
+
+  /// No description provided for @lifestylePublicHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.'**
+  String get lifestylePublicHint;
 }
 
 class _AppLocalizationsDelegate

@@ -115,6 +115,11 @@ class LotusApi {
             'p_age_min': preferences.ageMin,
             'p_age_max': preferences.ageMax,
             'p_max_distance_km': preferences.maxDistanceKm,
+            'p_children': preferences.children?.db,
+            'p_smoking': preferences.smoking?.name,
+            'p_lifestyle_public': preferences.lifestylePublic,
+            'p_children_dealbreaker': preferences.childrenDealbreaker,
+            'p_smoking_dealbreaker': preferences.smokingDealbreaker,
           }));
 
   /// Speichert den Standort auf ca. 1 km gerundet – genauer braucht ihn niemand.

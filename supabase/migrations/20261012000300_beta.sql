@@ -101,7 +101,13 @@ create function public.save_profile(
   p_intention_public boolean,
   p_age_min int,
   p_age_max int,
-  p_max_distance_km int
+  p_max_distance_km int,
+  -- optional: Kinderwunsch, Rauchen, deren Anzeige und Ausschlusskriterien
+  p_children public.children_wish default null,
+  p_smoking public.smoking default null,
+  p_lifestyle_public boolean default true,
+  p_children_dealbreaker boolean default false,
+  p_smoking_dealbreaker boolean default false
 ) returns void
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -131,8 +137,11 @@ begin
   end if;
 
   insert into public.match_preferences
-    (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km)
-  values (v_uid, p_interested_in, p_intention, p_intention_public, p_age_min, p_age_max, p_max_distance_km)
+    (user_id, interested_in, intention, intention_public, age_min, age_max, max_distance_km,
+     children, smoking, lifestyle_public, children_dealbreaker, smoking_dealbreaker)
+  values (v_uid, p_interested_in, p_intention, p_intention_public, p_age_min, p_age_max, p_max_distance_km,
+          p_children, p_smoking, coalesce(p_lifestyle_public, true),
+          coalesce(p_children_dealbreaker, false), coalesce(p_smoking_dealbreaker, false))
   on conflict (user_id) do update
   set interested_in = excluded.interested_in,
       intention = excluded.intention,
@@ -140,6 +149,11 @@ begin
       age_min = excluded.age_min,
       age_max = excluded.age_max,
       max_distance_km = excluded.max_distance_km,
+      children = excluded.children,
+      smoking = excluded.smoking,
+      lifestyle_public = excluded.lifestyle_public,
+      children_dealbreaker = excluded.children_dealbreaker,
+      smoking_dealbreaker = excluded.smoking_dealbreaker,
       updated_at = now();
 end;
 $$;
@@ -507,7 +521,8 @@ create policy device_tokens_own on public.device_tokens
 revoke execute on function
   private.is_admin(), private.require_admin(), private.uuid_or_null(text), private.verification_gestures(),
   private.detect_repeated_messages(), private.cleanup_impressions(),
-  public.save_profile(text, date, public.gender, text, text, public.gender[], public.intention, boolean, int, int, int),
+  public.save_profile(text, date, public.gender, text, text, public.gender[], public.intention, boolean, int, int, int,
+                      public.children_wish, public.smoking, boolean, boolean, boolean),
   public.set_location(float8, float8),
   public.get_my_status(),
   public.get_matches(),
@@ -528,7 +543,8 @@ from public, anon, authenticated;
 grant execute on function private.is_admin(), private.uuid_or_null(text) to authenticated;
 
 grant execute on function
-  public.save_profile(text, date, public.gender, text, text, public.gender[], public.intention, boolean, int, int, int),
+  public.save_profile(text, date, public.gender, text, text, public.gender[], public.intention, boolean, int, int, int,
+                      public.children_wish, public.smoking, boolean, boolean, boolean),
   public.set_location(float8, float8),
   public.get_my_status(),
   public.get_matches(),

@@ -14,6 +14,8 @@ create schema if not exists private;
 create type public.gender as enum ('woman', 'man', 'diverse');
 create type public.intention as enum ('relationship', 'open_to_relationship', 'unsure');
 create type public.like_target as enum ('photo', 'prompt');
+create type public.children_wish as enum ('want', 'dont_want', 'open', 'have_kids');
+create type public.smoking as enum ('never', 'sometimes', 'regularly');
 create type public.match_state as enum ('queued', 'active', 'closed');
 create type public.match_close_reason as enum ('ended', 'stale', 'blocked');
 create type public.moderation_state as enum ('pending', 'approved', 'rejected');
@@ -49,6 +51,13 @@ create table public.match_preferences (
   age_min smallint not null default 18 check (age_min >= 18),
   age_max smallint not null default 99 check (age_max <= 99 and age_max >= age_min),
   max_distance_km smallint not null default 50 check (max_distance_km between 1 and 150),
+  -- Optionale Angaben (null = keine Angabe). Anzeige im Profil nur, wenn lifestyle_public.
+  children public.children_wish,
+  smoking public.smoking,
+  lifestyle_public boolean not null default true,
+  -- Optionale Ausschlusskriterien; wirken gegenseitig, siehe private.children_conflict
+  children_dealbreaker boolean not null default false,
+  smoking_dealbreaker boolean not null default false,
   updated_at timestamptz not null default now()
 );
 

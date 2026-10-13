@@ -133,4 +133,45 @@ void main() {
     expect(find.textContaining('Impressum unvollständig'), findsOneWidget);
     expect(find.textContaining('Online-Streitbeilegung'), findsNothing); // OS-Plattform seit 20.07.2025 abgeschaltet
   });
+
+  testWidgets('Kinderwunsch & Rauchen: optional, abwählbar, Ausschluss nur mit Angabe', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final draft = ProfileDraft()
+      ..interestedIn = {Gender.man}
+      ..intention = Intention.relationship;
+    await tester.pumpWidget(wrap(SingleChildScrollView(child: PreferencesSection(draft: draft, onChanged: () {}))));
+
+    expect(find.text('Nur Menschen mit passendem Kinderwunsch zeigen'), findsNothing);
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Möchte Kinder'));
+    await tester.pump();
+    expect(draft.children, ChildrenWish.want);
+    await tester.tap(find.text('Nur Menschen mit passendem Kinderwunsch zeigen'));
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Nichtraucher:in'));
+    await tester.pump();
+    expect(draft.toPreferences().childrenDealbreaker, isTrue);
+    expect(draft.smoking, Smoking.never);
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Möchte Kinder')); // abwählen
+    await tester.pump();
+    expect(draft.children, isNull);
+    expect(draft.toPreferences().childrenDealbreaker, isFalse);
+  });
+
+  testWidgets('Profil zeigt öffentliche Angaben zu Kinderwunsch und Rauchen', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const profile = FullProfile(
+      summary: ProfileSummary(
+        id: 'k', displayName: 'Lea', age: 31, verified: false,
+        children: ChildrenWish.haveKids, smoking: Smoking.never),
+      photos: [],
+      prompts: [],
+    );
+    await tester.pumpWidget(wrap(const ProfileView(profile: profile)));
+    expect(find.text('Habe Kinder'), findsOneWidget);
+    expect(find.text('Nichtraucher:in'), findsOneWidget);
+  });
 }

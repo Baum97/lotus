@@ -874,4 +874,50 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get errorProfileNotFound =>
       'Kein Profil mit dieser E-Mail-Adresse gefunden.';
+
+  @override
+  String get optionalHint =>
+      'Optional – tippe erneut, um die Auswahl aufzuheben.';
+
+  @override
+  String get childrenLabel => 'Kinderwunsch';
+
+  @override
+  String get childrenWant => 'Möchte Kinder';
+
+  @override
+  String get childrenDontWant => 'Möchte keine Kinder';
+
+  @override
+  String get childrenOpen => 'Offen';
+
+  @override
+  String get childrenHave => 'Habe Kinder';
+
+  @override
+  String get childrenDealbreaker =>
+      'Nur Menschen mit passendem Kinderwunsch zeigen';
+
+  @override
+  String get smokingLabel => 'Rauchen';
+
+  @override
+  String get smokingNever => 'Nichtraucher:in';
+
+  @override
+  String get smokingSometimes => 'Gelegentlich';
+
+  @override
+  String get smokingRegularly => 'Raucher:in';
+
+  @override
+  String get smokingDealbreaker => 'Keine Raucher:innen zeigen';
+
+  @override
+  String get lifestylePublicLabel =>
+      'Kinderwunsch & Rauchen im Profil anzeigen';
+
+  @override
+  String get lifestylePublicHint =>
+      'Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.';
 }

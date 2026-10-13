@@ -66,7 +66,8 @@ Lotus ist eine Dating-App, deren Erfolg daran gemessen wird, **wie viele Mensche
 - **„Wen möchtest du kennenlernen?“** – ein oder mehrere Geschlechter. Diese Angabe ist **immer privat**: Sie wird nur für das Matching verwendet und nie im Profil angezeigt (sexuelle Orientierung ist nach DSGVO Art. 9 besonders geschützt).
 - **Dating-Ziel** „Was suchst du?“ (feste Beziehung, offen für Beziehung, noch unsicher) – wird immer fürs Matching verwendet; jede Person entscheidet selbst, ob es im Profil **öffentlich oder privat** ist (Standard: öffentlich).
 - Andere sehen nur das Alter, nie das Geburtsdatum, und nur eine gerundete Entfernung, nie den Standort.
-- Harte Filter wirken **gegenseitig** (Alter, Entfernung, Geschlecht/Interesse, Kinderwunsch optional) – man sieht nur Leute, für die man selbst auch in Frage kommt.
+- Harte Filter wirken **gegenseitig** (Alter, Entfernung, Geschlecht/Interesse) – man sieht nur Leute, für die man selbst auch in Frage kommt.
+- **Kinderwunsch** (möchte Kinder / möchte keine / offen / habe Kinder) und **Rauchen** (nie / gelegentlich / regelmäßig): beides optional, Anzeige im Profil abschaltbar. Optionale Ausschlusskriterien „nur passender Kinderwunsch“ und „keine Raucher:innen“ wirken gegenseitig: Wer jemanden ausschließt, wird von dieser Person auch nicht gesehen. Ohne Angabe greift kein Ausschluss.
 - Prompts / Werte-Fragen als Grundlage für Kompatibilität und Gesprächseinstieg.
 
 ### 3.5 Nach dem Match
@@ -337,12 +338,10 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 21 | Konten & Organisatorisches | übernimmst du |
 | 22 | Moderation | bald ein Bot zur Vorsortierung, tiefergehende Beschwerden händisch |
 | 23 | Lotus Plus | Reisemodus + eigene Statistiken; Spenden & Beitrag bei Erfolg über Google Play |
+| 24 | Preise | Plus 3,99 €/Monat · Spenden 3 €, 5 €, 10 € · Beitrag bei Erfolg 15 € |
+| 25 | Weitere Kriterien | Kinderwunsch und Rauchen: optional, Anzeige im Profil optional, optionale Ausschlusskriterien (wirken gegenseitig) |
 
 ### Noch offen
-
-**Produkt**
-1. Weitere optionale Matching-Kriterien (z. B. Kinderwunsch, Rauchen) – und wenn ja, ebenfalls privat?
-2. Preise für Lotus Plus und die drei Spendenstufen (Vorschlag: 3,99 €/Monat; 3 €, 5 €, 10 €; Beitrag bei Erfolg 15 €).
 
 **Name „Lotus“**
 3. Keine bekannte Dating-App „Lotus“ gefunden (nur eine vietnamesische Social-App und Chat-App, ein
@@ -352,7 +351,7 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
    nach „Lotus“ in Klasse 9, 42 und 45 suchen. Bei Treffern eine unterscheidbare Variante wählen
    (z. B. „Lotus Dating“, „lotusly“) und am besten selbst eine Wortmarke anmelden (DPMA ab 290 €).
 
-**Organisatorisch (übernimmst du)**
+**Organisatorisch (übernimmst du – Schritt-für-Schritt in `docs/EINRICHTUNG.md`)**
 4. Konten: Supabase (EU), Google Play (25 $, mit Händlerkonto für Plus/Spenden), Firebase, SMTP-Versand.
 5. Rechtliches: Impressum ausfüllen, Datenschutzerklärung, Nutzungsbedingungen, DSFA, AV-Verträge,
    Gewerbeanmeldung, sobald Geld fließt (siehe `docs/IMPRESSUM.md`).

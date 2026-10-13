@@ -24,6 +24,30 @@ enum Intention {
   static Intention? tryFromDb(Object? value) => value == null ? null : fromDb(value as String);
 }
 
+enum ChildrenWish {
+  want,
+  dontWant,
+  open,
+  haveKids;
+
+  String get db => switch (this) {
+        ChildrenWish.want => 'want',
+        ChildrenWish.dontWant => 'dont_want',
+        ChildrenWish.open => 'open',
+        ChildrenWish.haveKids => 'have_kids',
+      };
+
+  static ChildrenWish? tryFromDb(Object? value) => value == null ? null : values.firstWhere((c) => c.db == value);
+}
+
+enum Smoking {
+  never,
+  sometimes,
+  regularly;
+
+  static Smoking? tryFromDb(Object? value) => value == null ? null : Smoking.values.byName(value as String);
+}
+
 enum LikeTarget {
   photo,
   prompt;
@@ -141,6 +165,8 @@ class ProfileSummary {
     this.distanceKm,
     required this.verified,
     this.traveling = false,
+    this.children,
+    this.smoking,
   });
 
   final String id;
@@ -156,6 +182,10 @@ class ProfileSummary {
   /// Ist gerade im Reisemodus hier ("zu Besuch").
   final bool traveling;
 
+  /// Nur gesetzt, wenn die Person diese Angaben öffentlich gemacht hat.
+  final ChildrenWish? children;
+  final Smoking? smoking;
+
   factory ProfileSummary.fromJson(Map<String, dynamic> json) => ProfileSummary(
         id: json['id'] as String,
         displayName: json['display_name'] as String,
@@ -167,6 +197,8 @@ class ProfileSummary {
         distanceKm: json['distance_km'] as int?,
         verified: json['verified'] as bool? ?? false,
         traveling: json['traveling'] as bool? ?? false,
+        children: ChildrenWish.tryFromDb(json['children']),
+        smoking: Smoking.tryFromDb(json['smoking']),
       );
 }
 
@@ -237,6 +269,11 @@ class MatchPreferences {
     required this.ageMin,
     required this.ageMax,
     required this.maxDistanceKm,
+    this.children,
+    this.smoking,
+    this.lifestylePublic = true,
+    this.childrenDealbreaker = false,
+    this.smokingDealbreaker = false,
   });
 
   final Set<Gender> interestedIn;
@@ -245,6 +282,11 @@ class MatchPreferences {
   final int ageMin;
   final int ageMax;
   final int maxDistanceKm;
+  final ChildrenWish? children;
+  final Smoking? smoking;
+  final bool lifestylePublic;
+  final bool childrenDealbreaker;
+  final bool smokingDealbreaker;
 
   factory MatchPreferences.fromJson(Map<String, dynamic> json) => MatchPreferences(
         interestedIn: (json['interested_in'] as List).map((g) => Gender.fromDb(g as String)).toSet(),
@@ -253,6 +295,11 @@ class MatchPreferences {
         ageMin: json['age_min'] as int,
         ageMax: json['age_max'] as int,
         maxDistanceKm: json['max_distance_km'] as int,
+        children: ChildrenWish.tryFromDb(json['children']),
+        smoking: Smoking.tryFromDb(json['smoking']),
+        lifestylePublic: json['lifestyle_public'] as bool? ?? true,
+        childrenDealbreaker: json['children_dealbreaker'] as bool? ?? false,
+        smokingDealbreaker: json['smoking_dealbreaker'] as bool? ?? false,
       );
 }
 

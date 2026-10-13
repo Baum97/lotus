@@ -101,9 +101,14 @@ class _Header extends StatelessWidget {
           ].join(' · '),
           style: muted,
         ),
-        if (summary.intention != null) ...[
+        if (summary.intention != null || summary.children != null || summary.smoking != null) ...[
           const SizedBox(height: 12),
-          Pill(icon: Icons.favorite_border, label: intentionLabel(l, summary.intention!)),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            if (summary.intention != null) Pill(icon: Icons.favorite_border, label: intentionLabel(l, summary.intention!)),
+            if (summary.children != null)
+              Pill(icon: Icons.child_friendly_outlined, label: childrenLabel(l, summary.children!)),
+            if (summary.smoking != null) Pill(icon: Icons.smoking_rooms_outlined, label: smokingLabel(l, summary.smoking!)),
+          ]),
         ],
         if (summary.bio != null) ...[
           const SizedBox(height: 12),
