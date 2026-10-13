@@ -7,7 +7,7 @@ Lasttest mit `scripts/bench-db.sh <profile>`: Profile über Deutschland verteilt
 
 | Profile gesamt (davon Raum Stuttgart) | vorher | nach Index-Vorauswahl & Altersgrenzen | mit Such-Tabelle (aktuell) |
 |---|---|---|---|
-| 10.000 (2.500) | 266 ms | 266 ms | **15 ms** |
+| 10.000 (2.500) | – | 266 ms | **15 ms** |
 | 50.000 (12.500) | 2.000 ms | 193 ms | **92 ms** |
 | 200.000 (50.000) | – | 1.170 ms | **589 ms** |
 
