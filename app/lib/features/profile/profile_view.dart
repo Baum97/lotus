@@ -48,10 +48,10 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _photo(Photo photo) => _Likeable(
-        highlighted: photo.id == highlightId,
-        onLike: onLike == null ? null : () => onLike!(LikeTarget.photo, photo.id, ''),
-        child: RoundedPhoto(url: photo.url),
-      );
+    highlighted: photo.id == highlightId,
+    onLike: onLike == null ? null : () => onLike!(LikeTarget.photo, photo.id, ''),
+    child: RoundedPhoto(url: photo.url),
+  );
 
   Widget _prompt(BuildContext context, PromptAnswer prompt) {
     final theme = Theme.of(context);
@@ -61,12 +61,17 @@ class ProfileView extends StatelessWidget {
       child: Card(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 64, 24),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(prompt.promptText,
-                style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-            const SizedBox(height: 10),
-            Text(prompt.answer, style: theme.textTheme.headlineSmall?.copyWith(height: 1.3)),
-          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                prompt.promptText,
+                style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 10),
+              Text(prompt.answer, style: theme.textTheme.headlineSmall?.copyWith(height: 1.3)),
+            ],
+          ),
         ),
       ),
     );
@@ -85,36 +90,47 @@ class _Header extends StatelessWidget {
     final muted = theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Flexible(child: Text(summary.displayName, style: theme.textTheme.headlineMedium)),
-          if (summary.verified) ...[const SizedBox(width: 8), const VerifiedBadge()],
-        ]),
-        const SizedBox(height: 4),
-        Text(
-          [
-            summary.age.toString(),
-            if (summary.gender != null) genderLabel(l, summary.gender!),
-            if (summary.city != null) summary.city!,
-            if (summary.traveling) l.travelVisiting,
-            if (summary.distanceKm != null) l.distanceKm(summary.distanceKm!),
-          ].join(' · '),
-          style: muted,
-        ),
-        if (summary.intention != null || summary.children != null || summary.smoking != null) ...[
-          const SizedBox(height: 12),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            if (summary.intention != null) Pill(icon: Icons.favorite_border, label: intentionLabel(l, summary.intention!)),
-            if (summary.children != null)
-              Pill(icon: Icons.child_friendly_outlined, label: childrenLabel(l, summary.children!)),
-            if (summary.smoking != null) Pill(icon: Icons.smoking_rooms_outlined, label: smokingLabel(l, summary.smoking!)),
-          ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Flexible(child: Text(summary.displayName, style: theme.textTheme.headlineMedium)),
+              if (summary.verified) ...[const SizedBox(width: 8), const VerifiedBadge()],
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            [
+              summary.age.toString(),
+              if (summary.gender != null) genderLabel(l, summary.gender!),
+              if (summary.city != null) summary.city!,
+              if (summary.traveling) l.travelVisiting,
+              if (summary.distanceKm != null) l.distanceKm(summary.distanceKm!),
+            ].join(' · '),
+            style: muted,
+          ),
+          if (summary.intention != null || summary.children != null || summary.smoking != null) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (summary.intention != null)
+                  Pill(icon: Icons.favorite_border, label: intentionLabel(l, summary.intention!)),
+                if (summary.children != null)
+                  Pill(icon: Icons.child_friendly_outlined, label: childrenLabel(l, summary.children!)),
+                if (summary.smoking != null)
+                  Pill(icon: Icons.smoking_rooms_outlined, label: smokingLabel(l, summary.smoking!)),
+              ],
+            ),
+          ],
+          if (summary.bio != null) ...[
+            const SizedBox(height: 12),
+            Text(summary.bio!, style: theme.textTheme.bodyLarge),
+          ],
         ],
-        if (summary.bio != null) ...[
-          const SizedBox(height: 12),
-          Text(summary.bio!, style: theme.textTheme.bodyLarge),
-        ],
-      ]),
+      ),
     );
   }
 }
@@ -140,22 +156,24 @@ class _Likeable extends StatelessWidget {
           )
         : child;
     if (onLike == null) return content;
-    return Stack(children: [
-      content,
-      Positioned(
-        right: 12,
-        bottom: 12,
-        child: Material(
-          color: scheme.surfaceContainerLowest,
-          shape: const CircleBorder(),
-          elevation: 2,
-          child: IconButton(
-            tooltip: AppLocalizations.of(context).likeThis,
-            icon: Icon(Icons.favorite_border, color: scheme.primary),
-            onPressed: onLike,
+    return Stack(
+      children: [
+        content,
+        Positioned(
+          right: 12,
+          bottom: 12,
+          child: Material(
+            color: scheme.surfaceContainerLowest,
+            shape: const CircleBorder(),
+            elevation: 2,
+            child: IconButton(
+              tooltip: AppLocalizations.of(context).likeThis,
+              icon: Icon(Icons.favorite_border, color: scheme.primary),
+              onPressed: onLike,
+            ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }

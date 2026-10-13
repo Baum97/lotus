@@ -492,7 +492,8 @@ for each row execute function private.detect_repeated_messages();
 -- Alte Impressionen werden nur für Fairness (7 Tage) und Sichtbarkeit gebraucht
 create function private.cleanup_impressions() returns void
 language sql security definer set search_path = '' as $$
-  delete from public.impressions where shown_on < private.berlin_today() - 60
+  delete from public.impressions where shown_on < private.berlin_today() - 60;
+  delete from private.daily_impressions where day < private.berlin_today() - 8;
 $$;
 
 -- ---------------------------------------------------------------------------

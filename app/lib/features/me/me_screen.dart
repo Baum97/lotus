@@ -45,12 +45,14 @@ class MeScreen extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Row(children: [
-              const LotusLogo(size: 56),
-              const SizedBox(width: 16),
-              Expanded(child: Text(status.displayName ?? '', style: theme.textTheme.headlineSmall)),
-              if (status.verified) const VerifiedBadge(),
-            ]),
+            child: Row(
+              children: [
+                const LotusLogo(size: 56),
+                const SizedBox(width: 16),
+                Expanded(child: Text(status.displayName ?? '', style: theme.textTheme.headlineSmall)),
+                if (status.verified) const VerifiedBadge(),
+              ],
+            ),
           ),
           if (status.trustStatus == TrustStatus.restricted)
             Padding(
@@ -69,7 +71,11 @@ class MeScreen extends ConsumerWidget {
             onTap: status.verified ? null : () => _open(context, const VerificationScreen()),
           ),
           const Divider(height: 24),
-          _Tile(icon: Icons.person_outline, title: l.editProfile, onTap: () => _open(context, const EditProfileScreen())),
+          _Tile(
+            icon: Icons.person_outline,
+            title: l.editProfile,
+            onTap: () => _open(context, const EditProfileScreen()),
+          ),
           _Tile(
             icon: Icons.tune,
             title: l.editPreferences,

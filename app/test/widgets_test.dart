@@ -13,19 +13,19 @@ import 'package:lotus/theme.dart';
 import 'package:lotus/widgets/common.dart';
 
 Widget wrap(Widget child) => ProviderScope(
-      child: MaterialApp(
-        theme: buildLightTheme(),
-        locale: const Locale('de'),
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: Scaffold(body: child),
-      ),
-    );
+  child: MaterialApp(
+    theme: buildLightTheme(),
+    locale: const Locale('de'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: Scaffold(body: child),
+  ),
+);
 
 const _profile = FullProfile(
   summary: ProfileSummary(
@@ -40,7 +40,13 @@ const _profile = FullProfile(
   ),
   photos: [Photo(id: 'p1', storagePath: 'b/1.jpg', position: 0)],
   prompts: [
-    PromptAnswer(id: 'q1', promptId: 4, promptText: 'Mein liebster Ort in der Stadt:', answer: 'Der Feuersee', position: 0),
+    PromptAnswer(
+      id: 'q1',
+      promptId: 4,
+      promptText: 'Mein liebster Ort in der Stadt:',
+      answer: 'Der Feuersee',
+      position: 0,
+    ),
   ],
 );
 
@@ -81,7 +87,13 @@ void main() {
 
   testWidgets('Suchformular: Orientierung ist als privat gekennzeichnet', (tester) async {
     final draft = ProfileDraft();
-    await tester.pumpWidget(wrap(SingleChildScrollView(child: PreferencesSection(draft: draft, onChanged: () {}))));
+    await tester.pumpWidget(
+      wrap(
+        SingleChildScrollView(
+          child: PreferencesSection(draft: draft, onChanged: () {}),
+        ),
+      ),
+    );
     expect(find.text('Bleibt privat und wird nur für passende Vorschläge verwendet.'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilterChip, 'Divers'));
@@ -94,20 +106,36 @@ void main() {
 
   testWidgets('Fehlerschlüssel werden auf Deutsch angezeigt', (tester) async {
     late BuildContext captured;
-    await tester.pumpWidget(wrap(Builder(builder: (context) {
-      captured = context;
-      return const SizedBox();
-    })));
-    expect(errorText(captured, const LotusException('daily_like_limit_reached')),
-        'Deine 20 Likes für heute sind aufgebraucht.');
-    expect(errorText(captured, const LotusException('monthly_undo_limit_reached')),
-        'Du hast diesen Monat schon 3-mal rückgängig gemacht.');
+    await tester.pumpWidget(
+      wrap(
+        Builder(
+          builder: (context) {
+            captured = context;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    expect(
+      errorText(captured, const LotusException('daily_like_limit_reached')),
+      'Deine 20 Likes für heute sind aufgebraucht.',
+    );
+    expect(
+      errorText(captured, const LotusException('monthly_undo_limit_reached')),
+      'Du hast diesen Monat schon 3-mal rückgängig gemacht.',
+    );
     expect(errorText(captured, Exception('x')), 'Etwas ist schiefgelaufen. Bitte versuch es noch einmal.');
   });
 
   testWidgets('Suchradius geht von 1 bis 150 km', (tester) async {
     final draft = ProfileDraft();
-    await tester.pumpWidget(wrap(SingleChildScrollView(child: PreferencesSection(draft: draft, onChanged: () {}))));
+    await tester.pumpWidget(
+      wrap(
+        SingleChildScrollView(
+          child: PreferencesSection(draft: draft, onChanged: () {}),
+        ),
+      ),
+    );
     final slider = tester.widget<Slider>(find.byType(Slider));
     expect(slider.min, 1);
     expect(slider.max, 150);
@@ -141,7 +169,13 @@ void main() {
     final draft = ProfileDraft()
       ..interestedIn = {Gender.man}
       ..intention = Intention.relationship;
-    await tester.pumpWidget(wrap(SingleChildScrollView(child: PreferencesSection(draft: draft, onChanged: () {}))));
+    await tester.pumpWidget(
+      wrap(
+        SingleChildScrollView(
+          child: PreferencesSection(draft: draft, onChanged: () {}),
+        ),
+      ),
+    );
 
     expect(find.text('Nur Menschen mit passendem Kinderwunsch zeigen'), findsNothing);
     await tester.tap(find.widgetWithText(ChoiceChip, 'Möchte Kinder'));
@@ -165,8 +199,13 @@ void main() {
     addTearDown(tester.view.reset);
     const profile = FullProfile(
       summary: ProfileSummary(
-        id: 'k', displayName: 'Lea', age: 31, verified: false,
-        children: ChildrenWish.haveKids, smoking: Smoking.never),
+        id: 'k',
+        displayName: 'Lea',
+        age: 31,
+        verified: false,
+        children: ChildrenWish.haveKids,
+        smoking: Smoking.never,
+      ),
       photos: [],
       prompts: [],
     );

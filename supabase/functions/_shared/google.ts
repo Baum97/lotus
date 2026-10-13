@@ -8,13 +8,15 @@ const TOKEN_URL = Deno.env.get("GOOGLE_TOKEN_URL") ?? "https://oauth2.googleapis
 export async function getGoogleAccessToken(sa: ServiceAccount, scope: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const encode = (value: unknown) => base64url(new TextEncoder().encode(JSON.stringify(value)));
-  const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({
-    iss: sa.client_email,
-    scope,
-    aud: "https://oauth2.googleapis.com/token",
-    iat: now,
-    exp: now + 3600,
-  })}`;
+  const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${
+    encode({
+      iss: sa.client_email,
+      scope,
+      aud: "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+    })
+  }`;
 
   const pem = sa.private_key.replace(/-----[^-]+-----/g, "").replace(/\s/g, "");
   const key = await crypto.subtle.importKey(

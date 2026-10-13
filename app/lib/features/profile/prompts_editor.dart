@@ -39,44 +39,47 @@ class PromptsEditor extends ConsumerWidget {
     return answers.when(
       loading: () => const SizedBox(height: 200, child: LoadingView()),
       error: (e, _) => ErrorView(error: e, onRetry: () => ref.invalidate(ownPromptAnswersProvider)),
-      data: (answers) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.promptsHint, style: TextStyle(color: scheme.onSurfaceVariant)),
-        const SizedBox(height: 16),
-        for (final answer in answers)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Card(
-              child: ListTile(
-                contentPadding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-                title: Text(answer.promptText, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(answer.answer, style: Theme.of(context).textTheme.titleMedium),
-                ),
-                onTap: () => _edit(context, ref, answers, answer),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: l.delete,
-                  onPressed: () async {
-                    try {
-                      await ref.read(apiProvider).deletePromptAnswer(answer.id);
-                      ref.invalidate(ownPromptAnswersProvider);
-                      ref.invalidate(myStatusProvider);
-                    } catch (e) {
-                      if (context.mounted) showError(context, e);
-                    }
-                  },
+      data: (answers) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.promptsHint, style: TextStyle(color: scheme.onSurfaceVariant)),
+          const SizedBox(height: 16),
+          for (final answer in answers)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Card(
+                child: ListTile(
+                  contentPadding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                  title: Text(answer.promptText, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(answer.answer, style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  onTap: () => _edit(context, ref, answers, answer),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    tooltip: l.delete,
+                    onPressed: () async {
+                      try {
+                        await ref.read(apiProvider).deletePromptAnswer(answer.id);
+                        ref.invalidate(ownPromptAnswersProvider);
+                        ref.invalidate(myStatusProvider);
+                      } catch (e) {
+                        if (context.mounted) showError(context, e);
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-        if (answers.length < AppConfig.maxPrompts)
-          OutlinedButton.icon(
-            onPressed: () => _edit(context, ref, answers),
-            icon: const Icon(Icons.add),
-            label: Text(l.addPrompt),
-          ),
-      ]),
+          if (answers.length < AppConfig.maxPrompts)
+            OutlinedButton.icon(
+              onPressed: () => _edit(context, ref, answers),
+              icon: const Icon(Icons.add),
+              label: Text(l.addPrompt),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -107,41 +110,50 @@ class _PromptSheetState extends ConsumerState<_PromptSheet> {
     final l = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        DropdownButtonFormField<int>(
-          initialValue: _promptId,
-          isExpanded: true,
-          decoration: InputDecoration(labelText: l.choosePrompt),
-          items: [
-            for (final prompt in widget.catalog)
-              DropdownMenuItem(value: prompt.id, child: Text(prompt.text, overflow: TextOverflow.ellipsis)),
-          ],
-          onChanged: (value) => setState(() => _promptId = value),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _answer,
-          maxLines: 3,
-          maxLength: 300,
-          decoration: InputDecoration(labelText: l.answerLabel),
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 8),
-        AsyncButton(
-          label: l.save,
-          onPressed: _promptId == null || _answer.text.trim().isEmpty
-              ? null
-              : () async {
-                  await ref.read(apiProvider).savePromptAnswer(
-                        id: widget.existing?.id,
-                        promptId: _promptId!,
-                        answer: _answer.text,
-                        position: widget.position,
-                      );
-                  if (context.mounted) Navigator.pop(context, true);
-                },
-        ),
-      ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DropdownButtonFormField<int>(
+            initialValue: _promptId,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: l.choosePrompt),
+            items: [
+              for (final prompt in widget.catalog)
+                DropdownMenuItem(
+                  value: prompt.id,
+                  child: Text(prompt.text, overflow: TextOverflow.ellipsis),
+                ),
+            ],
+            onChanged: (value) => setState(() => _promptId = value),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _answer,
+            maxLines: 3,
+            maxLength: 300,
+            decoration: InputDecoration(labelText: l.answerLabel),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: 8),
+          AsyncButton(
+            label: l.save,
+            onPressed: _promptId == null || _answer.text.trim().isEmpty
+                ? null
+                : () async {
+                    await ref
+                        .read(apiProvider)
+                        .savePromptAnswer(
+                          id: widget.existing?.id,
+                          promptId: _promptId!,
+                          answer: _answer.text,
+                          position: widget.position,
+                        );
+                    if (context.mounted) Navigator.pop(context, true);
+                  },
+          ),
+        ],
+      ),
     );
   }
 }

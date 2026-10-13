@@ -68,11 +68,14 @@ class NotConfiguredScreen extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const LotusLogo(size: 64),
-            const SizedBox(height: 24),
-            Text(l.notConfigured, textAlign: TextAlign.center),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const LotusLogo(size: 64),
+              const SizedBox(height: 24),
+              Text(l.notConfigured, textAlign: TextAlign.center),
+            ],
+          ),
         ),
       ),
     );

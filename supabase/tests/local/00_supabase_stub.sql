@@ -1,9 +1,14 @@
 -- Minimale Nachbildung der Supabase-Umgebung, damit Migrationen und Tests
 -- auf einem normalen Postgres laufen (nur für scripts/test-db.sh, nie auf Supabase ausführen).
 
-create role anon nologin;
-create role authenticated nologin;
-create role service_role nologin bypassrls;
+-- Rollen sind clusterweit; bei mehreren Test-Datenbanken existieren sie schon.
+do $$
+begin
+  if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
+  if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
+  if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin bypassrls; end if;
+end;
+$$;
 
 create schema auth;
 create schema extensions;

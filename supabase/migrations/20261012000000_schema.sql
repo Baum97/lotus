@@ -75,6 +75,8 @@ create table public.profile_locations (
   check ((travel_location is null) = (travel_until is null))
 );
 create index profile_locations_location_idx on public.profile_locations using gist (location);
+create index profile_locations_travel_idx on public.profile_locations using gist (travel_location)
+  where travel_location is not null;
 
 create table public.photos (
   id uuid primary key default gen_random_uuid(),
@@ -147,6 +149,15 @@ create table public.impressions (
   primary key (viewer, shown, shown_on)
 );
 create index impressions_shown_idx on public.impressions (shown, shown_on);
+
+-- Wie oft ein Profil pro Tag gezeigt wurde (per Trigger aus impressions gepflegt). Das Fairness-Ranking
+-- liest so höchstens 7 Zeilen pro Kandidat statt aller Einzel-Impressionen.
+create table private.daily_impressions (
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  day date not null,
+  cnt int not null default 0,
+  primary key (user_id, day)
+);
 
 -- ---------------------------------------------------------------------------
 -- Matches & Chat
@@ -222,6 +233,33 @@ create table private.trust_events (
   created_at timestamptz not null default now()
 );
 create index trust_events_user_idx on private.trust_events (user_id, created_at desc);
+
+-- Such-Tabelle für die Vorschläge: eine Zeile pro Person mit allen Filterkriterien und dem
+-- aktuellen Suchstandort (Wohnort oder Reiseziel). Wird per Trigger aus profiles, match_preferences,
+-- profile_locations, photos, trust und entitlements gepflegt (private.refresh_discovery).
+-- get_candidates liest so nur eine Tabelle über einen räumlichen Index statt fünf Tabellen pro Kandidat.
+create table private.discovery (
+  user_id uuid primary key references public.profiles (id) on delete cascade,
+  location extensions.geography(point, 4326) not null,
+  -- gesetzt, solange der Suchstandort ein Reiseziel ist (Cron-Job setzt es nach Ablauf zurück)
+  travel_until timestamptz,
+  gender public.gender not null,
+  birthdate date not null,
+  interested_in public.gender[] not null,
+  intention public.intention not null,
+  age_min smallint not null,
+  age_max smallint not null,
+  max_distance_km smallint not null,
+  children public.children_wish,
+  smoking public.smoking,
+  children_dealbreaker boolean not null,
+  smoking_dealbreaker boolean not null,
+  last_active_at timestamptz not null,
+  -- aktiv (nicht eingeschränkt/gesperrt) und mindestens ein sichtbares Foto
+  eligible boolean not null
+);
+create index discovery_location_idx on private.discovery using gist (location) where eligible;
+create index discovery_travel_idx on private.discovery (travel_until) where travel_until is not null;
 
 -- Lotus Plus (nur Komfort-Funktionen, nie Vorteile beim Matching).
 -- Quelle: Kauf im Play Store (geprüft von der Edge Function verify-purchase) oder Admin (Beta).

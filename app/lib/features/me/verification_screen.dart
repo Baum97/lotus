@@ -53,15 +53,18 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
           }
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Icon(Icons.front_hand_outlined, size: 72, color: theme.colorScheme.primary),
-              const SizedBox(height: 24),
-              Text(request.gesture, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
-              const SizedBox(height: 16),
-              Text(l.verificationIntro, textAlign: TextAlign.center),
-              const SizedBox(height: 32),
-              AsyncButton(label: l.takeSelfie, icon: Icons.photo_camera_front, onPressed: () => _takeSelfie(request)),
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Icon(Icons.front_hand_outlined, size: 72, color: theme.colorScheme.primary),
+                const SizedBox(height: 24),
+                Text(request.gesture, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                Text(l.verificationIntro, textAlign: TextAlign.center),
+                const SizedBox(height: 32),
+                AsyncButton(label: l.takeSelfie, icon: Icons.photo_camera_front, onPressed: () => _takeSelfie(request)),
+              ],
+            ),
           );
         },
       ),

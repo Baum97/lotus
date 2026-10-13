@@ -35,15 +35,18 @@ class LocationSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Icon(Icons.place_outlined, size: 56, color: scheme.secondary),
-      const SizedBox(height: 16),
-      Text(l.locationHint, textAlign: TextAlign.center),
-      const SizedBox(height: 24),
-      if (hasLocation)
-        InfoBanner(text: l.locationSaved, icon: Icons.check_circle_outline)
-      else
-        AsyncButton(label: l.locationButton, icon: Icons.my_location, onPressed: () => updateLocation(context, ref)),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Icon(Icons.place_outlined, size: 56, color: scheme.secondary),
+        const SizedBox(height: 16),
+        Text(l.locationHint, textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        if (hasLocation)
+          InfoBanner(text: l.locationSaved, icon: Icons.check_circle_outline)
+        else
+          AsyncButton(label: l.locationButton, icon: Icons.my_location, onPressed: () => updateLocation(context, ref)),
+      ],
+    );
   }
 }

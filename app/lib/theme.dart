@@ -19,10 +19,7 @@ class LotusColors {
 }
 
 ThemeData buildLightTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: LotusColors.rose,
-    brightness: Brightness.light,
-  ).copyWith(
+  final scheme = ColorScheme.fromSeed(seedColor: LotusColors.rose, brightness: Brightness.light).copyWith(
     primary: LotusColors.rose,
     onPrimary: Colors.white,
     primaryContainer: LotusColors.roseLight,
@@ -44,10 +41,7 @@ ThemeData buildLightTheme() {
 }
 
 ThemeData buildDarkTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: LotusColors.rose,
-    brightness: Brightness.dark,
-  ).copyWith(
+  final scheme = ColorScheme.fromSeed(seedColor: LotusColors.rose, brightness: Brightness.dark).copyWith(
     primary: LotusColors.roseNight,
     onPrimary: LotusColors.night,
     secondary: const Color(0xFFA8C3AC),
@@ -76,7 +70,10 @@ ThemeData _base(ColorScheme scheme) {
       color: scheme.surfaceContainerLowest,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: radius, side: BorderSide(color: scheme.outlineVariant)),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -91,10 +88,14 @@ ThemeData _base(ColorScheme scheme) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: scheme.surfaceContainerLowest,
-      border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide(color: scheme.outlineVariant)),
-      enabledBorder: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide(color: scheme.outlineVariant)),
+      border: OutlineInputBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
     chipTheme: ChipThemeData(

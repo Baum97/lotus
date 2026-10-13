@@ -13,9 +13,9 @@ class ImpressumScreen extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final theme = Theme.of(context);
     Widget heading(String text) => Padding(
-          padding: const EdgeInsets.only(top: 24, bottom: 6),
-          child: Text(text, style: theme.textTheme.titleMedium),
-        );
+      padding: const EdgeInsets.only(top: 24, bottom: 6),
+      child: Text(text, style: theme.textTheme.titleMedium),
+    );
     const address = '${LegalInfo.name}\n${LegalInfo.street}\n${LegalInfo.postalCodeCity}\n${LegalInfo.country}';
 
     return Scaffold(

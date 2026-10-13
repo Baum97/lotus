@@ -83,22 +83,27 @@ language sql stable security definer set search_path = '' as $$
   )
 $$;
 
+-- Die folgenden drei Funktionen sind bewusst weder security definer noch mit festem search_path
+-- (alle Namen sind voll qualifiziert): Nur so kann Postgres sie in get_candidates einbetten,
+-- statt sie für jede Zeile einzeln aufzurufen. Clients dürfen sie nicht ausführen.
 create function private.has_plus(p_user uuid) returns boolean
-language sql stable security definer set search_path = '' as $$
+language sql stable as $$
   select exists (select 1 from private.entitlements e where e.user_id = p_user and e.valid_until > now())
 $$;
 
 -- Aktueller Suchstandort: Reiseziel, solange der Reisemodus läuft (nur mit Lotus Plus), sonst Wohnort.
 create function private.search_location(p_loc public.profile_locations) returns extensions.geography
-language sql stable security definer set search_path = '' as $$
+language sql stable as $$
+  -- Verschachteltes CASE: Die Plus-Prüfung läuft nur, wenn überhaupt ein Reisemodus aktiv ist
   select case
-    when p_loc.travel_until > now() and private.has_plus(p_loc.user_id) then p_loc.travel_location
+    when p_loc.travel_until > now() then
+      case when private.has_plus(p_loc.user_id) then p_loc.travel_location else p_loc.location end
     else p_loc.location
   end
 $$;
 
 create function private.is_traveling(p_user uuid) returns boolean
-language sql stable security definer set search_path = '' as $$
+language sql stable as $$
   select exists (
     select 1 from public.profile_locations l
     where l.user_id = p_user and l.travel_until > now() and private.has_plus(p_user)
@@ -227,6 +232,11 @@ language plpgsql security definer set search_path = '' as $$
 declare
   v_me uuid := private.current_user_id();
   v_today date := private.berlin_today();
+  v_location extensions.geography;
+  v_radius float8;
+  v_my_age int;
+  v_born_after date;
+  v_born_until date;
 begin
   update public.profiles set last_active_at = now() where public.profiles.id = v_me;
 
@@ -234,74 +244,80 @@ begin
     return;
   end if;
 
+  -- Eigener Suchstandort und Radius als Konstanten, damit die Vorauswahl den GiST-Index nutzt
+  -- Alter und Altersspanne einmal in Geburtsdaten umrechnen, statt das Alter jeder Person zu berechnen
+  select private.search_location(l), mp.max_distance_km * 1000.0, private.age_of(p.birthdate),
+         (v_today - make_interval(years => mp.age_max + 1))::date,
+         (v_today - make_interval(years => mp.age_min))::date
+  into v_location, v_radius, v_my_age, v_born_after, v_born_until
+  from public.match_preferences mp
+  join public.profiles p on p.id = mp.user_id
+  join public.profile_locations l on l.user_id = mp.user_id
+  where mp.user_id = v_me;
+  if v_location is null then
+    return;
+  end if;
+
   return query
   with me as (
-    select p.id, p.gender, p.birthdate, mp.interested_in, mp.intention,
-           mp.age_min, mp.age_max, mp.max_distance_km, private.search_location(l) as location,
+    select p.id, p.gender, mp.interested_in, mp.intention, mp.max_distance_km,
            mp.children, mp.smoking, mp.children_dealbreaker, mp.smoking_dealbreaker
     from public.profiles p
     join public.match_preferences mp on mp.user_id = p.id
-    join public.profile_locations l on l.user_id = p.id
     where p.id = v_me
   ),
+  -- Eine Tabelle, ein räumlicher Index (nur auffindbare Profile); alle harten Filter auf derselben Zeile
   candidates as (
     select
-      o.id,
-      o.display_name,
-      private.age_of(o.birthdate) as age,
-      o.city,
-      case when op.intention_public then op.intention end as intention,
-      o.bio,
-      greatest(1, ceil(extensions.st_distance(private.search_location(ol), me.location) / 1000))::int as distance_km,
-      o.verified_at is not null as verified,
-      private.is_traveling(o.id) as traveling,
-      case when op.lifestyle_public then op.children end as children,
-      case when op.lifestyle_public then op.smoking end as smoking,
+      d.user_id as id,
+      d.birthdate,
+      greatest(1, ceil(extensions.st_distance(d.location, v_location) / 1000))::int as distance_km,
       exists (
         select 1 from public.impressions i
-        where i.viewer = v_me and i.shown = o.id and i.shown_on = v_today
+        where i.viewer = v_me and i.shown = d.user_id and i.shown_on = v_today
       ) as shown_to_me_today,
-      (op.intention = me.intention) as same_intention,
+      (d.intention = me.intention) as same_intention,
       (
-        select count(*) from public.impressions i
-        where i.shown = o.id and i.shown_on > v_today - 7
+        select coalesce(sum(di.cnt), 0) from private.daily_impressions di
+        where di.user_id = d.user_id and di.day > v_today - 7
       ) as recent_impressions,
-      (
-        select count(*) from public.impressions i
-        where i.shown = o.id and i.shown_on = v_today
-      ) as impressions_today
+      coalesce((
+        select di.cnt from private.daily_impressions di
+        where di.user_id = d.user_id and di.day = v_today
+      ), 0) as impressions_today
     from me
-    join public.profiles o on o.id <> me.id
-    join public.match_preferences op on op.user_id = o.id
-    join public.profile_locations ol on ol.user_id = o.id
-    join private.trust t on t.user_id = o.id and t.status = 'active'
+    join private.discovery d on d.user_id <> me.id
     where
-      -- gegenseitige harte Filter
-      o.gender = any (me.interested_in)
-      and me.gender = any (op.interested_in)
-      and private.age_of(o.birthdate) between me.age_min and me.age_max
-      and private.age_of(me.birthdate) between op.age_min and op.age_max
-      and extensions.st_dwithin(private.search_location(ol), me.location, least(me.max_distance_km, op.max_distance_km) * 1000)
+      d.eligible
+      and extensions.st_dwithin(d.location, v_location, v_radius)
+      -- gegenseitige harte Filter (genaue Entfernung: der kleinere der beiden Radien)
+      and extensions.st_dwithin(d.location, v_location, least(me.max_distance_km, d.max_distance_km) * 1000)
+      and d.gender = any (me.interested_in)
+      and me.gender = any (d.interested_in)
+      and d.birthdate > v_born_after and d.birthdate <= v_born_until
+      and v_my_age between d.age_min and d.age_max
       -- optionale Ausschlusskriterien, gegenseitig
-      and not (me.children_dealbreaker and private.children_conflict(me.children, op.children))
-      and not (op.children_dealbreaker and private.children_conflict(op.children, me.children))
-      and not (me.smoking_dealbreaker and private.smokes(op.smoking))
-      and not (op.smoking_dealbreaker and private.smokes(me.smoking))
-      and o.last_active_at > now() - make_interval(days => private.inactive_after_days())
-      and exists (select 1 from public.photos ph where ph.user_id = o.id and ph.moderation <> 'rejected')
+      and not (me.children_dealbreaker and private.children_conflict(me.children, d.children))
+      and not (d.children_dealbreaker and private.children_conflict(d.children, me.children))
+      and not (me.smoking_dealbreaker and private.smokes(d.smoking))
+      and not (d.smoking_dealbreaker and private.smokes(me.smoking))
+      and d.last_active_at > now() - make_interval(days => private.inactive_after_days())
       -- noch nicht entschieden, keine Blockierung, kein Match
-      and not exists (select 1 from public.likes l where l.from_user = v_me and l.to_user = o.id)
+      and not exists (select 1 from public.likes l where l.from_user = v_me and l.to_user = d.user_id)
       -- wer mich schon geliked hat, steht in "Wer hat mich geliked" (Zurück-Liken ist gratis)
-      and not exists (select 1 from public.likes l where l.from_user = o.id and l.to_user = v_me)
+      and not exists (select 1 from public.likes l where l.from_user = d.user_id and l.to_user = v_me)
       and not exists (
         select 1 from public.passes p
-        where p.from_user = v_me and p.to_user = o.id and p.undone_at is null
+        where p.from_user = v_me and p.to_user = d.user_id and p.undone_at is null
       )
       and not exists (
         select 1 from public.matches m
-        where (m.user_a = v_me and m.user_b = o.id) or (m.user_a = o.id and m.user_b = v_me)
+        where (m.user_a = v_me and m.user_b = d.user_id) or (m.user_a = d.user_id and m.user_b = v_me)
       )
-      and not private.is_blocked(v_me, o.id)
+      and not exists (
+        select 1 from public.blocks b
+        where (b.blocker = v_me and b.blocked = d.user_id) or (b.blocker = d.user_id and b.blocked = v_me)
+      )
   ),
   picked as (
     select c.*
@@ -315,12 +331,115 @@ begin
     select v_me, picked.id, v_today from picked
     on conflict do nothing
   )
-  select picked.id, picked.display_name, picked.age, picked.city, picked.intention,
-         picked.bio, picked.distance_km, picked.verified, picked.traveling, picked.children, picked.smoking
+  -- Anzeigedaten nur für die ausgewählten Profile laden
+  select picked.id, o.display_name, private.age_of(picked.birthdate), o.city,
+         case when op.intention_public then op.intention end,
+         o.bio, picked.distance_km, o.verified_at is not null, private.is_traveling(picked.id),
+         case when op.lifestyle_public then op.children end,
+         case when op.lifestyle_public then op.smoking end
   from picked
+  join public.profiles o on o.id = picked.id
+  join public.match_preferences op on op.user_id = picked.id
   order by picked.shown_to_me_today desc, picked.same_intention desc, picked.recent_impressions;
 end;
 $$;
+
+-- Baut die Zeile einer Person in private.discovery aus den Quelltabellen neu auf
+-- (oder entfernt sie, solange Profil, Präferenzen oder Standort fehlen).
+create function private.refresh_discovery(p_user uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_rows int;
+begin
+  insert into private.discovery as d (
+    user_id, location, travel_until, gender, birthdate, interested_in, intention,
+    age_min, age_max, max_distance_km, children, smoking, children_dealbreaker, smoking_dealbreaker,
+    last_active_at, eligible)
+  select
+    p.id,
+    private.search_location(l),
+    case when l.travel_until > now() and private.has_plus(p.id) then l.travel_until end,
+    p.gender, p.birthdate, mp.interested_in, mp.intention,
+    mp.age_min, mp.age_max, mp.max_distance_km, mp.children, mp.smoking,
+    mp.children_dealbreaker, mp.smoking_dealbreaker,
+    p.last_active_at,
+    coalesce(t.status = 'active', false)
+      and exists (select 1 from public.photos ph where ph.user_id = p.id and ph.moderation <> 'rejected')
+  from public.profiles p
+  join public.match_preferences mp on mp.user_id = p.id
+  join public.profile_locations l on l.user_id = p.id
+  left join private.trust t on t.user_id = p.id
+  where p.id = p_user
+  on conflict (user_id) do update set
+    location = excluded.location, travel_until = excluded.travel_until,
+    gender = excluded.gender, birthdate = excluded.birthdate, interested_in = excluded.interested_in,
+    intention = excluded.intention, age_min = excluded.age_min, age_max = excluded.age_max,
+    max_distance_km = excluded.max_distance_km, children = excluded.children, smoking = excluded.smoking,
+    children_dealbreaker = excluded.children_dealbreaker, smoking_dealbreaker = excluded.smoking_dealbreaker,
+    last_active_at = excluded.last_active_at, eligible = excluded.eligible;
+  get diagnostics v_rows = row_count;
+  if v_rows = 0 then
+    delete from private.discovery where user_id = p_user;
+  end if;
+end;
+$$;
+
+-- Ein Trigger für alle Quelltabellen: die betroffene Person steht in id bzw. user_id
+create function private.on_discovery_source_change() returns trigger
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_row jsonb := to_jsonb(coalesce(new, old));
+begin
+  perform private.refresh_discovery(coalesce(v_row ->> 'user_id', v_row ->> 'id')::uuid);
+  return null;
+end;
+$$;
+
+create trigger profiles_discovery after insert or update of gender, birthdate, last_active_at on public.profiles
+for each row execute function private.on_discovery_source_change();
+create trigger match_preferences_discovery after insert or update on public.match_preferences
+for each row execute function private.on_discovery_source_change();
+create trigger profile_locations_discovery after insert or update on public.profile_locations
+for each row execute function private.on_discovery_source_change();
+create trigger photos_discovery after insert or update of moderation or delete on public.photos
+for each row execute function private.on_discovery_source_change();
+create trigger trust_discovery after insert or update of status on private.trust
+for each row execute function private.on_discovery_source_change();
+create trigger entitlements_discovery after insert or update or delete on private.entitlements
+for each row execute function private.on_discovery_source_change();
+
+-- Für pg_cron: abgelaufene Reisen (oder abgelaufenes Plus) zurück auf den Wohnort setzen
+create function private.refresh_expired_travel() returns int
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_user uuid;
+  v_count int := 0;
+begin
+  for v_user in
+    select d.user_id from private.discovery d
+    where d.travel_until is not null and (d.travel_until <= now() or not private.has_plus(d.user_id))
+  loop
+    perform private.refresh_discovery(v_user);
+    v_count := v_count + 1;
+  end loop;
+  return v_count;
+end;
+$$;
+
+-- Tageszähler für das Fairness-Ranking pflegen (nur neu eingefügte Impressionen zählen)
+create function private.count_impression() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  insert into private.daily_impressions (user_id, day, cnt)
+  values (new.shown, new.shown_on, 1)
+  on conflict (user_id, day) do update set cnt = private.daily_impressions.cnt + 1;
+  return null;
+end;
+$$;
+
+create trigger impressions_count
+after insert on public.impressions
+for each row execute function private.count_impression();
 
 -- Profilkarte einer Person, die man sehen darf (Vorschlag, eingehendes Like oder Match).
 -- Liefert nur öffentliche Angaben: keine Orientierung, kein Geburtsdatum, kein Standort,

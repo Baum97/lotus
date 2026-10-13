@@ -6,8 +6,9 @@ import '../../l10n/gen/app_localizations.dart';
 import '../../providers.dart';
 import '../../widgets/common.dart';
 
-final _pendingVerificationsProvider =
-    FutureProvider.autoDispose((ref) => ref.watch(apiProvider).adminPendingVerifications());
+final _pendingVerificationsProvider = FutureProvider.autoDispose(
+  (ref) => ref.watch(apiProvider).adminPendingVerifications(),
+);
 final _openReportsProvider = FutureProvider.autoDispose((ref) => ref.watch(apiProvider).adminOpenReports());
 final _recentPhotosProvider = FutureProvider.autoDispose((ref) => ref.watch(apiProvider).adminRecentPhotos());
 
@@ -40,11 +41,13 @@ class AdminScreen extends StatelessWidget {
               onPressed: () => showDialog<void>(context: context, builder: (_) => const _GrantPlusDialog()),
             ),
           ],
-          bottom: TabBar(tabs: [
-            Tab(text: l.adminVerifications),
-            Tab(text: l.adminReports),
-            Tab(text: l.adminPhotos),
-          ]),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: l.adminVerifications),
+              Tab(text: l.adminReports),
+              Tab(text: l.adminPhotos),
+            ],
+          ),
         ),
         body: const TabBarView(children: [_VerificationsTab(), _ReportsTab(), _PhotosTab()]),
       ),
@@ -104,7 +107,9 @@ class _AsyncList<T> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    return ref.watch(provider).when(
+    return ref
+        .watch(provider)
+        .when(
           loading: () => const LoadingView(),
           error: (e, _) => ErrorView(error: e, onRetry: () => ref.invalidate(provider)),
           data: (items) => items.isEmpty
@@ -131,39 +136,52 @@ class _VerificationsTab extends ConsumerWidget {
       itemBuilder: (context, v) => Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(v.displayName, style: Theme.of(context).textTheme.titleLarge),
-            Text(l.gestureLabel(v.gesture)),
-            const SizedBox(height: 12),
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(child: _LabeledImages(label: l.selfieLabel, bucket: 'selfies', paths: [v.selfiePath])),
-              const SizedBox(width: 12),
-              Expanded(flex: 2, child: _LabeledImages(label: l.profilePhotosLabel, bucket: 'photos', paths: v.photoPaths)),
-            ]),
-            const SizedBox(height: 12),
-            Row(children: [
-              Expanded(
-                child: AsyncButton(
-                  outlined: true,
-                  label: l.reject,
-                  onPressed: () async {
-                    await api.adminReviewVerification(v.requestId, approve: false);
-                    ref.invalidate(_pendingVerificationsProvider);
-                  },
-                ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(v.displayName, style: Theme.of(context).textTheme.titleLarge),
+              Text(l.gestureLabel(v.gesture)),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _LabeledImages(label: l.selfieLabel, bucket: 'selfies', paths: [v.selfiePath]),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: _LabeledImages(label: l.profilePhotosLabel, bucket: 'photos', paths: v.photoPaths),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: AsyncButton(
-                  label: l.approve,
-                  onPressed: () async {
-                    await api.adminReviewVerification(v.requestId, approve: true);
-                    ref.invalidate(_pendingVerificationsProvider);
-                  },
-                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: AsyncButton(
+                      outlined: true,
+                      label: l.reject,
+                      onPressed: () async {
+                        await api.adminReviewVerification(v.requestId, approve: false);
+                        ref.invalidate(_pendingVerificationsProvider);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AsyncButton(
+                      label: l.approve,
+                      onPressed: () async {
+                        await api.adminReviewVerification(v.requestId, approve: true);
+                        ref.invalidate(_pendingVerificationsProvider);
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ]),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -180,14 +198,18 @@ class _LabeledImages extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final urls = ref.watch(_signedUrlsProvider(_urlKey(bucket, paths))).value ?? const {};
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: Theme.of(context).textTheme.labelMedium),
-      const SizedBox(height: 6),
-      Wrap(spacing: 6, runSpacing: 6, children: [
-        for (final path in paths)
-          SizedBox(width: 96, child: RoundedPhoto(url: urls[path], radius: 12)),
-      ]),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.labelMedium),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [for (final path in paths) SizedBox(width: 96, child: RoundedPhoto(url: urls[path], radius: 12))],
+        ),
+      ],
+    );
   }
 }
 
@@ -206,32 +228,39 @@ class _ReportsTab extends ConsumerWidget {
     }
 
     String reason(ReportReason r) => switch (r) {
-          ReportReason.fake => l.reportReasonFake,
-          ReportReason.scam => l.reportReasonScam,
-          ReportReason.harassment => l.reportReasonHarassment,
-          ReportReason.inappropriate => l.reportReasonInappropriate,
-          ReportReason.underage => l.reportReasonUnderage,
-          ReportReason.other => l.reportReasonOther,
-        };
+      ReportReason.fake => l.reportReasonFake,
+      ReportReason.scam => l.reportReasonScam,
+      ReportReason.harassment => l.reportReasonHarassment,
+      ReportReason.inappropriate => l.reportReasonInappropriate,
+      ReportReason.underage => l.reportReasonUnderage,
+      ReportReason.other => l.reportReasonOther,
+    };
 
     return _AsyncList<AdminReport>(
       provider: _openReportsProvider,
       itemBuilder: (context, r) => Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text('${r.reportedName} · ${reason(r.reason)}', style: theme.textTheme.titleMedium),
-            Text(l.reportedBy(r.reporterName), style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
-            if (r.details != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text('„${r.details}“')),
-            const SizedBox(height: 8),
-            Text(l.reportsAgainst(r.reportsAgainstUser), style: theme.textTheme.bodySmall),
-            const SizedBox(height: 12),
-            Wrap(spacing: 8, runSpacing: 8, children: [
-              AsyncButton(outlined: true, label: l.dismiss, onPressed: () => resolve(r, null)),
-              AsyncButton(outlined: true, label: l.restrict, onPressed: () => resolve(r, TrustStatus.restricted)),
-              AsyncButton(label: l.suspend, onPressed: () => resolve(r, TrustStatus.suspended)),
-            ]),
-          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('${r.reportedName} · ${reason(r.reason)}', style: theme.textTheme.titleMedium),
+              Text(l.reportedBy(r.reporterName), style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+              if (r.details != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text('„${r.details}“')),
+              const SizedBox(height: 8),
+              Text(l.reportsAgainst(r.reportsAgainstUser), style: theme.textTheme.bodySmall),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  AsyncButton(outlined: true, label: l.dismiss, onPressed: () => resolve(r, null)),
+                  AsyncButton(outlined: true, label: l.restrict, onPressed: () => resolve(r, TrustStatus.restricted)),
+                  AsyncButton(label: l.suspend, onPressed: () => resolve(r, TrustStatus.suspended)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -268,21 +297,26 @@ class _PhotosTab extends ConsumerWidget {
               ref.invalidate(_recentPhotosProvider);
             }
 
-            return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              RoundedPhoto(url: urls[photo.storagePath], radius: 12),
-              const SizedBox(height: 6),
-              Text(photo.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
-              Row(children: [
-                IconButton(
-                  tooltip: l.reject,
-                  icon: const Icon(Icons.block),
-                  color: Theme.of(context).colorScheme.error,
-                  onPressed: () => moderate(false),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                RoundedPhoto(url: urls[photo.storagePath], radius: 12),
+                const SizedBox(height: 6),
+                Text(photo.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Row(
+                  children: [
+                    IconButton(
+                      tooltip: l.reject,
+                      icon: const Icon(Icons.block),
+                      color: Theme.of(context).colorScheme.error,
+                      onPressed: () => moderate(false),
+                    ),
+                    const Spacer(),
+                    IconButton(tooltip: l.approve, icon: const Icon(Icons.check), onPressed: () => moderate(true)),
+                  ],
                 ),
-                const Spacer(),
-                IconButton(tooltip: l.approve, icon: const Icon(Icons.check), onPressed: () => moderate(true)),
-              ]),
-            ]);
+              ],
+            );
           },
         );
       },

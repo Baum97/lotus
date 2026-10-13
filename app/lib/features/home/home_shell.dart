@@ -55,10 +55,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   void _onForegroundPush(String title, Map<String, dynamic> data) {
     _refresh();
     final l = AppLocalizations.of(context);
-    scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
-      content: Text(title),
-      action: SnackBarAction(label: l.pushOpen, onPressed: () => _openFromPush(data)),
-    ));
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(title),
+        action: SnackBarAction(label: l.pushOpen, onPressed: () => _openFromPush(data)),
+      ),
+    );
   }
 
   @override

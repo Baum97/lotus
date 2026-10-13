@@ -69,8 +69,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get invalidEmail => 'Bitte gib eine gültige E-Mail-Adresse ein.';
 
   @override
-  String get loginLegal =>
-      'Mit der Anmeldung bestätigst du, dass du mindestens 18 Jahre alt bist.';
+  String get loginLegal => 'Mit der Anmeldung bestätigst du, dass du mindestens 18 Jahre alt bist.';
 
   @override
   String get notConfigured =>
@@ -106,8 +105,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get birthdateLabel => 'Geburtsdatum';
 
   @override
-  String get birthdateHint =>
-      'Wird nie angezeigt – andere sehen nur dein Alter.';
+  String get birthdateHint => 'Wird nie angezeigt – andere sehen nur dein Alter.';
 
   @override
   String get genderLabel => 'Ich bin';
@@ -134,8 +132,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get interestedInLabel => 'Ich möchte kennenlernen';
 
   @override
-  String get interestedInHint =>
-      'Bleibt privat und wird nur für passende Vorschläge verwendet.';
+  String get interestedInHint => 'Bleibt privat und wird nur für passende Vorschläge verwendet.';
 
   @override
   String get intentionLabel => 'Was suchst du?';
@@ -153,8 +150,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get intentionPublicLabel => 'Im Profil anzeigen';
 
   @override
-  String get intentionPublicHint =>
-      'Dein Ziel zählt immer fürs Matching. Du entscheidest, ob andere es sehen.';
+  String get intentionPublicHint => 'Dein Ziel zählt immer fürs Matching. Du entscheidest, ob andere es sehen.';
 
   @override
   String ageRangeLabel(int min, int max) {
@@ -167,8 +163,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get photosHint =>
-      'Mindestens 1, höchstens 6 Fotos. Auf dem ersten Foto sollte man dich gut erkennen.';
+  String get photosHint => 'Mindestens 1, höchstens 6 Fotos. Auf dem ersten Foto sollte man dich gut erkennen.';
 
   @override
   String get addPhoto => 'Foto hinzufügen';
@@ -177,8 +172,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deletePhotoTitle => 'Foto löschen?';
 
   @override
-  String get promptsHint =>
-      'Beantworte 1 bis 3 Prompts – sie sind der beste Gesprächseinstieg.';
+  String get promptsHint => 'Beantworte 1 bis 3 Prompts – sie sind der beste Gesprächseinstieg.';
 
   @override
   String get addPrompt => 'Prompt hinzufügen';
@@ -291,8 +285,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get matchQueued =>
-      'Euer Chat öffnet sich, sobald ihr beide einen freien Chat-Platz habt.';
+  String get matchQueued => 'Euer Chat öffnet sich, sobald ihr beide einen freien Chat-Platz habt.';
 
   @override
   String get openChats => 'Zu den Chats';
@@ -320,8 +313,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get likesSubtitle => 'Zurück-liken kostet keine Likes.';
 
   @override
-  String get likesEmpty =>
-      'Noch keine Likes. Gute Dinge brauchen manchmal etwas Zeit.';
+  String get likesEmpty => 'Noch keine Likes. Gute Dinge brauchen manchmal etwas Zeit.';
 
   @override
   String get likedYourPhoto => 'mag dein Foto';
@@ -342,8 +334,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get chatsTitle => 'Chats';
 
   @override
-  String get chatsEmpty =>
-      'Noch keine Matches. Wenn ihr euch gegenseitig mögt, erscheint der Chat hier.';
+  String get chatsEmpty => 'Noch keine Matches. Wenn ihr euch gegenseitig mögt, erscheint der Chat hier.';
 
   @override
   String get chatQueued => 'Wartet auf einen freien Chat-Platz';
@@ -371,8 +362,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get messageHint => 'Nachricht schreiben …';
 
   @override
-  String get verifyToChat =>
-      'Bitte verifiziere dich, bevor du schreibst – so wissen alle, dass du echt bist.';
+  String get verifyToChat => 'Bitte verifiziere dich, bevor du schreibst – so wissen alle, dass du echt bist.';
 
   @override
   String get verifyNow => 'Jetzt verifizieren';
@@ -381,20 +371,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get chatClosedBanner => 'Dieses Gespräch ist beendet.';
 
   @override
-  String get chatQueuedBanner =>
-      'Ihr habt ein Match! Der Chat öffnet sich, sobald ihr beide einen freien Platz habt.';
+  String get chatQueuedBanner => 'Ihr habt ein Match! Der Chat öffnet sich, sobald ihr beide einen freien Platz habt.';
 
   @override
   String get safetyMoney =>
       'Vorsicht: Hier geht es um Geld. Überweise niemals Geld an Menschen, die du nicht persönlich kennst.';
 
   @override
-  String get safetyLink =>
-      'Diese Nachricht enthält einen Link. Öffne nur Links, denen du vertraust.';
+  String get safetyLink => 'Diese Nachricht enthält einen Link. Öffne nur Links, denen du vertraust.';
 
   @override
-  String get safetyOffPlatform =>
-      'Die Person möchte die App wechseln. Lerne sie lieber erst hier kennen.';
+  String get safetyOffPlatform => 'Die Person möchte die App wechseln. Lerne sie lieber erst hier kennen.';
 
   @override
   String get endChat => 'Gespräch beenden';
@@ -422,8 +409,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get blockBody =>
-      'Ihr seht euch nicht mehr und euer Chat wird beendet.';
+  String get blockBody => 'Ihr seht euch nicht mehr und euer Chat wird beendet.';
 
   @override
   String get report => 'Melden';
@@ -494,8 +480,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get verificationPending => 'Dein Selfie wird geprüft.';
 
   @override
-  String get verificationRejected =>
-      'Dein Selfie konnte nicht bestätigt werden. Versuch es gern noch einmal.';
+  String get verificationRejected => 'Dein Selfie konnte nicht bestätigt werden. Versuch es gern noch einmal.';
 
   @override
   String get notVerified => 'Noch nicht verifiziert – nötig, um zu chatten.';
@@ -524,8 +509,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get takeSelfie => 'Selfie aufnehmen';
 
   @override
-  String get verificationSubmitted =>
-      'Danke! Wir prüfen dein Selfie so schnell wie möglich.';
+  String get verificationSubmitted => 'Danke! Wir prüfen dein Selfie so schnell wie möglich.';
 
   @override
   String get deleteTitle => 'Konto löschen';
@@ -543,15 +527,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deleteFeedback => 'Möchtest du uns noch etwas sagen? (optional)';
 
   @override
-  String get deleteWarning =>
-      'Alle deine Daten, Fotos, Matches und Nachrichten werden unwiderruflich gelöscht.';
+  String get deleteWarning => 'Alle deine Daten, Fotos, Matches und Nachrichten werden unwiderruflich gelöscht.';
 
   @override
   String get deleteConfirm => 'Endgültig löschen';
 
   @override
-  String get deleteCongrats =>
-      'Wie schön! Genau dafür gibt es Lotus. Alles Gute euch beiden!';
+  String get deleteCongrats => 'Wie schön! Genau dafür gibt es Lotus. Alles Gute euch beiden!';
 
   @override
   String get adminTitle => 'Admin';
@@ -611,23 +593,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get suspend => 'Sperren';
 
   @override
-  String get errorGeneric =>
-      'Etwas ist schiefgelaufen. Bitte versuch es noch einmal.';
+  String get errorGeneric => 'Etwas ist schiefgelaufen. Bitte versuch es noch einmal.';
 
   @override
-  String get errorDailyLikeLimit =>
-      'Deine 20 Likes für heute sind aufgebraucht.';
+  String get errorDailyLikeLimit => 'Deine 20 Likes für heute sind aufgebraucht.';
 
   @override
-  String get errorMonthlyUndoLimit =>
-      'Du hast diesen Monat schon 3-mal rückgängig gemacht.';
+  String get errorMonthlyUndoLimit => 'Du hast diesen Monat schon 3-mal rückgängig gemacht.';
 
   @override
   String get errorNothingToUndo => 'Es gibt nichts rückgängig zu machen.';
 
   @override
-  String get errorProfileNotAvailable =>
-      'Dieses Profil ist nicht mehr verfügbar.';
+  String get errorProfileNotAvailable => 'Dieses Profil ist nicht mehr verfügbar.';
 
   @override
   String get errorAlreadyLiked => 'Du hast diese Person schon geliked.';
@@ -639,12 +617,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get errorSuspended => 'Dein Konto wurde gesperrt.';
 
   @override
-  String get errorSlowDown =>
-      'Mach mal kurz Pause – du warst sehr schnell unterwegs.';
+  String get errorSlowDown => 'Mach mal kurz Pause – du warst sehr schnell unterwegs.';
 
   @override
-  String get errorLinksNotAllowed =>
-      'Dein Konto darf aktuell keine Links senden.';
+  String get errorLinksNotAllowed => 'Dein Konto darf aktuell keine Links senden.';
 
   @override
   String get errorAlreadyVerified => 'Du bist bereits verifiziert.';
@@ -669,16 +645,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get plusTitle => 'Lotus Plus';
 
   @override
-  String get plusFeatureTravel =>
-      'Reisemodus: Profile in einer anderen Stadt sehen, z. B. vor einem Umzug';
+  String get plusFeatureTravel => 'Reisemodus: Profile in einer anderen Stadt sehen, z. B. vor einem Umzug';
 
   @override
-  String get plusFeatureStats =>
-      'Statistiken über dein Profil: Welche Fotos und Antworten gut ankommen';
+  String get plusFeatureStats => 'Statistiken über dein Profil: Welche Fotos und Antworten gut ankommen';
 
   @override
-  String get plusFeatureFair =>
-      'Kein Einfluss auf deine Sichtbarkeit oder deine Likes – versprochen';
+  String get plusFeatureFair => 'Kein Einfluss auf deine Sichtbarkeit oder deine Likes – versprochen';
 
   @override
   String plusPerMonth(String price) {
@@ -694,8 +667,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get plusManageHint =>
-      'Kündigen kannst du jederzeit in Google Play unter „Abos“.';
+  String get plusManageHint => 'Kündigen kannst du jederzeit in Google Play unter „Abos“.';
 
   @override
   String get plusRequired => 'Diese Funktion gehört zu Lotus Plus.';
@@ -707,8 +679,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get donateTitle => 'Spenden';
 
   @override
-  String get donateText =>
-      'Einmalig und freiwillig. Jeder Beitrag hält Lotus werbefrei.';
+  String get donateText => 'Einmalig und freiwillig. Jeder Beitrag hält Lotus werbefrei.';
 
   @override
   String get donateThanks => 'Danke für deine Unterstützung! 🌸';
@@ -769,8 +740,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get statsTitle => 'Deine Statistiken';
 
   @override
-  String get statsImpressions =>
-      'So oft wurdest du in den letzten 7 Tagen gezeigt';
+  String get statsImpressions => 'So oft wurdest du in den letzten 7 Tagen gezeigt';
 
   @override
   String get statsLikes => 'Likes in den letzten 30 Tagen';
@@ -793,8 +763,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get notificationsTitle => 'Benachrichtigungen';
 
   @override
-  String get notificationsIntro =>
-      'Lotus schickt nur das Nötigste – nie Werbung und nie Nachrichtentexte.';
+  String get notificationsIntro => 'Lotus schickt nur das Nötigste – nie Werbung und nie Nachrichtentexte.';
 
   @override
   String get notifyMessages => 'Neue Nachrichten';
@@ -812,8 +781,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get imprint => 'Impressum';
 
   @override
-  String get imprintIncomplete =>
-      'Impressum unvollständig – bitte app/lib/legal/legal_info.dart ausfüllen.';
+  String get imprintIncomplete => 'Impressum unvollständig – bitte app/lib/legal/legal_info.dart ausfüllen.';
 
   @override
   String get imprintProvider => 'Angaben gemäß § 5 DDG';
@@ -828,16 +796,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get imprintEmail => 'E-Mail';
 
   @override
-  String get imprintVat =>
-      'Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG';
+  String get imprintVat => 'Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG';
 
   @override
-  String get imprintEconomicId =>
-      'Wirtschafts-Identifikationsnummer gemäß § 139c AO';
+  String get imprintEconomicId => 'Wirtschafts-Identifikationsnummer gemäß § 139c AO';
 
   @override
-  String get imprintResponsible =>
-      'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV';
+  String get imprintResponsible => 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV';
 
   @override
   String get imprintDsa => 'Zentrale Kontaktstelle nach Art. 11 und 12 DSA';
@@ -872,12 +837,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get errorPurchase => 'Der Kauf konnte nicht bestätigt werden.';
 
   @override
-  String get errorProfileNotFound =>
-      'Kein Profil mit dieser E-Mail-Adresse gefunden.';
+  String get errorProfileNotFound => 'Kein Profil mit dieser E-Mail-Adresse gefunden.';
 
   @override
-  String get optionalHint =>
-      'Optional – tippe erneut, um die Auswahl aufzuheben.';
+  String get optionalHint => 'Optional – tippe erneut, um die Auswahl aufzuheben.';
 
   @override
   String get childrenLabel => 'Kinderwunsch';
@@ -895,8 +858,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get childrenHave => 'Habe Kinder';
 
   @override
-  String get childrenDealbreaker =>
-      'Nur Menschen mit passendem Kinderwunsch zeigen';
+  String get childrenDealbreaker => 'Nur Menschen mit passendem Kinderwunsch zeigen';
 
   @override
   String get smokingLabel => 'Rauchen';
@@ -914,10 +876,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get smokingDealbreaker => 'Keine Raucher:innen zeigen';
 
   @override
-  String get lifestylePublicLabel =>
-      'Kinderwunsch & Rauchen im Profil anzeigen';
+  String get lifestylePublicLabel => 'Kinderwunsch & Rauchen im Profil anzeigen';
 
   @override
-  String get lifestylePublicHint =>
-      'Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.';
+  String get lifestylePublicHint => 'Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.';
 }

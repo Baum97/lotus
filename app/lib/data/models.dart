@@ -15,10 +15,10 @@ enum Intention {
   unsure;
 
   String get db => switch (this) {
-        Intention.relationship => 'relationship',
-        Intention.openToRelationship => 'open_to_relationship',
-        Intention.unsure => 'unsure',
-      };
+    Intention.relationship => 'relationship',
+    Intention.openToRelationship => 'open_to_relationship',
+    Intention.unsure => 'unsure',
+  };
 
   static Intention fromDb(String value) => values.firstWhere((i) => i.db == value);
   static Intention? tryFromDb(Object? value) => value == null ? null : fromDb(value as String);
@@ -31,11 +31,11 @@ enum ChildrenWish {
   haveKids;
 
   String get db => switch (this) {
-        ChildrenWish.want => 'want',
-        ChildrenWish.dontWant => 'dont_want',
-        ChildrenWish.open => 'open',
-        ChildrenWish.haveKids => 'have_kids',
-      };
+    ChildrenWish.want => 'want',
+    ChildrenWish.dontWant => 'dont_want',
+    ChildrenWish.open => 'open',
+    ChildrenWish.haveKids => 'have_kids',
+  };
 
   static ChildrenWish? tryFromDb(Object? value) => value == null ? null : values.firstWhere((c) => c.db == value);
 }
@@ -70,12 +70,12 @@ enum VerificationStatus {
   rejected;
 
   static VerificationStatus? tryFromDb(Object? value) => switch (value) {
-        'awaiting_selfie' => VerificationStatus.awaitingSelfie,
-        'pending' => VerificationStatus.pending,
-        'approved' => VerificationStatus.approved,
-        'rejected' => VerificationStatus.rejected,
-        _ => null,
-      };
+    'awaiting_selfie' => VerificationStatus.awaitingSelfie,
+    'pending' => VerificationStatus.pending,
+    'approved' => VerificationStatus.approved,
+    'rejected' => VerificationStatus.rejected,
+    _ => null,
+  };
 }
 
 enum ReportReason { fake, scam, harassment, inappropriate, underage, other }
@@ -133,23 +133,23 @@ class MyStatus {
   bool get onboardingComplete => hasProfile && hasPreferences && hasLocation && photoCount > 0 && promptCount > 0;
 
   factory MyStatus.fromJson(Map<String, dynamic> json) => MyStatus(
-        hasProfile: json['has_profile'] as bool,
-        hasPreferences: json['has_preferences'] as bool,
-        hasLocation: json['has_location'] as bool,
-        photoCount: json['photo_count'] as int,
-        promptCount: json['prompt_count'] as int,
-        displayName: json['display_name'] as String?,
-        verified: json['verified'] as bool,
-        verificationStatus: VerificationStatus.tryFromDb(json['verification_status']),
-        trustStatus: TrustStatus.tryFromDb(json['trust_status']),
-        isAdmin: json['is_admin'] as bool,
-        likesRemaining: json['likes_remaining'] as int,
-        undosRemaining: json['undos_remaining'] as int,
-        activeChats: json['active_chats'] as int,
-        plusUntil: _date(json['plus_until']),
-        travelCity: json['travel_city'] as String?,
-        travelUntil: _date(json['travel_until']),
-      );
+    hasProfile: json['has_profile'] as bool,
+    hasPreferences: json['has_preferences'] as bool,
+    hasLocation: json['has_location'] as bool,
+    photoCount: json['photo_count'] as int,
+    promptCount: json['prompt_count'] as int,
+    displayName: json['display_name'] as String?,
+    verified: json['verified'] as bool,
+    verificationStatus: VerificationStatus.tryFromDb(json['verification_status']),
+    trustStatus: TrustStatus.tryFromDb(json['trust_status']),
+    isAdmin: json['is_admin'] as bool,
+    likesRemaining: json['likes_remaining'] as int,
+    undosRemaining: json['undos_remaining'] as int,
+    activeChats: json['active_chats'] as int,
+    plusUntil: _date(json['plus_until']),
+    travelCity: json['travel_city'] as String?,
+    travelUntil: _date(json['travel_until']),
+  );
 }
 
 /// Öffentliche Profilangaben (Vorschlag oder Profilkarte).
@@ -187,19 +187,19 @@ class ProfileSummary {
   final Smoking? smoking;
 
   factory ProfileSummary.fromJson(Map<String, dynamic> json) => ProfileSummary(
-        id: json['id'] as String,
-        displayName: json['display_name'] as String,
-        age: json['age'] as int,
-        gender: json['gender'] == null ? null : Gender.fromDb(json['gender'] as String),
-        city: json['city'] as String?,
-        intention: Intention.tryFromDb(json['intention']),
-        bio: json['bio'] as String?,
-        distanceKm: json['distance_km'] as int?,
-        verified: json['verified'] as bool? ?? false,
-        traveling: json['traveling'] as bool? ?? false,
-        children: ChildrenWish.tryFromDb(json['children']),
-        smoking: Smoking.tryFromDb(json['smoking']),
-      );
+    id: json['id'] as String,
+    displayName: json['display_name'] as String,
+    age: json['age'] as int,
+    gender: json['gender'] == null ? null : Gender.fromDb(json['gender'] as String),
+    city: json['city'] as String?,
+    intention: Intention.tryFromDb(json['intention']),
+    bio: json['bio'] as String?,
+    distanceKm: json['distance_km'] as int?,
+    verified: json['verified'] as bool? ?? false,
+    traveling: json['traveling'] as bool? ?? false,
+    children: ChildrenWish.tryFromDb(json['children']),
+    smoking: Smoking.tryFromDb(json['smoking']),
+  );
 }
 
 class Photo {
@@ -212,11 +212,8 @@ class Photo {
 
   Photo withUrl(String? url) => Photo(id: id, storagePath: storagePath, position: position, url: url);
 
-  factory Photo.fromJson(Map<String, dynamic> json) => Photo(
-        id: json['id'] as String,
-        storagePath: json['storage_path'] as String,
-        position: json['position'] as int,
-      );
+  factory Photo.fromJson(Map<String, dynamic> json) =>
+      Photo(id: json['id'] as String, storagePath: json['storage_path'] as String, position: json['position'] as int);
 }
 
 class Prompt {
@@ -244,12 +241,12 @@ class PromptAnswer {
   final int position;
 
   factory PromptAnswer.fromJson(Map<String, dynamic> json) => PromptAnswer(
-        id: json['id'] as String,
-        promptId: json['prompt_id'] as int,
-        promptText: (json['prompts'] as Map<String, dynamic>)['text'] as String,
-        answer: json['answer'] as String,
-        position: json['position'] as int,
-      );
+    id: json['id'] as String,
+    promptId: json['prompt_id'] as int,
+    promptText: (json['prompts'] as Map<String, dynamic>)['text'] as String,
+    answer: json['answer'] as String,
+    position: json['position'] as int,
+  );
 }
 
 /// Vollständiges Profil zum Anzeigen: Angaben, Fotos und Prompt-Antworten.
@@ -289,29 +286,23 @@ class MatchPreferences {
   final bool smokingDealbreaker;
 
   factory MatchPreferences.fromJson(Map<String, dynamic> json) => MatchPreferences(
-        interestedIn: (json['interested_in'] as List).map((g) => Gender.fromDb(g as String)).toSet(),
-        intention: Intention.fromDb(json['intention'] as String),
-        intentionPublic: json['intention_public'] as bool,
-        ageMin: json['age_min'] as int,
-        ageMax: json['age_max'] as int,
-        maxDistanceKm: json['max_distance_km'] as int,
-        children: ChildrenWish.tryFromDb(json['children']),
-        smoking: Smoking.tryFromDb(json['smoking']),
-        lifestylePublic: json['lifestyle_public'] as bool? ?? true,
-        childrenDealbreaker: json['children_dealbreaker'] as bool? ?? false,
-        smokingDealbreaker: json['smoking_dealbreaker'] as bool? ?? false,
-      );
+    interestedIn: (json['interested_in'] as List).map((g) => Gender.fromDb(g as String)).toSet(),
+    intention: Intention.fromDb(json['intention'] as String),
+    intentionPublic: json['intention_public'] as bool,
+    ageMin: json['age_min'] as int,
+    ageMax: json['age_max'] as int,
+    maxDistanceKm: json['max_distance_km'] as int,
+    children: ChildrenWish.tryFromDb(json['children']),
+    smoking: Smoking.tryFromDb(json['smoking']),
+    lifestylePublic: json['lifestyle_public'] as bool? ?? true,
+    childrenDealbreaker: json['children_dealbreaker'] as bool? ?? false,
+    smokingDealbreaker: json['smoking_dealbreaker'] as bool? ?? false,
+  );
 }
 
 /// Eigene Profildaten zum Bearbeiten.
 class OwnProfile {
-  const OwnProfile({
-    required this.displayName,
-    required this.gender,
-    this.bio,
-    this.city,
-    this.age,
-  });
+  const OwnProfile({required this.displayName, required this.gender, this.bio, this.city, this.age});
 
   final String displayName;
   final Gender gender;
@@ -340,14 +331,14 @@ class IncomingLike {
   final DateTime createdAt;
 
   factory IncomingLike.fromJson(Map<String, dynamic> json) => IncomingLike(
-        fromUser: json['from_user'] as String,
-        displayName: json['display_name'] as String,
-        age: json['age'] as int,
-        targetType: LikeTarget.tryFromDb(json['target_type']),
-        targetId: json['target_id'] as String?,
-        comment: json['comment'] as String?,
-        createdAt: _date(json['created_at'])!,
-      );
+    fromUser: json['from_user'] as String,
+    displayName: json['display_name'] as String,
+    age: json['age'] as int,
+    targetType: LikeTarget.tryFromDb(json['target_type']),
+    targetId: json['target_id'] as String?,
+    comment: json['comment'] as String?,
+    createdAt: _date(json['created_at'])!,
+  );
 }
 
 enum CloseReason {
@@ -382,16 +373,16 @@ class MatchSummary {
   final bool lastMessageMine;
 
   factory MatchSummary.fromJson(Map<String, dynamic> json) => MatchSummary(
-        matchId: json['match_id'] as String,
-        state: MatchState.fromDb(json['state'] as String),
-        closeReason: CloseReason.tryFromDb(json['close_reason']),
-        otherUser: json['other_user'] as String,
-        displayName: json['display_name'] as String,
-        verified: json['verified'] as bool,
-        lastActivityAt: _date(json['last_activity_at'])!,
-        lastMessage: json['last_message'] as String?,
-        lastMessageMine: json['last_message_mine'] as bool? ?? false,
-      );
+    matchId: json['match_id'] as String,
+    state: MatchState.fromDb(json['state'] as String),
+    closeReason: CloseReason.tryFromDb(json['close_reason']),
+    otherUser: json['other_user'] as String,
+    displayName: json['display_name'] as String,
+    verified: json['verified'] as bool,
+    lastActivityAt: _date(json['last_activity_at'])!,
+    lastMessage: json['last_message'] as String?,
+    lastMessageMine: json['last_message_mine'] as bool? ?? false,
+  );
 }
 
 enum SafetyFlag { money, link, offPlatform }
@@ -412,17 +403,17 @@ class ChatMessage {
   final SafetyFlag? safetyFlag;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
-        id: json['id'] as String,
-        senderId: json['sender_id'] as String,
-        body: json['body'] as String,
-        createdAt: _date(json['created_at'])!,
-        safetyFlag: switch (json['safety_flag']) {
-          'money' => SafetyFlag.money,
-          'link' => SafetyFlag.link,
-          'off_platform' => SafetyFlag.offPlatform,
-          _ => null,
-        },
-      );
+    id: json['id'] as String,
+    senderId: json['sender_id'] as String,
+    body: json['body'] as String,
+    createdAt: _date(json['created_at'])!,
+    safetyFlag: switch (json['safety_flag']) {
+      'money' => SafetyFlag.money,
+      'link' => SafetyFlag.link,
+      'off_platform' => SafetyFlag.offPlatform,
+      _ => null,
+    },
+  );
 }
 
 class VerificationRequest {
@@ -433,10 +424,10 @@ class VerificationRequest {
   final VerificationStatus status;
 
   factory VerificationRequest.fromJson(Map<String, dynamic> json) => VerificationRequest(
-        id: json['request_id'] as String,
-        gesture: json['gesture'] as String,
-        status: VerificationStatus.tryFromDb(json['status'])!,
-      );
+    id: json['request_id'] as String,
+    gesture: json['gesture'] as String,
+    status: VerificationStatus.tryFromDb(json['status'])!,
+  );
 }
 
 // --- Admin -----------------------------------------------------------------
@@ -459,13 +450,13 @@ class PendingVerification {
   final List<String> photoPaths;
 
   factory PendingVerification.fromJson(Map<String, dynamic> json) => PendingVerification(
-        requestId: json['request_id'] as String,
-        userId: json['user_id'] as String,
-        displayName: json['display_name'] as String,
-        gesture: json['gesture'] as String,
-        selfiePath: json['selfie_path'] as String,
-        photoPaths: (json['photo_paths'] as List).cast<String>(),
-      );
+    requestId: json['request_id'] as String,
+    userId: json['user_id'] as String,
+    displayName: json['display_name'] as String,
+    gesture: json['gesture'] as String,
+    selfiePath: json['selfie_path'] as String,
+    photoPaths: (json['photo_paths'] as List).cast<String>(),
+  );
 }
 
 class AdminPhoto {
@@ -477,11 +468,11 @@ class AdminPhoto {
   final String storagePath;
 
   factory AdminPhoto.fromJson(Map<String, dynamic> json) => AdminPhoto(
-        photoId: json['photo_id'] as String,
-        userId: json['user_id'] as String,
-        displayName: json['display_name'] as String,
-        storagePath: json['storage_path'] as String,
-      );
+    photoId: json['photo_id'] as String,
+    userId: json['user_id'] as String,
+    displayName: json['display_name'] as String,
+    storagePath: json['storage_path'] as String,
+  );
 }
 
 class AdminReport {
@@ -506,15 +497,15 @@ class AdminReport {
   final TrustStatus? trustStatus;
 
   factory AdminReport.fromJson(Map<String, dynamic> json) => AdminReport(
-        reportId: json['report_id'] as String,
-        reported: json['reported'] as String,
-        reportedName: json['reported_name'] as String,
-        reporterName: json['reporter_name'] as String,
-        reason: ReportReason.values.byName(json['reason'] as String),
-        details: json['details'] as String?,
-        reportsAgainstUser: json['reports_against_user'] as int,
-        trustStatus: TrustStatus.tryFromDb(json['trust_status']),
-      );
+    reportId: json['report_id'] as String,
+    reported: json['reported'] as String,
+    reportedName: json['reported_name'] as String,
+    reporterName: json['reporter_name'] as String,
+    reason: ReportReason.values.byName(json['reason'] as String),
+    details: json['details'] as String?,
+    reportsAgainstUser: json['reports_against_user'] as int,
+    trustStatus: TrustStatus.tryFromDb(json['trust_status']),
+  );
 }
 
 // --- Lotus Plus & Benachrichtigungen -----------------------------------------
@@ -544,20 +535,20 @@ class MyStats {
   final List<StatElement> elements;
 
   factory MyStats.fromJson(Map<String, dynamic> json) => MyStats(
-        impressions7d: json['impressions_7d'] as int,
-        likes30d: json['likes_30d'] as int,
-        comments30d: json['comments_30d'] as int,
-        matches30d: json['matches_30d'] as int,
-        elements: [
-          for (final e in json['elements'] as List)
-            StatElement(
-              isPhoto: (e as Map)['type'] == 'photo',
-              label: e['label'] as String,
-              likes: e['likes'] as int,
-              comments: e['comments'] as int,
-            ),
-        ],
-      );
+    impressions7d: json['impressions_7d'] as int,
+    likes30d: json['likes_30d'] as int,
+    comments30d: json['comments_30d'] as int,
+    matches30d: json['matches_30d'] as int,
+    elements: [
+      for (final e in json['elements'] as List)
+        StatElement(
+          isPhoto: (e as Map)['type'] == 'photo',
+          label: e['label'] as String,
+          likes: e['likes'] as int,
+          comments: e['comments'] as int,
+        ),
+    ],
+  );
 }
 
 class NotificationSettings {
@@ -568,16 +559,16 @@ class NotificationSettings {
   final bool likes;
 
   NotificationSettings copyWith({bool? messages, bool? matches, bool? likes}) => NotificationSettings(
-        messages: messages ?? this.messages,
-        matches: matches ?? this.matches,
-        likes: likes ?? this.likes,
-      );
+    messages: messages ?? this.messages,
+    matches: matches ?? this.matches,
+    likes: likes ?? this.likes,
+  );
 
   Map<String, bool> toJson() => {'messages': messages, 'matches': matches, 'likes': likes};
 
   factory NotificationSettings.fromJson(Map<String, dynamic> json) => NotificationSettings(
-        messages: json['messages'] as bool,
-        matches: json['matches'] as bool,
-        likes: json['likes'] as bool,
-      );
+    messages: json['messages'] as bool,
+    matches: json['matches'] as bool,
+    likes: json['likes'] as bool,
+  );
 }

@@ -1,5 +1,7 @@
 # Lotus
 
+[![CI](https://github.com/Baum97/lotus/actions/workflows/ci.yml/badge.svg)](https://github.com/Baum97/lotus/actions/workflows/ci.yml)
+
 Eine Dating-App, die darauf ausgelegt ist, dass Menschen wirklich jemanden finden – kein Cashgrab.
 Arbeitstitel; Beta in Stuttgart und Ulm.
 
@@ -7,6 +9,7 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 - **App (Flutter, Android-first):** [`app/`](app/README.md)
 - **Backend (Supabase: Postgres/PostGIS, Auth, Storage, Realtime):** [`supabase/`](supabase/)
 - **Einrichtung – wer macht was:** [`docs/EINRICHTUNG.md`](docs/EINRICHTUNG.md) · Deploy: `scripts/deploy.sh`
+- **Skalierung & Lasttest:** [`docs/SKALIERUNG.md`](docs/SKALIERUNG.md)
 
 ## Regeln, die die Datenbank durchsetzt
 
@@ -42,6 +45,8 @@ docs/IMPRESSUM.md                  Impressum-Vorlage mit Ausfüllhilfe
 supabase/templates/                E-Mail-Vorlage für den Anmeldecode
 supabase/tests/local/              Datenbank-Tests (laufen auf normalem Postgres + PostGIS)
 scripts/test-db.sh                 Migrationen einspielen + Datenbank-Tests ausführen
+scripts/bench-db.sh                Lasttest der Vorschläge mit vielen Profilen
+.github/workflows/ci.yml           CI: Datenbank, Lasttest, Edge Functions, App, Android-Build, Skripte
 scripts/seed-demo.py               Demo-Profile in Stuttgart/Ulm für die lokale Entwicklung
 ```
 
@@ -65,9 +70,15 @@ cd app && flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 \
 ## Tests
 
 ```bash
-PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 142 Datenbank-Prüfungen
-cd app && flutter analyze && flutter test                         # App
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 149 Datenbank-Prüfungen
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/bench-db.sh  # Lasttest (50.000 Profile)
+cd app && dart format lib test && flutter analyze && flutter test # App
+cd supabase/functions && deno fmt && deno lint                    # Edge Functions
 ```
+
+Die **CI** (GitHub Actions) prüft bei jedem Push dasselbe automatisch. Dazu kommen ein Lasttest mit Zeitgrenze,
+ein Android-Build (die Debug-APK liegt als Download am CI-Lauf) und `shellcheck`. Bei Pull Requests prüft sie
+außerdem, dass bestehende Migrationen nicht verändert werden, sondern nur neue hinzukommen.
 
 ## Datenbank-API (für die App)
 

@@ -61,49 +61,57 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
       appBar: AppBar(title: Text(l.deleteTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.deleteFoundQuestion, style: theme.textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          RadioGroup<bool>(
-            groupValue: _foundSomeone,
-            onChanged: (value) => setState(() => _foundSomeone = value),
-            child: Column(children: [
-              RadioListTile<bool>(contentPadding: EdgeInsets.zero, value: true, title: Text(l.deleteFoundYes)),
-              RadioListTile<bool>(contentPadding: EdgeInsets.zero, value: false, title: Text(l.deleteFoundNo)),
-            ]),
-          ),
-          if (_foundSomeone == true && success != null) ...[
-            const SizedBox(height: 8),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(l.successContributionTitle, style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 6),
-                  Text(l.successContributionText),
-                  const SizedBox(height: 12),
-                  AsyncButton(
-                    outlined: true,
-                    icon: Icons.volunteer_activism_outlined,
-                    label: l.successContributionButton(success.price),
-                    onPressed: () => ref.read(storeProvider).buy(success),
-                  ),
-                ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.deleteFoundQuestion, style: theme.textTheme.headlineSmall),
+            const SizedBox(height: 16),
+            RadioGroup<bool>(
+              groupValue: _foundSomeone,
+              onChanged: (value) => setState(() => _foundSomeone = value),
+              child: Column(
+                children: [
+                  RadioListTile<bool>(contentPadding: EdgeInsets.zero, value: true, title: Text(l.deleteFoundYes)),
+                  RadioListTile<bool>(contentPadding: EdgeInsets.zero, value: false, title: Text(l.deleteFoundNo)),
+                ],
               ),
             ),
+            if (_foundSomeone == true && success != null) ...[
+              const SizedBox(height: 8),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(l.successContributionTitle, style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 6),
+                      Text(l.successContributionText),
+                      const SizedBox(height: 12),
+                      AsyncButton(
+                        outlined: true,
+                        icon: Icons.volunteer_activism_outlined,
+                        label: l.successContributionButton(success.price),
+                        onPressed: () => ref.read(storeProvider).buy(success),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            TextField(
+              controller: _feedback,
+              maxLines: 4,
+              maxLength: 1000,
+              decoration: InputDecoration(labelText: l.deleteFeedback),
+            ),
+            const SizedBox(height: 16),
+            InfoBanner(text: l.deleteWarning, icon: Icons.warning_amber, warning: true),
+            const SizedBox(height: 24),
+            AsyncButton(label: l.deleteConfirm, onPressed: _foundSomeone == null ? null : _delete),
           ],
-          const SizedBox(height: 16),
-          TextField(
-            controller: _feedback,
-            maxLines: 4,
-            maxLength: 1000,
-            decoration: InputDecoration(labelText: l.deleteFeedback),
-          ),
-          const SizedBox(height: 16),
-          InfoBanner(text: l.deleteWarning, icon: Icons.warning_amber, warning: true),
-          const SizedBox(height: 24),
-          AsyncButton(label: l.deleteConfirm, onPressed: _foundSomeone == null ? null : _delete),
-        ]),
+        ),
       ),
     );
   }

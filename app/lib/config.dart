@@ -1,6 +1,7 @@
 /// Konfiguration über --dart-define (siehe app/README.md).
 class AppConfig {
   static const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+
   /// Publishable (früher "anon") Key aus dem Supabase-Dashboard – darf in der App stehen.
   static const supabaseKey = String.fromEnvironment('SUPABASE_KEY');
 
@@ -12,7 +13,10 @@ class AppConfig {
 
   static bool get hasSupabase => supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty;
   static bool get hasFirebase =>
-      firebaseApiKey.isNotEmpty && firebaseAppId.isNotEmpty && firebaseSenderId.isNotEmpty && firebaseProjectId.isNotEmpty;
+      firebaseApiKey.isNotEmpty &&
+      firebaseAppId.isNotEmpty &&
+      firebaseSenderId.isNotEmpty &&
+      firebaseProjectId.isNotEmpty;
 
   // Spiegeln die Regeln aus supabase/migrations – nur für die Anzeige, durchgesetzt wird serverseitig.
   static const dailyLikes = 20;

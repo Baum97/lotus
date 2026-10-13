@@ -95,6 +95,8 @@ alter table public.blocks enable row level security;
 alter table public.reports enable row level security;
 alter table private.trust enable row level security;
 alter table private.trust_events enable row level security;
+alter table private.daily_impressions enable row level security;
+alter table private.discovery enable row level security;
 
 -- profiles: eigenes Profil + Profile, die einem vorgeschlagen wurden / einen geliked haben / gematcht sind
 create policy profiles_select on public.profiles
@@ -209,6 +211,7 @@ begin
   if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
     create extension if not exists pg_cron;
     perform cron.schedule('lotus-close-stale-matches', '17 * * * *', 'select private.close_stale_matches()');
+    perform cron.schedule('lotus-refresh-expired-travel', '*/10 * * * *', 'select private.refresh_expired_travel()');
   end if;
 end;
 $$;

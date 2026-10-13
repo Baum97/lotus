@@ -74,21 +74,21 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 
   void _pass() => _decide(() async {
-        await _api.pass(_queue.first.id);
-        await _advance();
-      });
+    await _api.pass(_queue.first.id);
+    await _advance();
+  });
 
   void _undo() => _decide(() async {
-        final userId = await _api.undoLastPass();
-        final summary = await _api.profileSummary(userId);
-        ref.invalidate(myStatusProvider);
-        if (summary != null) {
-          _queue.removeWhere((p) => p.id == userId);
-          _queue.insert(0, summary);
-          setState(_showFirst);
-        }
-        if (mounted) showMessage(context, AppLocalizations.of(context).undoDone);
-      });
+    final userId = await _api.undoLastPass();
+    final summary = await _api.profileSummary(userId);
+    ref.invalidate(myStatusProvider);
+    if (summary != null) {
+      _queue.removeWhere((p) => p.id == userId);
+      _queue.insert(0, summary);
+      setState(_showFirst);
+    }
+    if (mounted) showMessage(context, AppLocalizations.of(context).undoDone);
+  });
 
   Future<void> _like(LikeTarget type, String targetId, String preview) async {
     final comment = await showModalBottomSheet<String>(
@@ -119,10 +119,13 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       builder: (context) => AlertDialog(
         icon: const LotusLogo(size: 64),
         title: Text(l.matchTitle, textAlign: TextAlign.center),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(l.matchBody(name), textAlign: TextAlign.center),
-          if (queued) ...[const SizedBox(height: 12), Text(l.matchQueued, textAlign: TextAlign.center)],
-        ]),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l.matchBody(name), textAlign: TextAlign.center),
+            if (queued) ...[const SizedBox(height: 12), Text(l.matchQueued, textAlign: TextAlign.center)],
+          ],
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.keepDiscovering)),
           FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.openChats)),
@@ -224,31 +227,37 @@ class _LikeSheetState extends State<_LikeSheet> {
     final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(l.likeSheetTitle, style: theme.textTheme.titleLarge),
-        if (widget.preview.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Text('„${widget.preview}“',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.likeSheetTitle, style: theme.textTheme.titleLarge),
+          if (widget.preview.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              '„${widget.preview}“',
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyLarge?.copyWith(fontStyle: FontStyle.italic)),
+              style: theme.textTheme.bodyLarge?.copyWith(fontStyle: FontStyle.italic),
+            ),
+          ],
+          const SizedBox(height: 16),
+          TextField(
+            controller: _comment,
+            autofocus: true,
+            maxLength: 300,
+            maxLines: 3,
+            minLines: 1,
+            decoration: InputDecoration(hintText: l.likeCommentHint),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(context, _comment.text),
+            icon: const Icon(Icons.favorite),
+            label: Text(l.likeSend),
+          ),
         ],
-        const SizedBox(height: 16),
-        TextField(
-          controller: _comment,
-          autofocus: true,
-          maxLength: 300,
-          maxLines: 3,
-          minLines: 1,
-          decoration: InputDecoration(hintText: l.likeCommentHint),
-        ),
-        const SizedBox(height: 8),
-        FilledButton.icon(
-          onPressed: () => Navigator.pop(context, _comment.text),
-          icon: const Icon(Icons.favorite),
-          label: Text(l.likeSend),
-        ),
-      ]),
+      ),
     );
   }
 }

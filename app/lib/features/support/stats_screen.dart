@@ -21,15 +21,18 @@ class StatsScreen extends ConsumerWidget {
         error: (e, _) => ErrorView(error: e, onRetry: () => ref.invalidate(myStatsProvider)),
         data: (s) {
           Widget tile(String label, int value) => Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('$value', style: theme.textTheme.headlineMedium?.copyWith(color: theme.colorScheme.primary)),
-                    const SizedBox(height: 4),
-                    Text(label, style: theme.textTheme.bodySmall),
-                  ]),
-                ),
-              );
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('$value', style: theme.textTheme.headlineMedium?.copyWith(color: theme.colorScheme.primary)),
+                  const SizedBox(height: 4),
+                  Text(label, style: theme.textTheme.bodySmall),
+                ],
+              ),
+            ),
+          );
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -53,8 +56,10 @@ class StatsScreen extends ConsumerWidget {
               for (final e in s.elements)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(e.isPhoto ? Icons.photo_outlined : Icons.format_quote_outlined,
-                      color: theme.colorScheme.secondary),
+                  leading: Icon(
+                    e.isPhoto ? Icons.photo_outlined : Icons.format_quote_outlined,
+                    color: theme.colorScheme.secondary,
+                  ),
                   title: Text(e.label),
                   subtitle: Text(l.statsElementLine(e.likes, e.comments)),
                 ),

@@ -59,7 +59,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       case _ChatAction.profile:
         await Navigator.push(
           context,
-          MaterialPageRoute<void>(builder: (_) => _OtherProfileScreen(userId: match.otherUser, name: match.displayName)),
+          MaterialPageRoute<void>(
+            builder: (_) => _OtherProfileScreen(userId: match.otherUser, name: match.displayName),
+          ),
         );
       case _ChatAction.end:
         final goodbye = await showDialog<String>(context: context, builder: (_) => const _EndChatDialog());
@@ -118,10 +120,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         text: l.verifyToChat,
         icon: Icons.verified_outlined,
         action: TextButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const VerificationScreen()),
-          ),
+          onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const VerificationScreen())),
           child: Text(l.verifyNow),
         ),
       );
@@ -129,10 +128,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: [
-          Flexible(child: Text(match.displayName)),
-          if (match.verified) ...[const SizedBox(width: 6), const VerifiedBadge(small: true)],
-        ]),
+        title: Row(
+          children: [
+            Flexible(child: Text(match.displayName)),
+            if (match.verified) ...[const SizedBox(width: 6), const VerifiedBadge(small: true)],
+          ],
+        ),
         actions: [
           PopupMenuButton<_ChatAction>(
             onSelected: _onAction,
@@ -146,47 +147,49 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(children: [
-          if (banner != null) Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: banner),
-          Expanded(
-            child: messages.when(
-              loading: () => const LoadingView(),
-              error: (e, _) => ErrorView(error: e, onRetry: () => ref.invalidate(chatMessagesProvider(match.matchId))),
-              data: (messages) => messages.isEmpty
-                  ? EmptyState(icon: Icons.waving_hand_outlined, title: l.chatNoMessages)
-                  : ListView.builder(
-                      reverse: true,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: messages.length,
-                      itemBuilder: (_, i) {
-                        final message = messages[messages.length - 1 - i];
-                        return _Bubble(message: message, mine: message.senderId == me);
-                      },
+        child: Column(
+          children: [
+            if (banner != null) Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: banner),
+            Expanded(
+              child: messages.when(
+                loading: () => const LoadingView(),
+                error: (e, _) =>
+                    ErrorView(error: e, onRetry: () => ref.invalidate(chatMessagesProvider(match.matchId))),
+                data: (messages) => messages.isEmpty
+                    ? EmptyState(icon: Icons.waving_hand_outlined, title: l.chatNoMessages)
+                    : ListView.builder(
+                        reverse: true,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: messages.length,
+                        itemBuilder: (_, i) {
+                          final message = messages[messages.length - 1 - i];
+                          return _Bubble(message: message, mine: message.senderId == me);
+                        },
+                      ),
+              ),
+            ),
+            if (canWrite)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _input,
+                        minLines: 1,
+                        maxLines: 5,
+                        maxLength: 2000,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: InputDecoration(hintText: l.messageHint, counterText: ''),
+                      ),
                     ),
-            ),
-          ),
-          if (canWrite)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-              child: Row(children: [
-                Expanded(
-                  child: TextField(
-                    controller: _input,
-                    minLines: 1,
-                    maxLines: 5,
-                    maxLength: 2000,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(hintText: l.messageHint, counterText: ''),
-                  ),
+                    const SizedBox(width: 8),
+                    IconButton.filled(onPressed: _sending ? null : _send, icon: const Icon(Icons.send)),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                IconButton.filled(
-                  onPressed: _sending ? null : _send,
-                  icon: const Icon(Icons.send),
-                ),
-              ]),
-            ),
-        ]),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -233,13 +236,23 @@ class _Bubble extends StatelessWidget {
                     bottomRight: Radius.circular(mine ? 4 : 18),
                   ),
                 ),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  Text(message.body, style: TextStyle(color: mine ? scheme.onPrimary : scheme.onSurface, fontSize: 16)),
-                  const SizedBox(height: 2),
-                  Text(time,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      message.body,
+                      style: TextStyle(color: mine ? scheme.onPrimary : scheme.onSurface, fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      time,
                       style: TextStyle(
-                          fontSize: 11, color: (mine ? scheme.onPrimary : scheme.onSurfaceVariant).withValues(alpha: 0.8))),
-                ]),
+                        fontSize: 11,
+                        color: (mine ? scheme.onPrimary : scheme.onSurfaceVariant).withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               if (warning != null)
                 Padding(
@@ -285,16 +298,19 @@ class _EndChatDialogState extends State<_EndChatDialog> {
     final l = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(l.endChatTitle),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(l.endChatBody),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _goodbye,
-          maxLines: 4,
-          minLines: 2,
-          decoration: InputDecoration(labelText: l.goodbyeLabel),
-        ),
-      ]),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l.endChatBody),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _goodbye,
+            maxLines: 4,
+            minLines: 2,
+            decoration: InputDecoration(labelText: l.goodbyeLabel),
+          ),
+        ],
+      ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
         FilledButton(onPressed: () => Navigator.pop(context, _goodbye.text), child: Text(l.endChat)),
@@ -325,13 +341,13 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
   }
 
   String _label(AppLocalizations l, ReportReason reason) => switch (reason) {
-        ReportReason.fake => l.reportReasonFake,
-        ReportReason.scam => l.reportReasonScam,
-        ReportReason.harassment => l.reportReasonHarassment,
-        ReportReason.inappropriate => l.reportReasonInappropriate,
-        ReportReason.underage => l.reportReasonUnderage,
-        ReportReason.other => l.reportReasonOther,
-      };
+    ReportReason.fake => l.reportReasonFake,
+    ReportReason.scam => l.reportReasonScam,
+    ReportReason.harassment => l.reportReasonHarassment,
+    ReportReason.inappropriate => l.reportReasonInappropriate,
+    ReportReason.underage => l.reportReasonUnderage,
+    ReportReason.other => l.reportReasonOther,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -339,38 +355,44 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
       child: SingleChildScrollView(
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(l.reportTitle(widget.name), style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          RadioGroup<ReportReason>(
-            groupValue: _reason,
-            onChanged: (value) => setState(() => _reason = value),
-            child: Column(children: [
-              for (final reason in ReportReason.values)
-                RadioListTile<ReportReason>(
-                  contentPadding: EdgeInsets.zero,
-                  value: reason,
-                  title: Text(_label(l, reason)),
-                ),
-            ]),
-          ),
-          TextField(
-            controller: _details,
-            maxLines: 3,
-            maxLength: 1000,
-            decoration: InputDecoration(labelText: l.reportDetails),
-          ),
-          const SizedBox(height: 8),
-          AsyncButton(
-            label: l.reportSend,
-            onPressed: _reason == null
-                ? null
-                : () async {
-                    await ref.read(apiProvider).report(widget.userId, _reason!, details: _details.text);
-                    if (context.mounted) Navigator.pop(context, true);
-                  },
-          ),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.reportTitle(widget.name), style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            RadioGroup<ReportReason>(
+              groupValue: _reason,
+              onChanged: (value) => setState(() => _reason = value),
+              child: Column(
+                children: [
+                  for (final reason in ReportReason.values)
+                    RadioListTile<ReportReason>(
+                      contentPadding: EdgeInsets.zero,
+                      value: reason,
+                      title: Text(_label(l, reason)),
+                    ),
+                ],
+              ),
+            ),
+            TextField(
+              controller: _details,
+              maxLines: 3,
+              maxLength: 1000,
+              decoration: InputDecoration(labelText: l.reportDetails),
+            ),
+            const SizedBox(height: 8),
+            AsyncButton(
+              label: l.reportSend,
+              onPressed: _reason == null
+                  ? null
+                  : () async {
+                      await ref.read(apiProvider).report(widget.userId, _reason!, details: _details.text);
+                      if (context.mounted) Navigator.pop(context, true);
+                    },
+            ),
+          ],
+        ),
       ),
     );
   }

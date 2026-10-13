@@ -45,7 +45,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       showMessage(context, problem);
       return;
     }
-    await ref.read(apiProvider).saveProfile(
+    await ref
+        .read(apiProvider)
+        .saveProfile(
           displayName: draft.name.trim(),
           gender: draft.gender!,
           bio: draft.bio,
@@ -69,13 +71,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       body: _error != null
           ? ErrorView(error: _error!, onRetry: _load)
           : draft == null
-              ? const LoadingView()
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: widget.preferencesOnly
-                      ? PreferencesSection(draft: draft, onChanged: () {})
-                      : BasicsSection(draft: draft, onChanged: () {}, showBirthdate: false),
-                ),
+          ? const LoadingView()
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: widget.preferencesOnly
+                  ? PreferencesSection(draft: draft, onChanged: () {})
+                  : BasicsSection(draft: draft, onChanged: () {}, showBirthdate: false),
+            ),
       bottomNavigationBar: draft == null
           ? null
           : SafeArea(

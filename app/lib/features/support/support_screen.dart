@@ -60,83 +60,105 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Row(children: [
-                  Icon(Icons.spa, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(l.plusTitle, style: theme.textTheme.titleLarge),
-                  const Spacer(),
-                  if (plus != null && !(status?.hasPlus ?? false))
-                    Text(l.plusPerMonth(plus.price), style: theme.textTheme.titleSmall),
-                ]),
-                const SizedBox(height: 12),
-                for (final (icon, text) in [
-                  (Icons.flight_takeoff, l.plusFeatureTravel),
-                  (Icons.insights_outlined, l.plusFeatureStats),
-                  (Icons.balance, l.plusFeatureFair),
-                ])
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Icon(icon, size: 20, color: theme.colorScheme.secondary),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(text)),
-                    ]),
-                  ),
-                const SizedBox(height: 12),
-                if (status?.hasPlus ?? false) ...[
-                  InfoBanner(
-                    text: l.plusActiveUntil(materialL.formatMediumDate(status!.plusUntil!)),
-                    icon: Icons.check_circle_outline,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.spa, color: theme.colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(l.plusTitle, style: theme.textTheme.titleLarge),
+                      const Spacer(),
+                      if (plus != null && !(status?.hasPlus ?? false))
+                        Text(l.plusPerMonth(plus.price), style: theme.textTheme.titleSmall),
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  Row(children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => open(const TravelScreen()),
-                        icon: const Icon(Icons.flight_takeoff),
-                        label: Text(l.travelTitle),
+                  for (final (icon, text) in [
+                    (Icons.flight_takeoff, l.plusFeatureTravel),
+                    (Icons.insights_outlined, l.plusFeatureStats),
+                    (Icons.balance, l.plusFeatureFair),
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(icon, size: 20, color: theme.colorScheme.secondary),
+                          const SizedBox(width: 12),
+                          Expanded(child: Text(text)),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => open(const StatsScreen()),
-                        icon: const Icon(Icons.insights_outlined),
-                        label: Text(l.statsTitle),
-                      ),
+                  const SizedBox(height: 12),
+                  if (status?.hasPlus ?? false) ...[
+                    InfoBanner(
+                      text: l.plusActiveUntil(materialL.formatMediumDate(status!.plusUntil!)),
+                      icon: Icons.check_circle_outline,
                     ),
-                  ]),
-                  const SizedBox(height: 8),
-                  Text(l.plusManageHint, style: theme.textTheme.bodySmall),
-                ] else
-                  AsyncButton(label: l.plusSubscribe, onPressed: plus == null ? null : () => store.buy(plus)),
-              ]),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => open(const TravelScreen()),
+                            icon: const Icon(Icons.flight_takeoff),
+                            label: Text(l.travelTitle),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => open(const StatsScreen()),
+                            icon: const Icon(Icons.insights_outlined),
+                            label: Text(l.statsTitle),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(l.plusManageHint, style: theme.textTheme.bodySmall),
+                  ] else
+                    AsyncButton(label: l.plusSubscribe, onPressed: plus == null ? null : () => store.buy(plus)),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Row(children: [
-                  Icon(Icons.volunteer_activism_outlined, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(l.donateTitle, style: theme.textTheme.titleLarge),
-                ]),
-                const SizedBox(height: 8),
-                Text(l.donateText),
-                const SizedBox(height: 16),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  for (final id in StoreProducts.donations)
-                    if (products[id] != null)
-                      AsyncButton(outlined: true, label: products[id]!.price, onPressed: () => store.buy(products[id]!)),
-                ]),
-              ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.volunteer_activism_outlined, color: theme.colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(l.donateTitle, style: theme.textTheme.titleLarge),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(l.donateText),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final id in StoreProducts.donations)
+                        if (products[id] != null)
+                          AsyncButton(
+                            outlined: true,
+                            label: products[id]!.price,
+                            onPressed: () => store.buy(products[id]!),
+                          ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          if (products.isNotEmpty)
-            TextButton(onPressed: store.restore, child: Text(l.restorePurchases)),
+          if (products.isNotEmpty) TextButton(onPressed: store.restore, child: Text(l.restorePurchases)),
         ],
       ),
     );

@@ -66,5 +66,6 @@ final storeProductsProvider = FutureProvider((ref) => ref.watch(storeProvider).p
 
 final myStatsProvider = FutureProvider<MyStats>((ref) => ref.watch(apiProvider).myStats());
 
-final notificationSettingsProvider =
-    FutureProvider<NotificationSettings>((ref) => ref.watch(apiProvider).notificationSettings());
+final notificationSettingsProvider = FutureProvider<NotificationSettings>(
+  (ref) => ref.watch(apiProvider).notificationSettings(),
+);

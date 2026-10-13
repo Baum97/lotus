@@ -61,50 +61,56 @@ class _PhotosEditorState extends ConsumerState<PhotosEditor> {
     final l = AppLocalizations.of(context);
     final photos = ref.watch(ownPhotosProvider);
     final scheme = Theme.of(context).colorScheme;
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text(l.photosHint, style: TextStyle(color: scheme.onSurfaceVariant)),
-      const SizedBox(height: 16),
-      photos.when(
-        loading: () => const SizedBox(height: 200, child: LoadingView()),
-        error: (e, _) => ErrorView(error: e, onRetry: () => ref.invalidate(ownPhotosProvider)),
-        data: (photos) => GridView.count(
-          crossAxisCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 4 / 5,
-          children: [
-            for (var i = 0; i < AppConfig.maxPhotos; i++)
-              if (i < photos.length)
-                GestureDetector(
-                  onTap: () => _delete(photos[i]),
-                  child: Stack(fit: StackFit.expand, children: [
-                    RoundedPhoto(url: photos[i].url, radius: 16),
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: CircleAvatar(
-                        radius: 14,
-                        backgroundColor: scheme.surface.withValues(alpha: 0.9),
-                        child: Icon(Icons.close, size: 16, color: scheme.onSurface),
-                      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.photosHint, style: TextStyle(color: scheme.onSurfaceVariant)),
+        const SizedBox(height: 16),
+        photos.when(
+          loading: () => const SizedBox(height: 200, child: LoadingView()),
+          error: (e, _) => ErrorView(error: e, onRetry: () => ref.invalidate(ownPhotosProvider)),
+          data: (photos) => GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 4 / 5,
+            children: [
+              for (var i = 0; i < AppConfig.maxPhotos; i++)
+                if (i < photos.length)
+                  GestureDetector(
+                    onTap: () => _delete(photos[i]),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        RoundedPhoto(url: photos[i].url, radius: 16),
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: CircleAvatar(
+                            radius: 14,
+                            backgroundColor: scheme.surface.withValues(alpha: 0.9),
+                            child: Icon(Icons.close, size: 16, color: scheme.onSurface),
+                          ),
+                        ),
+                      ],
                     ),
-                  ]),
-                )
-              else if (i == photos.length)
-                _AddTile(busy: _uploading, label: l.addPhoto, onTap: _uploading ? null : () => _add(i))
-              else
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(16),
+                  )
+                else if (i == photos.length)
+                  _AddTile(busy: _uploading, label: l.addPhoto, onTap: _uploading ? null : () => _add(i))
+                else
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -127,11 +133,18 @@ class _AddTile extends StatelessWidget {
         child: Center(
           child: busy
               ? const CircularProgressIndicator()
-              : Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.add_a_photo_outlined, color: scheme.primary),
-                  const SizedBox(height: 6),
-                  Text(label, textAlign: TextAlign.center, style: TextStyle(color: scheme.primary, fontSize: 12)),
-                ]),
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_a_photo_outlined, color: scheme.primary),
+                    const SizedBox(height: 6),
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: scheme.primary, fontSize: 12),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

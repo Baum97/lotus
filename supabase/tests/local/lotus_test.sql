@@ -658,3 +658,31 @@ select public.save_profile('Fünfzig', null, 'woman', null, 'Karlsruhe', '{man}'
 reset role;
 select test.ok((select children = 'open' and smoking = 'sometimes' and not lifestyle_public
                 from public.match_preferences where user_id = test.uid('50')), 'save_profile speichert die neuen Angaben');
+
+-- ---------------------------------------------------------------------------
+-- Such-Tabelle (private.discovery) bleibt synchron
+-- ---------------------------------------------------------------------------
+
+reset role;
+select test.ok((select count(*) from private.discovery d join public.profiles p on p.id = d.user_id) =
+               (select count(*) from public.profiles p
+                join public.match_preferences mp on mp.user_id = p.id
+                join public.profile_locations l on l.user_id = p.id), 'jede vollständige Person steht in der Such-Tabelle');
+select test.ok(not (select eligible from private.discovery where user_id = test.uid('C')), 'gesperrte Person ist nicht auffindbar');
+select test.ok(not (select eligible from private.discovery where user_id = test.uid('H')), 'Person ohne sichtbares Foto ist nicht auffindbar');
+select test.ok((select max_distance_km = 150 from private.discovery where user_id = test.uid('D')), 'Präferenz-Änderung wird übernommen');
+
+-- Reise läuft ab, ohne dass jemand etwas schreibt → Cron-Job setzt den Wohnort zurück
+update private.entitlements set valid_until = now() + interval '1 day' where user_id = test.uid('40');
+update public.profile_locations
+set travel_location = extensions.st_setsrid(extensions.st_makepoint(11.57, 48.14), 4326)::extensions.geography,
+    travel_city = 'München', travel_until = now() + interval '1 day'
+where user_id = test.uid('40');
+select test.ok((select travel_until is not null from private.discovery where user_id = test.uid('40')), 'Reiseziel in der Such-Tabelle');
+update public.profile_locations set travel_until = now() - interval '1 second' where user_id = test.uid('40');
+update private.discovery set travel_until = now() - interval '1 second',
+  location = extensions.st_setsrid(extensions.st_makepoint(11.57, 48.14), 4326)::extensions.geography
+where user_id = test.uid('40');  -- Zustand wie kurz nach Ablauf, bevor der Job lief
+select test.ok(private.refresh_expired_travel() = 1, 'Cron-Job findet abgelaufene Reise');
+select test.ok((select travel_until is null and extensions.st_y(location::extensions.geometry) > 53
+                from private.discovery where user_id = test.uid('40')), 'Suchstandort wieder Hamburg');

@@ -33,12 +33,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   String _title(AppLocalizations l) => switch (_step) {
-        0 => l.stepBasics,
-        1 => l.stepPreferences,
-        2 => l.stepPhotos,
-        3 => l.stepPrompts,
-        _ => l.stepLocation,
-      };
+    0 => l.stepBasics,
+    1 => l.stepPreferences,
+    2 => l.stepPhotos,
+    3 => l.stepPrompts,
+    _ => l.stepLocation,
+  };
 
   /// Prüft den aktuellen Schritt; nach Schritt 2 wird das Profil gespeichert.
   Future<void> _next() async {
@@ -51,7 +51,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       case 1:
         problem = _draft.validatePreferences(l);
         if (problem == null) {
-          await ref.read(apiProvider).saveProfile(
+          await ref
+              .read(apiProvider)
+              .saveProfile(
                 displayName: _draft.name.trim(),
                 birthdate: _draft.birthdate,
                 gender: _draft.gender!,
@@ -96,45 +98,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         leading: _step > 0 && _step <= 1 ? BackButton(onPressed: () => setState(() => _step--)) : null,
         automaticallyImplyLeading: false,
         title: Text(l.onboardingTitle),
-        actions: [
-          TextButton(onPressed: () => ref.read(apiProvider).signOut(), child: Text(l.signOut)),
-        ],
+        actions: [TextButton(onPressed: () => ref.read(apiProvider).signOut(), child: Text(l.signOut))],
       ),
       body: SafeArea(
-        child: Column(children: [
-          LinearProgressIndicator(
-            value: (_step + 1) / _steps,
-            backgroundColor: theme.colorScheme.surfaceContainer,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Text(l.stepOf(_step + 1, _steps),
-                        style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary)),
-                    const SizedBox(height: 4),
-                    Text(_title(l), style: theme.textTheme.headlineSmall),
-                    const SizedBox(height: 24),
-                    content,
-                  ]),
+        child: Column(
+          children: [
+            LinearProgressIndicator(value: (_step + 1) / _steps, backgroundColor: theme.colorScheme.surfaceContainer),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          l.stepOf(_step + 1, _steps),
+                          style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(_title(l), style: theme.textTheme.headlineSmall),
+                        const SizedBox(height: 24),
+                        content,
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: SizedBox(
-                width: double.infinity,
-                child: AsyncButton(label: _step == _steps - 1 ? l.finishOnboarding : l.next, onPressed: _next),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: AsyncButton(label: _step == _steps - 1 ? l.finishOnboarding : l.next, onPressed: _next),
+                ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

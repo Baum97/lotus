@@ -22,8 +22,12 @@ String errorText(BuildContext context, Object error) {
     'not_allowed' => l.errorNotAllowed,
     'plus_required' => l.errorPlusRequired,
     'profile_not_found' => l.errorProfileNotFound,
-    'purchase_failed' || 'purchase_not_found' || 'purchase_not_active' || 'purchase_account_mismatch' ||
-    'purchase_not_completed' || 'invalid_product' => l.errorPurchase,
+    'purchase_failed' ||
+    'purchase_not_found' ||
+    'purchase_not_active' ||
+    'purchase_account_mismatch' ||
+    'purchase_not_completed' ||
+    'invalid_product' => l.errorPurchase,
     'otp_expired' || 'invalid_credentials' => l.errorInvalidCode,
     'over_email_send_rate_limit' || 'over_request_rate_limit' => l.errorRateLimit,
     _ => l.errorGeneric,
@@ -94,23 +98,28 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(color: theme.colorScheme.secondaryContainer, shape: BoxShape.circle),
-            child: Icon(icon, size: 40, color: theme.colorScheme.secondary),
-          ),
-          const SizedBox(height: 24),
-          Text(title, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
-          if (body != null) ...[
-            const SizedBox(height: 12),
-            Text(body!,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(color: theme.colorScheme.secondaryContainer, shape: BoxShape.circle),
+              child: Icon(icon, size: 40, color: theme.colorScheme.secondary),
+            ),
+            const SizedBox(height: 24),
+            Text(title, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+            if (body != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                body!,
                 style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                textAlign: TextAlign.center),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (action != null) ...[const SizedBox(height: 24), action!],
           ],
-          if (action != null) ...[const SizedBox(height: 24), action!],
-        ]),
+        ),
       ),
     );
   }
@@ -161,11 +170,17 @@ class Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(999)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 16, color: scheme.primary),
-        const SizedBox(width: 6),
-        Text(label, style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w500)),
-      ]),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: scheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -201,16 +216,22 @@ class InfoBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(16)),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, color: foreground, size: 20),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(text, style: const TextStyle(color: LotusColors.ink)),
-            if (action != null) ...[const SizedBox(height: 8), action!],
-          ]),
-        ),
-      ]),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: foreground, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(text, style: const TextStyle(color: LotusColors.ink)),
+                if (action != null) ...[const SizedBox(height: 8), action!],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
