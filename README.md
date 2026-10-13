@@ -10,6 +10,7 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 - **Backend (Supabase: Postgres/PostGIS, Auth, Storage, Realtime):** [`supabase/`](supabase/)
 - **Einrichtung – wer macht was:** [`docs/EINRICHTUNG.md`](docs/EINRICHTUNG.md) · Deploy: `scripts/deploy.sh`
 - **Skalierung & Lasttest:** [`docs/SKALIERUNG.md`](docs/SKALIERUNG.md)
+- **Separates Projekt – Heimzugang** (Handy sicher mit NAS/PC im Heimnetz verbinden): [`heimzugang/`](heimzugang/README.md)
 
 ## Regeln, die die Datenbank durchsetzt
 
