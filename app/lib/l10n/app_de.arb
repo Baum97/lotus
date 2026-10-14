@@ -472,5 +472,132 @@
   "privacyExportHint": "Alle Daten, die Lotus über dich gespeichert hat, als JSON-Datei (Art. 15 und 20 DSGVO) – inklusive Download-Links zu deinen Fotos, 24 Stunden gültig.",
   "privacyExportDone": "Deine Datei ist bereit.",
   "privacyWithdrawn": "Einwilligung widerrufen. Deine Suchangaben wurden gelöscht.",
-  "errorConsentRequired": "Bitte bestätige zuerst die Einwilligung."
+  "errorConsentRequired": "Bitte bestätige zuerst die Einwilligung.",
+  "copy": "Kopieren",
+  "copied": "Kopiert",
+  "share": "Teilen",
+  "done": "Fertig",
+  "errorInvalidInvite": "Dieser Code ist ungültig, abgelaufen oder schon aufgebraucht.",
+  "errorInviteRequired": "Lotus ist gerade nur mit Einladung offen.",
+  "inviteTitle": "Lotus ist gerade in der Beta",
+  "inviteBody": "Damit es in Stuttgart und Ulm von Anfang an passende Menschen gibt, laden wir schrittweise ein. Hast du einen Einladungscode?",
+  "inviteCodeLabel": "Einladungscode",
+  "inviteCodeMissing": "Bitte gib deinen Einladungscode ein.",
+  "inviteRedeem": "Code einlösen",
+  "waitlistTitle": "Noch keinen Code?",
+  "waitlistBody": "Trag dich auf die Warteliste ein. Wir schalten dich frei, sobald es in deiner Gegend genug Leute gibt.",
+  "waitlistJoin": "Auf die Warteliste",
+  "waitlistCityMissing": "Bitte gib deine Stadt an.",
+  "waitlistJoined": "Du stehst auf der Warteliste. Wir melden uns, sobald du loslegen kannst – schau einfach ab und zu vorbei.",
+  "feedbackTitle": "Feedback & Fehler melden",
+  "feedbackHint": "Was hakt, was fehlt, was gefällt dir? Wir lesen alles.",
+  "feedbackBug": "Fehler",
+  "feedbackIdea": "Idee",
+  "feedbackOther": "Sonstiges",
+  "feedbackMessage": "Deine Nachricht",
+  "feedbackSend": "Senden",
+  "feedbackEmpty": "Schreib uns kurz, worum es geht.",
+  "feedbackThanks": "Danke! Dein Feedback ist angekommen.",
+  "feedbackNoProfile": "ohne Profil",
+  "feedbackResolve": "Erledigt",
+  "adminMetrics": "Kennzahlen",
+  "adminInvites": "Einladungen",
+  "adminFeedback": "Feedback",
+  "adminWaitlist": "Warteliste",
+  "metricsDays": "{days} Tage",
+  "@metricsDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsUsers": "Menschen",
+  "metricsProfiles": "Profile",
+  "metricsNew": "neu im Zeitraum",
+  "metricsActive7d": "aktiv (7 Tage)",
+  "metricsDiscoverable": "auffindbar",
+  "metricsVerified": "verifiziert",
+  "metricsPlus": "mit Plus",
+  "metricsFunnel": "Vom Like zum Gespräch",
+  "metricsFunnelHint": "Prozent jeweils bezogen auf die Stufe davor (Kommentare und Matches auf Likes).",
+  "metricsLikes": "Likes",
+  "metricsLikesWithComment": "davon mit Kommentar",
+  "metricsMatches": "Matches",
+  "metricsConversations": "Gespräche (beide geschrieben)",
+  "metricsDeepConversations": "längere Gespräche (20+ Nachrichten)",
+  "metricsLimits": "Grenzen & Abschlüsse",
+  "metricsBudgetUsedUp": "Tage mit aufgebrauchtem Like-Budget",
+  "metricsUndos": "rückgängig gemacht",
+  "metricsClosedStale": "eingeschlafen",
+  "metricsClosedEnded": "beendet",
+  "metricsClosedBlocked": "blockiert",
+  "metricsBalance": "Wer sucht wen",
+  "metricsBalanceHint": "Auffindbare Profile je Region – zeigt, wen du gezielt einladen solltest.",
+  "metricsSeeks": "{gender} sucht {seeking}",
+  "@metricsSeeks": {
+    "placeholders": {
+      "gender": {
+        "type": "String"
+      },
+      "seeking": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsOutcome": "Ergebnis",
+  "metricsDeletions": "Konten gelöscht",
+  "metricsFoundSomeone": "„jemanden gefunden“",
+  "metricsOpen": "Offen",
+  "metricsPrivacyNote": "Nur Summen – keine Einzelpersonen. Gelöschte Konten zählen nur anonym.",
+  "invitesRequiredOn": "Einladungspflicht ist aktiv: Neue Konten brauchen einen Code oder eine Freischaltung von der Warteliste.",
+  "invitesRequiredOff": "Einladungspflicht ist aus – jede:r kann sich registrieren.",
+  "invitesCreate": "Einladungscodes erstellen",
+  "invitesCreateShort": "Erstellen",
+  "invitesCount": "Anzahl Codes",
+  "invitesMaxUses": "Nutzungen pro Code",
+  "invitesRegion": "Region",
+  "invitesNoRegion": "keine",
+  "invitesNote": "Notiz",
+  "invitesNoteHint": "z. B. Uni-Gruppe, Kletterhalle",
+  "invitesCreated": "{count, plural, =1{1 Code erstellt} other{{count} Codes erstellt}}",
+  "@invitesCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invitesCodes": "Codes",
+  "invitesNone": "Noch keine Codes.",
+  "invitesUses": "{uses}/{max} genutzt",
+  "@invitesUses": {
+    "placeholders": {
+      "uses": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "invitesExpired": "abgelaufen",
+  "invitesValidUntil": "gültig bis {date}",
+  "@invitesValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteShareText": "Du bist zur Beta von Lotus eingeladen 🌸 Dein Code: {code}",
+  "@inviteShareText": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "waitlistEmpty": "Niemand wartet.",
+  "waitlistAdmit": "Freischalten"
 }

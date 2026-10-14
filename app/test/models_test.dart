@@ -107,4 +107,38 @@ void main() {
       expect(ProfileDraft.isAdult(DateTime(today.year - 18, today.month, today.day + 1)), isFalse);
     });
   });
+
+  group('Beta', () {
+    test('Kennzahlen und "wer sucht wen" werden gelesen', () {
+      final m = BetaMetrics({
+        'period_days': 30,
+        'users': {'profiles': 40, 'active_7d': 12},
+        'funnel': {'likes': 100, 'matches': 9},
+        'undos': 3,
+        'invites': {'required': true, 'redeemed': 5},
+        'balance': [
+          {'region': 'Ulm', 'gender': 'woman', 'seeking': 'man+woman', 'count': 4},
+        ],
+      });
+      expect(m.profiles, 40);
+      expect(m.active7d, 12);
+      expect(m.verified, 0, reason: 'fehlende Werte zählen als 0');
+      expect(m.undos, 3);
+      expect(m.invitesRequired, isTrue);
+      expect(m.balance.single.seeking, [Gender.man, Gender.woman]);
+    });
+
+    test('Einladungscode wird lesbar formatiert', () {
+      final invite = Invite.fromJson({
+        'code': 'K7M2PQ4X',
+        'uses': 1,
+        'max_uses': 1,
+        'expires_at': '2020-01-01T00:00:00Z',
+        'created_at': '2019-12-01T00:00:00Z',
+      });
+      expect(invite.formatted, 'K7M2-PQ4X');
+      expect(invite.usedUp, isTrue);
+      expect(invite.isExpired(DateTime.now()), isTrue);
+    });
+  });
 }

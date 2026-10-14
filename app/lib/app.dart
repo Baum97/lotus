@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'config.dart';
 import 'features/auth/login_screen.dart';
+import 'features/beta/invite_screen.dart';
 import 'features/home/home_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'l10n/gen/app_localizations.dart';
@@ -53,7 +54,20 @@ class AuthGate extends ConsumerWidget {
       error: (error, _) => Scaffold(
         body: ErrorView(error: error, onRetry: () => ref.invalidate(myStatusProvider)),
       ),
-      data: (status) => status.onboardingComplete ? const HomeShell() : OnboardingScreen(status: status),
+      data: (status) {
+        if (status.onboardingComplete) return const HomeShell();
+        // Wer schon ein Profil hat, hat Zugang; sonst braucht es (in der Beta) eine Einladung.
+        if (status.hasProfile) return OnboardingScreen(status: status);
+        return ref
+            .watch(accessStatusProvider)
+            .when(
+              loading: () => const Scaffold(body: LoadingView()),
+              error: (error, _) => Scaffold(
+                body: ErrorView(error: error, onRetry: () => ref.invalidate(accessStatusProvider)),
+              ),
+              data: (access) => access.hasAccess ? OnboardingScreen(status: status) : InviteScreen(access: access),
+            );
+      },
     );
   }
 }

@@ -258,7 +258,11 @@ Die Pfeilrichtung ist bewusst: Discovery bekommt von Trust & Safety nur den Stat
 
 **Nordstern:** Anteil der Abmeldungen mit „Ich habe jemanden gefunden“.
 
-Weitere:
+Im Admin-Bereich unter „Kennzahlen“ (umgesetzt, nur Summen): Profile, aktiv, verifiziert, Like → Match →
+Gespräch → längeres Gespräch, aufgebrauchtes Like-Budget, Rückgängig, eingeschlafene Chats, „wer sucht wen“
+je Region, gelöschte Konten und „jemanden gefunden“.
+
+Weitere (später):
 - Match → Gespräch (≥ 1 Antwort) Quote
 - Gespräch → Date Quote
 - Antwortrate / Ghosting-Rate
@@ -288,6 +292,7 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 - Lotus Plus (Reisemodus, eigene Statistiken), Spenden und Beitrag bei Erfolg über Google Play, serverseitig bei Google geprüft
 - Suchradius 1–150 km
 - Impressum (App + Vorlage `docs/IMPRESSUM.md`)
+- Beta-Werkzeuge: Einladungscodes + Warteliste, Feedback-Knopf, Kennzahlen im Admin-Bereich (siehe Abschnitt 9)
 
 ### Schritt 5 – Ausbau
 - iOS
@@ -343,6 +348,9 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 26 | Orientierung & Einwilligung | „Wen möchtest du kennenlernen?“ ist die einzige Abfrage dazu, nie sichtbar, nur fürs Matching; ausdrückliche, versionierte, widerrufbare Einwilligung (Art. 9 DSGVO); Widerruf löscht die Suchangaben |
 | 27 | Datenauskunft | in der App als JSON-Datei (Art. 15/20 DSGVO) mit Pflichtinformationen, ohne Daten über Melder:innen |
 | 28 | Backups | täglich, verschlüsselt, in EU-Objektspeicher, 30 Tage Aufbewahrung; Wiederherstellung getestet |
+| 29 | Beta-Zugang | nur mit Einladungscode (8 Zeichen, pro Code begrenzte Nutzungen und Ablaufdatum) oder Freischaltung von der Warteliste; max. 10 Fehlversuche pro Stunde; abschaltbar |
+| 30 | Feedback | Knopf im Profil (Fehler / Idee / Sonstiges) mit App-Version und Plattform, landet im Admin-Bereich |
+| 31 | Kennzahlen | im Admin-Bereich, nur Summen: Wachstum, Like → Match → Gespräch, Like-Budget, „wer sucht wen“ je Region, „jemanden gefunden“ |
 
 ### Noch offen
 

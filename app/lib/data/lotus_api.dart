@@ -451,6 +451,32 @@ class LotusApi {
     await _client.auth.signOut(scope: SignOutScope.local);
   });
 
+  // --- Beta: Einladung & Feedback --------------------------------------------
+
+  Future<AccessStatus> accessStatus() => _guard(() async {
+    final rows = await _client.rpc('get_access_status') as List;
+    return AccessStatus.fromJson(rows.single as Map<String, dynamic>);
+  });
+
+  /// Löst einen Einladungscode ein. Wirft `invalid_invite` oder `slow_down`.
+  Future<void> redeemInvite(String code) => _guard(() async {
+    final result = await _client.rpc('redeem_invite', params: {'p_code': code}) as String;
+    if (result == 'ok') return;
+    throw LotusException(result == 'slow_down' ? 'slow_down' : 'invalid_invite');
+  });
+
+  Future<void> joinWaitlist(String city) => _guard(() => _client.rpc('join_waitlist', params: {'p_city': city.trim()}));
+
+  Future<void> sendFeedback(FeedbackCategory category, String message, {String? appVersion, String? platform}) =>
+      _guard(
+        () => _client.from('feedback').insert({
+          'category': category.name,
+          'message': message.trim(),
+          'app_version': appVersion,
+          'platform': platform,
+        }),
+      );
+
   // --- Admin ------------------------------------------------------------------
 
   Future<List<PendingVerification>> adminPendingVerifications() => _guard(() async {
@@ -482,6 +508,46 @@ class LotusApi {
     () =>
         _client.rpc('admin_resolve_report', params: {'p_report': reportId, 'p_status': status?.name, 'p_reason': null}),
   );
+
+  Future<BetaMetrics> adminMetrics({int days = 30}) => _guard(() async {
+    final json = await _client.rpc('admin_metrics', params: {'p_days': days});
+    return BetaMetrics(json as Map<String, dynamic>);
+  });
+
+  Future<List<String>> adminCreateInvites({
+    int count = 1,
+    int maxUses = 1,
+    String? region,
+    String? note,
+    int validDays = 30,
+  }) => _guard(() async {
+    final rows = await _client.rpc(
+      'admin_create_invites',
+      params: {'p_count': count, 'p_max_uses': maxUses, 'p_region': region, 'p_note': note, 'p_valid_days': validDays},
+    ) as List;
+    return rows.cast<String>();
+  });
+
+  Future<List<Invite>> adminInvites() => _guard(() async {
+    final rows = await _client.rpc('admin_list_invites') as List;
+    return rows.map((r) => Invite.fromJson(r as Map<String, dynamic>)).toList();
+  });
+
+  Future<List<WaitlistEntry>> adminWaitlist() => _guard(() async {
+    final rows = await _client.rpc('admin_list_waitlist') as List;
+    return rows.map((r) => WaitlistEntry.fromJson(r as Map<String, dynamic>)).toList();
+  });
+
+  Future<void> adminAdmitFromWaitlist(String userId) =>
+      _guard(() => _client.rpc('admin_admit_from_waitlist', params: {'p_user': userId}));
+
+  Future<List<FeedbackItem>> adminFeedback() => _guard(() async {
+    final rows = await _client.rpc('admin_list_feedback') as List;
+    return rows.map((r) => FeedbackItem.fromJson(r as Map<String, dynamic>)).toList();
+  });
+
+  Future<void> adminResolveFeedback(String id) =>
+      _guard(() => _client.rpc('admin_resolve_feedback', params: {'p_id': id}));
 
   // --- Hilfen -----------------------------------------------------------------
 

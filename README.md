@@ -31,6 +31,7 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 | Suchradius | 1–150 km (Standard 50 km) |
 | Kinderwunsch, Rauchen | optional; Anzeige abschaltbar; optionale Ausschlusskriterien wirken gegenseitig |
 | Lotus Plus | nur Komfort (Reisemodus, eigene Statistiken) – kein Einfluss auf Sichtbarkeit oder Likes |
+| Beta-Zugang | nur mit Einladungscode oder Freischaltung von der Warteliste (max. 10 Fehlversuche/Stunde) |
 
 Das eigene Like-Verhalten beeinflusst **nie** die eigene Sichtbarkeit. Vorschläge werden nach
 gegenseitigen Filtern, gleicher Absicht und einem Fairness-Kontingent (seltener Gezeigte zuerst) sortiert.
@@ -74,7 +75,7 @@ cd app && flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 \
 ## Tests
 
 ```bash
-PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 166 Datenbank-Prüfungen
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 191 Datenbank-Prüfungen
 PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/bench-db.sh  # Lasttest (50.000 Profile)
 cd app && dart format lib test && flutter analyze && flutter test # App
 cd supabase/functions && deno fmt && deno lint                    # Edge Functions
@@ -100,7 +101,9 @@ außerdem, dass bestehende Migrationen nicht verändert werden, sondern nur neue
 | `delete_my_account(p_found_someone, p_feedback)` | Konto löschen, „jemanden gefunden“ anonym zählen |
 | `register_device_token(…)` | Push-Token speichern |
 | `set_travel_location(…)`, `clear_travel_location()`, `get_my_stats()` | Lotus Plus: Reisemodus, eigene Statistiken |
-| `admin_*` | Selfies prüfen, Fotos moderieren, Meldungen bearbeiten, Konten einschränken/sperren |
+| `get_access_status()`, `redeem_invite(p_code)`, `join_waitlist(p_city)` | Beta-Zugang: Einladungscode einlösen (`ok`/`invalid`/`slow_down`), Warteliste |
+| `insert into feedback` | Feedback mit Kategorie, App-Version und Plattform |
+| `admin_*` | Kennzahlen, Selfies prüfen, Fotos moderieren, Meldungen bearbeiten, Konten einschränken/sperren, Einladungscodes, Warteliste, Feedback |
 
 Fehler kommen als stabile Schlüssel (`daily_like_limit_reached`, `monthly_undo_limit_reached`,
 `profile_not_available`, …), die die App übersetzt. Auf `profiles` sind nur einzelne Spalten lesbar
@@ -115,7 +118,9 @@ Fehler kommen als stabile Schlüssel (`daily_like_limit_reached`, `monthly_undo_
    `supabase/templates/login_code.html` ersetzen (Betreff „Dein Lotus-Code“) – oder `npx supabase config push`.
 4. Unter Integrations → Cron prüfen, dass die Jobs `lotus-close-stale-matches` und
    `lotus-cleanup-impressions` angelegt sind (die Migrationen aktivieren `pg_cron` selbst).
-5. Dich als Admin eintragen (siehe oben).
+5. Dich als Admin eintragen (siehe oben). Ab dann gilt die **Einladungspflicht** – vorher ist die Registrierung
+   offen, damit du selbst hineinkommst. Codes erstellst du im Admin-Bereich unter „Einladungen“.
+   Abschalten: `update private.settings set value = 'false' where key = 'invite_required';`
 6. Für mehr als ein paar Tester:innen einen eigenen SMTP-Versand einrichten (Supabase verschickt ohne
    SMTP nur wenige E-Mails pro Stunde), z. B. über einen EU-Anbieter mit Gratis-Kontingent.
 

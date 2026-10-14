@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lotus/data/lotus_api.dart';
 import 'package:lotus/data/models.dart';
 import 'package:lotus/features/auth/login_screen.dart';
+import 'package:lotus/features/beta/feedback_sheet.dart';
+import 'package:lotus/features/beta/invite_screen.dart';
 import 'package:lotus/features/profile/profile_forms.dart';
 import 'package:lotus/features/profile/profile_view.dart';
 import 'package:lotus/legal/impressum_screen.dart';
@@ -253,5 +255,38 @@ void main() {
       ),
     );
     expect(find.byType(CheckboxListTile), findsNothing);
+  });
+
+  testWidgets('Einladung: Code-Feld und Warteliste', (tester) async {
+    await tester.pumpWidget(
+      wrap(const InviteScreen(access: AccessStatus(required: true, hasAccess: false, onWaitlist: false))),
+    );
+    expect(find.text('Lotus ist gerade in der Beta'), findsOneWidget);
+    expect(find.text('Code einlösen'), findsOneWidget);
+    expect(find.text('Auf die Warteliste'), findsOneWidget);
+
+    await tester.tap(find.text('Code einlösen'));
+    await tester.pump();
+    expect(find.text('Bitte gib deinen Einladungscode ein.'), findsOneWidget, reason: 'leerer Code geht nicht raus');
+  });
+
+  testWidgets('Einladung: auf der Warteliste wird kein Formular mehr gezeigt', (tester) async {
+    await tester.pumpWidget(
+      wrap(const InviteScreen(access: AccessStatus(required: true, hasAccess: false, onWaitlist: true))),
+    );
+    expect(find.textContaining('Du stehst auf der Warteliste'), findsOneWidget);
+    expect(find.text('Auf die Warteliste'), findsNothing);
+  });
+
+  testWidgets('Feedback: Kategorie wählbar, leere Nachricht wird abgefangen', (tester) async {
+    await tester.pumpWidget(wrap(const FeedbackSheet()));
+    expect(find.text('Fehler'), findsOneWidget);
+    await tester.tap(find.text('Idee'));
+    await tester.pump();
+    expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Idee')).selected, isTrue);
+
+    await tester.tap(find.text('Senden'));
+    await tester.pump();
+    expect(find.text('Schreib uns kurz, worum es geht.'), findsOneWidget);
   });
 }

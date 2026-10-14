@@ -163,6 +163,7 @@ def main():
         photo = api.request("GET", f"/rest/v1/photos?user_id=eq.{me}&select=id&limit=1")
         target = {"target_type": "photo", "target_id": photo[0]["id"]} if photo else {}
         comments = {"Jonas": "Dein Lächeln auf dem Foto ist ansteckend!", "Moritz": None, "Ben": "Kochen wir mal zusammen?"}
+        comments = {name: c for name, c in comments.items() if ids[name] != me}  # sich selbst liken geht nicht
         for name, comment in comments.items():
             api.request("POST", "/rest/v1/likes?on_conflict=from_user,to_user",
                         {"from_user": ids[name], "to_user": me, "comment": comment, **target},

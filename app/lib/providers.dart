@@ -74,3 +74,9 @@ final myStatsProvider = FutureProvider<MyStats>((ref) => ref.watch(apiProvider).
 final notificationSettingsProvider = FutureProvider<NotificationSettings>(
   (ref) => ref.watch(apiProvider).notificationSettings(),
 );
+
+/// Einladung/Warteliste – nur relevant, solange noch kein Profil existiert.
+final accessStatusProvider = FutureProvider<AccessStatus>((ref) {
+  ref.watch(sessionProvider);
+  return ref.watch(apiProvider).accessStatus();
+});

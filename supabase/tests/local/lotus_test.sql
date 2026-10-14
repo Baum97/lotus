@@ -741,3 +741,82 @@ select test.ok((select count(*) from public.get_candidates(10)) = 0, 'ohne Sucha
 select test.throws($$select public.save_profile('Fünfzig', null, 'woman', null, 'Karlsruhe', '{man}', 'relationship', true, 25, 45, 50)$$,
   'consent_required', 'nach Widerruf erst wieder mit neuer Einwilligung');
 reset role;
+
+-- ---------------------------------------------------------------------------
+-- Einladungscodes, Warteliste, Feedback, Kennzahlen
+-- ---------------------------------------------------------------------------
+
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000c1', 'carla@test.local'),
+  ('00000000-0000-0000-0000-0000000000c2', 'dora@test.local');
+create function test.c(n int) returns uuid language sql immutable as $$
+  select ('00000000-0000-0000-0000-0000000000c' || n)::uuid $$;
+grant execute on function test.c(int) to authenticated;
+
+set role authenticated;
+select test.login(test.c(1));
+select test.ok((select required and not has_access from public.get_access_status()), 'Code nötig, solange es Admins gibt');
+select public.give_consent('sensitive_matching', 'v1');
+select test.throws($$select public.save_profile('Carla', '1994-02-02', 'woman', null, 'Ulm', '{man}', 'relationship', true, 25, 45, 50)$$,
+  'invite_required', 'ohne Code kein Profil');
+select test.ok(public.redeem_invite('FALSCH12') = 'invalid', 'falscher Code wird abgelehnt');
+
+-- Admin B erzeugt Codes
+select test.login(test.uid('B'));
+create temp table codes as select public.admin_create_invites(2, 1, 'Ulm', 'Freundeskreis', 30) as code;
+grant select on codes to authenticated;
+select test.ok((select count(*) from codes) = 2 and (select bool_and(code ~ '^[A-HJ-NP-Z2-9]{8}$') from codes),
+  '8-stellige Codes ohne verwechselbare Zeichen');
+select test.ok((select count(*) from public.admin_list_invites()) = 2, 'Admin sieht die Codes');
+
+select test.login(test.c(1));
+select test.ok(public.redeem_invite(lower(substr((select min(code) from codes), 1, 4)) || '-' || substr((select min(code) from codes), 5)) = 'ok',
+  'Code eingelöst (Schreibweise egal)');
+select test.ok((select has_access from public.get_access_status()), 'danach Zugang');
+select public.save_profile('Carla', '1994-02-02', 'woman', null, 'Ulm', '{man}', 'relationship', true, 25, 45, 50);
+select test.ok((select has_profile from public.get_my_status()), 'mit Code Profil angelegt');
+
+select test.login(test.c(2));
+select test.ok(public.redeem_invite((select min(code) from codes)) = 'invalid', 'Einmal-Code ist verbraucht');
+select public.join_waitlist('Stuttgart');
+select test.ok((select on_waitlist from public.get_access_status()), 'auf der Warteliste');
+-- Durchprobieren wird gebremst – auch über einzelne Anfragen hinweg (jede ist eine eigene Transaktion)
+select public.redeem_invite('AAAAAAA' || n) from generate_series(1, 9) n;
+select test.ok(public.redeem_invite((select max(code) from codes)) = 'slow_down',
+  'nach 10 Fehlversuchen pro Stunde gesperrt – selbst mit gültigem Code');
+
+select test.login(test.uid('B'));
+select test.ok((select email = 'dora@test.local' and city = 'Stuttgart' from public.admin_list_waitlist()), 'Admin sieht die Warteliste');
+select public.admin_admit_from_waitlist(test.c(2));
+select test.login(test.c(2));
+select test.ok((select has_access and not on_waitlist from public.get_access_status()), 'von der Warteliste freigeschaltet');
+
+-- Feedback
+select test.login(test.c(1));
+insert into public.feedback (category, message, app_version, platform) values ('bug', 'Foto lädt nicht', '0.1.0', 'android');
+select test.throws(format($$insert into public.feedback (user_id, category, message) values (%L, 'idea', 'x')$$, test.uid('B')),
+  'permission denied', 'Feedback nur im eigenen Namen');
+select test.login(test.uid('D'));
+select test.ok((select count(*) from public.feedback) = 0, 'Feedback anderer nicht lesbar');
+select test.throws($$select * from public.admin_list_feedback()$$, 'not_admin', 'Feedback-Liste nur für Admins');
+select test.login(test.uid('B'));
+select test.ok((select display_name = 'Carla' and category = 'bug' from public.admin_list_feedback()), 'Admin sieht Feedback mit Name');
+select public.admin_resolve_feedback((select id from public.admin_list_feedback() limit 1));
+select test.ok((select count(*) from public.admin_list_feedback()) = 0, 'Feedback erledigt');
+
+-- Kennzahlen
+create temp table m as select public.admin_metrics(30) as data;
+grant select on m to authenticated;
+select test.ok((select (data -> 'users' ->> 'profiles')::int > 30 from m), 'Kennzahlen: Profile gezählt');
+select test.ok((select (data -> 'funnel' ->> 'matches')::int >= 1 and (data -> 'funnel' ->> 'conversations')::int >= 1 from m),
+  'Kennzahlen: Matches und Gespräche');
+select test.ok((select (data -> 'like_budget' ->> 'days_used_up')::int >= 1 from m), 'Kennzahlen: aufgebrauchtes Like-Budget erkannt');
+select test.ok((select exists (select 1 from jsonb_array_elements(data -> 'balance') b
+                               where b ->> 'region' = 'Stuttgart' and b ->> 'gender' = 'man' and b ->> 'seeking' = 'woman') from m),
+  'Kennzahlen: wer sucht wen je Region');
+select test.ok((select (data -> 'invites' ->> 'redeemed')::int = 1 and (data -> 'invites' ->> 'from_waitlist')::int = 1 from m),
+  'Kennzahlen: Einladungen');
+select test.ok((select (data -> 'deletions' ->> 'found_someone')::int = 1 from m), 'Kennzahlen: "jemanden gefunden"');
+select test.login(test.uid('D'));
+select test.throws($$select public.admin_metrics()$$, 'not_admin', 'Kennzahlen nur für Admins');
+reset role;

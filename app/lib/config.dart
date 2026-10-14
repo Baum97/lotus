@@ -11,6 +11,9 @@ class AppConfig {
   static const firebaseSenderId = String.fromEnvironment('FIREBASE_SENDER_ID');
   static const firebaseProjectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
 
+  /// Wird beim Release-Build gesetzt (--dart-define=APP_VERSION=…) und hilft beim Einordnen von Feedback.
+  static const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0');
+
   static bool get hasSupabase => supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty;
   static bool get hasFirebase =>
       firebaseApiKey.isNotEmpty &&

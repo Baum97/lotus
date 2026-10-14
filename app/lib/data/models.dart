@@ -582,3 +582,172 @@ class NotificationSettings {
     likes: json['likes'] as bool,
   );
 }
+
+// --- Beta: Einladungen, Feedback, Kennzahlen ---------------------------------
+
+/// Ob die Beta gerade nur mit Einladung offen ist und ob man selbst Zugang hat.
+class AccessStatus {
+  const AccessStatus({required this.required, required this.hasAccess, required this.onWaitlist});
+
+  final bool required;
+  final bool hasAccess;
+  final bool onWaitlist;
+
+  factory AccessStatus.fromJson(Map<String, dynamic> json) => AccessStatus(
+    required: json['required'] as bool,
+    hasAccess: json['has_access'] as bool,
+    onWaitlist: json['on_waitlist'] as bool,
+  );
+}
+
+enum FeedbackCategory { bug, idea, other }
+
+class Invite {
+  const Invite({
+    required this.code,
+    this.region,
+    this.note,
+    required this.uses,
+    required this.maxUses,
+    this.expiresAt,
+    required this.createdAt,
+  });
+
+  final String code;
+  final String? region;
+  final String? note;
+  final int uses;
+  final int maxUses;
+  final DateTime? expiresAt;
+  final DateTime createdAt;
+
+  bool get usedUp => uses >= maxUses;
+  bool isExpired(DateTime now) => expiresAt != null && expiresAt!.isBefore(now);
+
+  /// Lesbarer: "K7M2-PQ4X"
+  String get formatted => code.length == 8 ? '${code.substring(0, 4)}-${code.substring(4)}' : code;
+
+  factory Invite.fromJson(Map<String, dynamic> json) => Invite(
+    code: json['code'] as String,
+    region: json['region'] as String?,
+    note: json['note'] as String?,
+    uses: json['uses'] as int,
+    maxUses: json['max_uses'] as int,
+    expiresAt: json['expires_at'] == null ? null : DateTime.parse(json['expires_at'] as String),
+    createdAt: DateTime.parse(json['created_at'] as String),
+  );
+}
+
+class WaitlistEntry {
+  const WaitlistEntry({required this.userId, required this.email, required this.city, required this.createdAt});
+
+  final String userId;
+  final String email;
+  final String city;
+  final DateTime createdAt;
+
+  factory WaitlistEntry.fromJson(Map<String, dynamic> json) => WaitlistEntry(
+    userId: json['user_id'] as String,
+    email: json['email'] as String,
+    city: json['city'] as String,
+    createdAt: DateTime.parse(json['created_at'] as String),
+  );
+}
+
+class FeedbackItem {
+  const FeedbackItem({
+    required this.id,
+    this.displayName,
+    required this.category,
+    required this.message,
+    this.appVersion,
+    this.platform,
+    required this.createdAt,
+  });
+
+  final String id;
+  final String? displayName;
+  final FeedbackCategory category;
+  final String message;
+  final String? appVersion;
+  final String? platform;
+  final DateTime createdAt;
+
+  factory FeedbackItem.fromJson(Map<String, dynamic> json) => FeedbackItem(
+    id: json['id'] as String,
+    displayName: json['display_name'] as String?,
+    category: FeedbackCategory.values.byName(json['category'] as String),
+    message: json['message'] as String,
+    appVersion: json['app_version'] as String?,
+    platform: json['platform'] as String?,
+    createdAt: DateTime.parse(json['created_at'] as String),
+  );
+}
+
+/// Wer sucht wen in einer Region (nur auffindbare Profile).
+class BalanceRow {
+  const BalanceRow({required this.region, required this.gender, required this.seeking, required this.count});
+
+  final String region;
+  final Gender gender;
+  final List<Gender> seeking;
+  final int count;
+
+  factory BalanceRow.fromJson(Map<String, dynamic> json) => BalanceRow(
+    region: json['region'] as String,
+    gender: Gender.fromDb(json['gender'] as String),
+    seeking: [
+      for (final g in (json['seeking'] as String).split('+'))
+        if (g.isNotEmpty) Gender.fromDb(g),
+    ],
+    count: json['count'] as int,
+  );
+}
+
+/// Kennzahlen für die Beta – nur Summen, keine Einzelpersonen (siehe `admin_metrics`).
+class BetaMetrics {
+  const BetaMetrics(this._json);
+
+  final Map<String, dynamic> _json;
+
+  int _int(String section, String key) => ((_json[section] as Map<String, dynamic>?)?[key] as num?)?.toInt() ?? 0;
+
+  int get periodDays => (_json['period_days'] as num).toInt();
+
+  int get profiles => _int('users', 'profiles');
+  int get active7d => _int('users', 'active_7d');
+  int get discoverable => _int('users', 'discoverable');
+  int get verified => _int('users', 'verified');
+  int get withPlus => _int('users', 'with_plus');
+  int get newInPeriod => _int('users', 'new_in_period');
+
+  int get likes => _int('funnel', 'likes');
+  int get likesWithComment => _int('funnel', 'likes_with_comment');
+  int get matches => _int('funnel', 'matches');
+  int get conversations => _int('funnel', 'conversations');
+  int get deepConversations => _int('funnel', 'deep_conversations');
+  int get closedEnded => _int('funnel', 'closed_ended');
+  int get closedStale => _int('funnel', 'closed_stale');
+  int get closedBlocked => _int('funnel', 'closed_blocked');
+
+  int get daysWithLikes => _int('like_budget', 'days_with_likes');
+  int get daysUsedUp => _int('like_budget', 'days_used_up');
+  int get undos => (_json['undos'] as num?)?.toInt() ?? 0;
+
+  int get deletions => _int('deletions', 'total');
+  int get foundSomeone => _int('deletions', 'found_someone');
+
+  int get openReports => _int('open', 'reports');
+  int get openVerifications => _int('open', 'verifications');
+  int get openFeedback => _int('open', 'feedback');
+  int get waitlist => _int('open', 'waitlist');
+
+  bool get invitesRequired => (_json['invites'] as Map<String, dynamic>?)?['required'] as bool? ?? false;
+  int get inviteCodes => _int('invites', 'codes');
+  int get invitesRedeemed => _int('invites', 'redeemed');
+  int get admittedFromWaitlist => _int('invites', 'from_waitlist');
+
+  List<BalanceRow> get balance => [
+    for (final row in (_json['balance'] as List? ?? const [])) BalanceRow.fromJson(row as Map<String, dynamic>),
+  ];
+}

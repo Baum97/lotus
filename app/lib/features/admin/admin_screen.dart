@@ -5,6 +5,7 @@ import '../../data/models.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../providers.dart';
 import '../../widgets/common.dart';
+import 'beta_tabs.dart';
 
 final _pendingVerificationsProvider = FutureProvider.autoDispose(
   (ref) => ref.watch(apiProvider).adminPendingVerifications(),
@@ -22,7 +23,8 @@ final _signedUrlsProvider = FutureProvider.autoDispose.family<Map<String, String
 
 String _urlKey(String bucket, Iterable<String> paths) => [bucket, ...paths].join('|');
 
-/// Admin-Bereich für die Beta: Selfies prüfen, Meldungen bearbeiten, Fotos moderieren.
+/// Admin-Bereich für die Beta: Kennzahlen, Selfies prüfen, Meldungen bearbeiten, Fotos moderieren,
+/// Einladungen verwalten, Feedback lesen.
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
 
@@ -30,7 +32,7 @@ class AdminScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 3,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.adminTitle),
@@ -42,14 +44,21 @@ class AdminScreen extends StatelessWidget {
             ),
           ],
           bottom: TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
+              Tab(text: l.adminMetrics),
               Tab(text: l.adminVerifications),
               Tab(text: l.adminReports),
               Tab(text: l.adminPhotos),
+              Tab(text: l.adminInvites),
+              Tab(text: l.adminFeedback),
             ],
           ),
         ),
-        body: const TabBarView(children: [_VerificationsTab(), _ReportsTab(), _PhotosTab()]),
+        body: const TabBarView(
+          children: [MetricsTab(), _VerificationsTab(), _ReportsTab(), _PhotosTab(), InvitesTab(), FeedbackTab()],
+        ),
       ),
     );
   }

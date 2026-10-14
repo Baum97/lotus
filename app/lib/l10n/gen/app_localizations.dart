@@ -1770,6 +1770,480 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Bitte bestätige zuerst die Einwilligung.'**
   String get errorConsentRequired;
+
+  /// No description provided for @copy.
+  ///
+  /// In de, this message translates to:
+  /// **'Kopieren'**
+  String get copy;
+
+  /// No description provided for @copied.
+  ///
+  /// In de, this message translates to:
+  /// **'Kopiert'**
+  String get copied;
+
+  /// No description provided for @share.
+  ///
+  /// In de, this message translates to:
+  /// **'Teilen'**
+  String get share;
+
+  /// No description provided for @done.
+  ///
+  /// In de, this message translates to:
+  /// **'Fertig'**
+  String get done;
+
+  /// No description provided for @errorInvalidInvite.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Code ist ungültig, abgelaufen oder schon aufgebraucht.'**
+  String get errorInvalidInvite;
+
+  /// No description provided for @errorInviteRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus ist gerade nur mit Einladung offen.'**
+  String get errorInviteRequired;
+
+  /// No description provided for @inviteTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Lotus ist gerade in der Beta'**
+  String get inviteTitle;
+
+  /// No description provided for @inviteBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Damit es in Stuttgart und Ulm von Anfang an passende Menschen gibt, laden wir schrittweise ein. Hast du einen Einladungscode?'**
+  String get inviteBody;
+
+  /// No description provided for @inviteCodeLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladungscode'**
+  String get inviteCodeLabel;
+
+  /// No description provided for @inviteCodeMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte gib deinen Einladungscode ein.'**
+  String get inviteCodeMissing;
+
+  /// No description provided for @inviteRedeem.
+  ///
+  /// In de, this message translates to:
+  /// **'Code einlösen'**
+  String get inviteRedeem;
+
+  /// No description provided for @waitlistTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keinen Code?'**
+  String get waitlistTitle;
+
+  /// No description provided for @waitlistBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Trag dich auf die Warteliste ein. Wir schalten dich frei, sobald es in deiner Gegend genug Leute gibt.'**
+  String get waitlistBody;
+
+  /// No description provided for @waitlistJoin.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf die Warteliste'**
+  String get waitlistJoin;
+
+  /// No description provided for @waitlistCityMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte gib deine Stadt an.'**
+  String get waitlistCityMissing;
+
+  /// No description provided for @waitlistJoined.
+  ///
+  /// In de, this message translates to:
+  /// **'Du stehst auf der Warteliste. Wir melden uns, sobald du loslegen kannst – schau einfach ab und zu vorbei.'**
+  String get waitlistJoined;
+
+  /// No description provided for @feedbackTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Feedback & Fehler melden'**
+  String get feedbackTitle;
+
+  /// No description provided for @feedbackHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Was hakt, was fehlt, was gefällt dir? Wir lesen alles.'**
+  String get feedbackHint;
+
+  /// No description provided for @feedbackBug.
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler'**
+  String get feedbackBug;
+
+  /// No description provided for @feedbackIdea.
+  ///
+  /// In de, this message translates to:
+  /// **'Idee'**
+  String get feedbackIdea;
+
+  /// No description provided for @feedbackOther.
+  ///
+  /// In de, this message translates to:
+  /// **'Sonstiges'**
+  String get feedbackOther;
+
+  /// No description provided for @feedbackMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Nachricht'**
+  String get feedbackMessage;
+
+  /// No description provided for @feedbackSend.
+  ///
+  /// In de, this message translates to:
+  /// **'Senden'**
+  String get feedbackSend;
+
+  /// No description provided for @feedbackEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Schreib uns kurz, worum es geht.'**
+  String get feedbackEmpty;
+
+  /// No description provided for @feedbackThanks.
+  ///
+  /// In de, this message translates to:
+  /// **'Danke! Dein Feedback ist angekommen.'**
+  String get feedbackThanks;
+
+  /// No description provided for @feedbackNoProfile.
+  ///
+  /// In de, this message translates to:
+  /// **'ohne Profil'**
+  String get feedbackNoProfile;
+
+  /// No description provided for @feedbackResolve.
+  ///
+  /// In de, this message translates to:
+  /// **'Erledigt'**
+  String get feedbackResolve;
+
+  /// No description provided for @adminMetrics.
+  ///
+  /// In de, this message translates to:
+  /// **'Kennzahlen'**
+  String get adminMetrics;
+
+  /// No description provided for @adminInvites.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladungen'**
+  String get adminInvites;
+
+  /// No description provided for @adminFeedback.
+  ///
+  /// In de, this message translates to:
+  /// **'Feedback'**
+  String get adminFeedback;
+
+  /// No description provided for @adminWaitlist.
+  ///
+  /// In de, this message translates to:
+  /// **'Warteliste'**
+  String get adminWaitlist;
+
+  /// No description provided for @metricsDays.
+  ///
+  /// In de, this message translates to:
+  /// **'{days} Tage'**
+  String metricsDays(int days);
+
+  /// No description provided for @metricsUsers.
+  ///
+  /// In de, this message translates to:
+  /// **'Menschen'**
+  String get metricsUsers;
+
+  /// No description provided for @metricsProfiles.
+  ///
+  /// In de, this message translates to:
+  /// **'Profile'**
+  String get metricsProfiles;
+
+  /// No description provided for @metricsNew.
+  ///
+  /// In de, this message translates to:
+  /// **'neu im Zeitraum'**
+  String get metricsNew;
+
+  /// No description provided for @metricsActive7d.
+  ///
+  /// In de, this message translates to:
+  /// **'aktiv (7 Tage)'**
+  String get metricsActive7d;
+
+  /// No description provided for @metricsDiscoverable.
+  ///
+  /// In de, this message translates to:
+  /// **'auffindbar'**
+  String get metricsDiscoverable;
+
+  /// No description provided for @metricsVerified.
+  ///
+  /// In de, this message translates to:
+  /// **'verifiziert'**
+  String get metricsVerified;
+
+  /// No description provided for @metricsPlus.
+  ///
+  /// In de, this message translates to:
+  /// **'mit Plus'**
+  String get metricsPlus;
+
+  /// No description provided for @metricsFunnel.
+  ///
+  /// In de, this message translates to:
+  /// **'Vom Like zum Gespräch'**
+  String get metricsFunnel;
+
+  /// No description provided for @metricsFunnelHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Prozent jeweils bezogen auf die Stufe davor (Kommentare und Matches auf Likes).'**
+  String get metricsFunnelHint;
+
+  /// No description provided for @metricsLikes.
+  ///
+  /// In de, this message translates to:
+  /// **'Likes'**
+  String get metricsLikes;
+
+  /// No description provided for @metricsLikesWithComment.
+  ///
+  /// In de, this message translates to:
+  /// **'davon mit Kommentar'**
+  String get metricsLikesWithComment;
+
+  /// No description provided for @metricsMatches.
+  ///
+  /// In de, this message translates to:
+  /// **'Matches'**
+  String get metricsMatches;
+
+  /// No description provided for @metricsConversations.
+  ///
+  /// In de, this message translates to:
+  /// **'Gespräche (beide geschrieben)'**
+  String get metricsConversations;
+
+  /// No description provided for @metricsDeepConversations.
+  ///
+  /// In de, this message translates to:
+  /// **'längere Gespräche (20+ Nachrichten)'**
+  String get metricsDeepConversations;
+
+  /// No description provided for @metricsLimits.
+  ///
+  /// In de, this message translates to:
+  /// **'Grenzen & Abschlüsse'**
+  String get metricsLimits;
+
+  /// No description provided for @metricsBudgetUsedUp.
+  ///
+  /// In de, this message translates to:
+  /// **'Tage mit aufgebrauchtem Like-Budget'**
+  String get metricsBudgetUsedUp;
+
+  /// No description provided for @metricsUndos.
+  ///
+  /// In de, this message translates to:
+  /// **'rückgängig gemacht'**
+  String get metricsUndos;
+
+  /// No description provided for @metricsClosedStale.
+  ///
+  /// In de, this message translates to:
+  /// **'eingeschlafen'**
+  String get metricsClosedStale;
+
+  /// No description provided for @metricsClosedEnded.
+  ///
+  /// In de, this message translates to:
+  /// **'beendet'**
+  String get metricsClosedEnded;
+
+  /// No description provided for @metricsClosedBlocked.
+  ///
+  /// In de, this message translates to:
+  /// **'blockiert'**
+  String get metricsClosedBlocked;
+
+  /// No description provided for @metricsBalance.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer sucht wen'**
+  String get metricsBalance;
+
+  /// No description provided for @metricsBalanceHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Auffindbare Profile je Region – zeigt, wen du gezielt einladen solltest.'**
+  String get metricsBalanceHint;
+
+  /// No description provided for @metricsSeeks.
+  ///
+  /// In de, this message translates to:
+  /// **'{gender} sucht {seeking}'**
+  String metricsSeeks(String gender, String seeking);
+
+  /// No description provided for @metricsOutcome.
+  ///
+  /// In de, this message translates to:
+  /// **'Ergebnis'**
+  String get metricsOutcome;
+
+  /// No description provided for @metricsDeletions.
+  ///
+  /// In de, this message translates to:
+  /// **'Konten gelöscht'**
+  String get metricsDeletions;
+
+  /// No description provided for @metricsFoundSomeone.
+  ///
+  /// In de, this message translates to:
+  /// **'„jemanden gefunden“'**
+  String get metricsFoundSomeone;
+
+  /// No description provided for @metricsOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get metricsOpen;
+
+  /// No description provided for @metricsPrivacyNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur Summen – keine Einzelpersonen. Gelöschte Konten zählen nur anonym.'**
+  String get metricsPrivacyNote;
+
+  /// No description provided for @invitesRequiredOn.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladungspflicht ist aktiv: Neue Konten brauchen einen Code oder eine Freischaltung von der Warteliste.'**
+  String get invitesRequiredOn;
+
+  /// No description provided for @invitesRequiredOff.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladungspflicht ist aus – jede:r kann sich registrieren.'**
+  String get invitesRequiredOff;
+
+  /// No description provided for @invitesCreate.
+  ///
+  /// In de, this message translates to:
+  /// **'Einladungscodes erstellen'**
+  String get invitesCreate;
+
+  /// No description provided for @invitesCreateShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Erstellen'**
+  String get invitesCreateShort;
+
+  /// No description provided for @invitesCount.
+  ///
+  /// In de, this message translates to:
+  /// **'Anzahl Codes'**
+  String get invitesCount;
+
+  /// No description provided for @invitesMaxUses.
+  ///
+  /// In de, this message translates to:
+  /// **'Nutzungen pro Code'**
+  String get invitesMaxUses;
+
+  /// No description provided for @invitesRegion.
+  ///
+  /// In de, this message translates to:
+  /// **'Region'**
+  String get invitesRegion;
+
+  /// No description provided for @invitesNoRegion.
+  ///
+  /// In de, this message translates to:
+  /// **'keine'**
+  String get invitesNoRegion;
+
+  /// No description provided for @invitesNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Notiz'**
+  String get invitesNote;
+
+  /// No description provided for @invitesNoteHint.
+  ///
+  /// In de, this message translates to:
+  /// **'z. B. Uni-Gruppe, Kletterhalle'**
+  String get invitesNoteHint;
+
+  /// No description provided for @invitesCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Code erstellt} other{{count} Codes erstellt}}'**
+  String invitesCreated(int count);
+
+  /// No description provided for @invitesCodes.
+  ///
+  /// In de, this message translates to:
+  /// **'Codes'**
+  String get invitesCodes;
+
+  /// No description provided for @invitesNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Codes.'**
+  String get invitesNone;
+
+  /// No description provided for @invitesUses.
+  ///
+  /// In de, this message translates to:
+  /// **'{uses}/{max} genutzt'**
+  String invitesUses(int uses, int max);
+
+  /// No description provided for @invitesExpired.
+  ///
+  /// In de, this message translates to:
+  /// **'abgelaufen'**
+  String get invitesExpired;
+
+  /// No description provided for @invitesValidUntil.
+  ///
+  /// In de, this message translates to:
+  /// **'gültig bis {date}'**
+  String invitesValidUntil(String date);
+
+  /// No description provided for @inviteShareText.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist zur Beta von Lotus eingeladen 🌸 Dein Code: {code}'**
+  String inviteShareText(String code);
+
+  /// No description provided for @waitlistEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Niemand wartet.'**
+  String get waitlistEmpty;
+
+  /// No description provided for @waitlistAdmit.
+  ///
+  /// In de, this message translates to:
+  /// **'Freischalten'**
+  String get waitlistAdmit;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

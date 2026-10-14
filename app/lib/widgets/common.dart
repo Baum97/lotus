@@ -22,6 +22,8 @@ String errorText(BuildContext context, Object error) {
     'not_allowed' => l.errorNotAllowed,
     'plus_required' => l.errorPlusRequired,
     'consent_required' => l.errorConsentRequired,
+    'invalid_invite' => l.errorInvalidInvite,
+    'invite_required' => l.errorInviteRequired,
     'profile_not_found' => l.errorProfileNotFound,
     'purchase_failed' ||
     'purchase_not_found' ||

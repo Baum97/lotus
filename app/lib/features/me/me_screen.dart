@@ -7,6 +7,7 @@ import '../../providers.dart';
 import '../../widgets/common.dart';
 import '../../legal/impressum_screen.dart';
 import '../admin/admin_screen.dart';
+import '../beta/feedback_sheet.dart';
 import '../privacy/privacy_screen.dart';
 import '../settings/notification_settings_screen.dart';
 import '../support/support_screen.dart';
@@ -117,6 +118,7 @@ class MeScreen extends ConsumerWidget {
             title: l.notificationsTitle,
             onTap: () => _open(context, const NotificationSettingsScreen()),
           ),
+          _Tile(icon: Icons.feedback_outlined, title: l.feedbackTitle, onTap: () => showFeedbackSheet(context)),
           if (status.isAdmin) ...[
             const Divider(height: 24),
             _Tile(

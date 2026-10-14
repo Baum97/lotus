@@ -49,6 +49,12 @@ in GitHub hinterlegen – Schritt für Schritt in `docs/BACKUP.md`.
 
 Die APK baue ich anschließend mit deinen Projektwerten. Hochladen in die Play Console musst du wieder selbst.
 
+**Einladungen:** Solange es noch keinen Admin gibt, kann sich jede:r registrieren – so kommst du selbst als
+Erste:r hinein. Sobald du Admin bist, gilt die Einladungspflicht. Dann im Admin-Bereich → Einladungen Codes
+erstellen (z. B. 10 Stück für Stuttgart mit der Notiz „Freundeskreis“) und verschicken. Wer keinen Code hat,
+landet auf der Warteliste und kann dort freigeschaltet werden. Für einen offenen Start die Pflicht abschalten:
+`update private.settings set value = 'false' where key = 'invite_required';`
+
 ## 4. In der Play Console (du)
 
 1. App anlegen: Name „Lotus“, Kategorie „Dating“, kostenlos.

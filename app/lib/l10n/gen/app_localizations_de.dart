@@ -930,4 +930,263 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorConsentRequired => 'Bitte bestätige zuerst die Einwilligung.';
+
+  @override
+  String get copy => 'Kopieren';
+
+  @override
+  String get copied => 'Kopiert';
+
+  @override
+  String get share => 'Teilen';
+
+  @override
+  String get done => 'Fertig';
+
+  @override
+  String get errorInvalidInvite => 'Dieser Code ist ungültig, abgelaufen oder schon aufgebraucht.';
+
+  @override
+  String get errorInviteRequired => 'Lotus ist gerade nur mit Einladung offen.';
+
+  @override
+  String get inviteTitle => 'Lotus ist gerade in der Beta';
+
+  @override
+  String get inviteBody =>
+      'Damit es in Stuttgart und Ulm von Anfang an passende Menschen gibt, laden wir schrittweise ein. Hast du einen Einladungscode?';
+
+  @override
+  String get inviteCodeLabel => 'Einladungscode';
+
+  @override
+  String get inviteCodeMissing => 'Bitte gib deinen Einladungscode ein.';
+
+  @override
+  String get inviteRedeem => 'Code einlösen';
+
+  @override
+  String get waitlistTitle => 'Noch keinen Code?';
+
+  @override
+  String get waitlistBody =>
+      'Trag dich auf die Warteliste ein. Wir schalten dich frei, sobald es in deiner Gegend genug Leute gibt.';
+
+  @override
+  String get waitlistJoin => 'Auf die Warteliste';
+
+  @override
+  String get waitlistCityMissing => 'Bitte gib deine Stadt an.';
+
+  @override
+  String get waitlistJoined =>
+      'Du stehst auf der Warteliste. Wir melden uns, sobald du loslegen kannst – schau einfach ab und zu vorbei.';
+
+  @override
+  String get feedbackTitle => 'Feedback & Fehler melden';
+
+  @override
+  String get feedbackHint => 'Was hakt, was fehlt, was gefällt dir? Wir lesen alles.';
+
+  @override
+  String get feedbackBug => 'Fehler';
+
+  @override
+  String get feedbackIdea => 'Idee';
+
+  @override
+  String get feedbackOther => 'Sonstiges';
+
+  @override
+  String get feedbackMessage => 'Deine Nachricht';
+
+  @override
+  String get feedbackSend => 'Senden';
+
+  @override
+  String get feedbackEmpty => 'Schreib uns kurz, worum es geht.';
+
+  @override
+  String get feedbackThanks => 'Danke! Dein Feedback ist angekommen.';
+
+  @override
+  String get feedbackNoProfile => 'ohne Profil';
+
+  @override
+  String get feedbackResolve => 'Erledigt';
+
+  @override
+  String get adminMetrics => 'Kennzahlen';
+
+  @override
+  String get adminInvites => 'Einladungen';
+
+  @override
+  String get adminFeedback => 'Feedback';
+
+  @override
+  String get adminWaitlist => 'Warteliste';
+
+  @override
+  String metricsDays(int days) {
+    return '$days Tage';
+  }
+
+  @override
+  String get metricsUsers => 'Menschen';
+
+  @override
+  String get metricsProfiles => 'Profile';
+
+  @override
+  String get metricsNew => 'neu im Zeitraum';
+
+  @override
+  String get metricsActive7d => 'aktiv (7 Tage)';
+
+  @override
+  String get metricsDiscoverable => 'auffindbar';
+
+  @override
+  String get metricsVerified => 'verifiziert';
+
+  @override
+  String get metricsPlus => 'mit Plus';
+
+  @override
+  String get metricsFunnel => 'Vom Like zum Gespräch';
+
+  @override
+  String get metricsFunnelHint => 'Prozent jeweils bezogen auf die Stufe davor (Kommentare und Matches auf Likes).';
+
+  @override
+  String get metricsLikes => 'Likes';
+
+  @override
+  String get metricsLikesWithComment => 'davon mit Kommentar';
+
+  @override
+  String get metricsMatches => 'Matches';
+
+  @override
+  String get metricsConversations => 'Gespräche (beide geschrieben)';
+
+  @override
+  String get metricsDeepConversations => 'längere Gespräche (20+ Nachrichten)';
+
+  @override
+  String get metricsLimits => 'Grenzen & Abschlüsse';
+
+  @override
+  String get metricsBudgetUsedUp => 'Tage mit aufgebrauchtem Like-Budget';
+
+  @override
+  String get metricsUndos => 'rückgängig gemacht';
+
+  @override
+  String get metricsClosedStale => 'eingeschlafen';
+
+  @override
+  String get metricsClosedEnded => 'beendet';
+
+  @override
+  String get metricsClosedBlocked => 'blockiert';
+
+  @override
+  String get metricsBalance => 'Wer sucht wen';
+
+  @override
+  String get metricsBalanceHint => 'Auffindbare Profile je Region – zeigt, wen du gezielt einladen solltest.';
+
+  @override
+  String metricsSeeks(String gender, String seeking) {
+    return '$gender sucht $seeking';
+  }
+
+  @override
+  String get metricsOutcome => 'Ergebnis';
+
+  @override
+  String get metricsDeletions => 'Konten gelöscht';
+
+  @override
+  String get metricsFoundSomeone => '„jemanden gefunden“';
+
+  @override
+  String get metricsOpen => 'Offen';
+
+  @override
+  String get metricsPrivacyNote => 'Nur Summen – keine Einzelpersonen. Gelöschte Konten zählen nur anonym.';
+
+  @override
+  String get invitesRequiredOn =>
+      'Einladungspflicht ist aktiv: Neue Konten brauchen einen Code oder eine Freischaltung von der Warteliste.';
+
+  @override
+  String get invitesRequiredOff => 'Einladungspflicht ist aus – jede:r kann sich registrieren.';
+
+  @override
+  String get invitesCreate => 'Einladungscodes erstellen';
+
+  @override
+  String get invitesCreateShort => 'Erstellen';
+
+  @override
+  String get invitesCount => 'Anzahl Codes';
+
+  @override
+  String get invitesMaxUses => 'Nutzungen pro Code';
+
+  @override
+  String get invitesRegion => 'Region';
+
+  @override
+  String get invitesNoRegion => 'keine';
+
+  @override
+  String get invitesNote => 'Notiz';
+
+  @override
+  String get invitesNoteHint => 'z. B. Uni-Gruppe, Kletterhalle';
+
+  @override
+  String invitesCreated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Codes erstellt',
+      one: '1 Code erstellt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invitesCodes => 'Codes';
+
+  @override
+  String get invitesNone => 'Noch keine Codes.';
+
+  @override
+  String invitesUses(int uses, int max) {
+    return '$uses/$max genutzt';
+  }
+
+  @override
+  String get invitesExpired => 'abgelaufen';
+
+  @override
+  String invitesValidUntil(String date) {
+    return 'gültig bis $date';
+  }
+
+  @override
+  String inviteShareText(String code) {
+    return 'Du bist zur Beta von Lotus eingeladen 🌸 Dein Code: $code';
+  }
+
+  @override
+  String get waitlistEmpty => 'Niemand wartet.';
+
+  @override
+  String get waitlistAdmit => 'Freischalten';
 }
