@@ -1680,6 +1680,96 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.'**
   String get lifestylePublicHint;
+
+  /// No description provided for @consentTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Einwilligung'**
+  String get consentTitle;
+
+  /// No description provided for @consentText.
+  ///
+  /// In de, this message translates to:
+  /// **'Ich willige ausdrücklich ein, dass Lotus meine Angabe, wen ich kennenlernen möchte, verarbeitet. Diese Angabe kann Rückschlüsse auf meine sexuelle Orientierung zulassen. Sie wird ausschließlich genutzt, um mir passende Menschen vorzuschlagen, und niemandem angezeigt. Ich kann die Einwilligung jederzeit unter Profil → Datenschutz widerrufen; dann werden meine Suchangaben gelöscht und ich bekomme keine Vorschläge mehr.'**
+  String get consentText;
+
+  /// No description provided for @consentRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne diese Einwilligung kann Lotus dir keine passenden Menschen vorschlagen.'**
+  String get consentRequired;
+
+  /// No description provided for @privacyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz'**
+  String get privacyTitle;
+
+  /// No description provided for @privacyConsentGiven.
+  ///
+  /// In de, this message translates to:
+  /// **'Eingewilligt am {date} (Version {version})'**
+  String privacyConsentGiven(String date, String version);
+
+  /// No description provided for @privacyConsentMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Einwilligung – du bekommst keine Vorschläge.'**
+  String get privacyConsentMissing;
+
+  /// No description provided for @privacyWithdraw.
+  ///
+  /// In de, this message translates to:
+  /// **'Einwilligung widerrufen'**
+  String get privacyWithdraw;
+
+  /// No description provided for @privacyWithdrawTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Einwilligung widerrufen?'**
+  String get privacyWithdrawTitle;
+
+  /// No description provided for @privacyWithdrawBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Suchangaben (wen du kennenlernen möchtest, Alter, Entfernung, Dating-Ziel, Kinderwunsch, Rauchen) werden sofort gelöscht. Du wirst niemandem mehr vorgeschlagen und bekommst keine Vorschläge, bis du erneut einwilligst. Deine Matches und Chats bleiben erhalten.'**
+  String get privacyWithdrawBody;
+
+  /// No description provided for @privacyGiveConsent.
+  ///
+  /// In de, this message translates to:
+  /// **'Einwilligen und Suche einrichten'**
+  String get privacyGiveConsent;
+
+  /// No description provided for @privacyExport.
+  ///
+  /// In de, this message translates to:
+  /// **'Meine Daten herunterladen'**
+  String get privacyExport;
+
+  /// No description provided for @privacyExportHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Daten, die Lotus über dich gespeichert hat, als JSON-Datei (Art. 15 und 20 DSGVO) – inklusive Download-Links zu deinen Fotos, 24 Stunden gültig.'**
+  String get privacyExportHint;
+
+  /// No description provided for @privacyExportDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Datei ist bereit.'**
+  String get privacyExportDone;
+
+  /// No description provided for @privacyWithdrawn.
+  ///
+  /// In de, this message translates to:
+  /// **'Einwilligung widerrufen. Deine Suchangaben wurden gelöscht.'**
+  String get privacyWithdrawn;
+
+  /// No description provided for @errorConsentRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte bestätige zuerst die Einwilligung.'**
+  String get errorConsentRequired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../../legal/consent.dart';
 import '../../providers.dart';
 import '../../widgets/common.dart';
 import '../profile/profile_forms.dart';
@@ -40,10 +41,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _save() async {
     final l = AppLocalizations.of(context);
     final draft = _draft!;
-    final problem = draft.validateBasics(l, needsBirthdate: false) ?? draft.validatePreferences(l);
+    final needsConsent = await ref.read(matchingConsentProvider.future) == null;
+    if (!mounted) return;
+    final problem =
+        draft.validateBasics(l, needsBirthdate: false) ?? draft.validatePreferences(l, needsConsent: needsConsent);
     if (problem != null) {
       showMessage(context, problem);
       return;
+    }
+    if (needsConsent) {
+      await ref.read(apiProvider).giveConsent(MatchingConsent.kind, MatchingConsent.version);
+      ref.invalidate(matchingConsentProvider);
     }
     await ref
         .read(apiProvider)
@@ -75,7 +83,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: widget.preferencesOnly
-                  ? PreferencesSection(draft: draft, onChanged: () {})
+                  ? PreferencesSection(
+                      draft: draft,
+                      onChanged: () {},
+                      showConsent: ref.watch(matchingConsentProvider).value == null,
+                    )
                   : BasicsSection(draft: draft, onChanged: () {}, showBirthdate: false),
             ),
       bottomNavigationBar: draft == null

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../../legal/consent.dart';
 import '../../providers.dart';
 import '../../widgets/common.dart';
 import '../profile/location_section.dart';
@@ -25,8 +26,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _draft = ProfileDraft();
   late int _step = _firstOpenStep(widget.status);
 
+  @override
+  void initState() {
+    super.initState();
+    // Profil existiert schon (z. B. nach Widerruf der Einwilligung): Grundangaben übernehmen
+    if (widget.status.hasProfile) {
+      ref.read(apiProvider).ownProfile().then((profile) {
+        if (profile == null || !mounted) return;
+        setState(() {
+          _draft
+            ..name = profile.displayName
+            ..gender = profile.gender
+            ..city = profile.city ?? ''
+            ..bio = profile.bio ?? '';
+        });
+      });
+    }
+  }
+
   static int _firstOpenStep(MyStatus s) {
-    if (!s.hasProfile || !s.hasPreferences) return 0;
+    if (!s.hasProfile) return 0;
+    if (!s.hasPreferences) return 1;
     if (s.photoCount == 0) return 2;
     if (s.promptCount == 0) return 3;
     return 4;
@@ -49,8 +69,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       case 0:
         problem = _draft.validateBasics(l, needsBirthdate: !status.hasProfile);
       case 1:
-        problem = _draft.validatePreferences(l);
+        final needsConsent = await ref.read(matchingConsentProvider.future) == null;
+        problem =
+            _draft.validateBasics(l, needsBirthdate: !status.hasProfile) ??
+            _draft.validatePreferences(l, needsConsent: needsConsent);
         if (problem == null) {
+          if (needsConsent) {
+            await ref.read(apiProvider).giveConsent(MatchingConsent.kind, MatchingConsent.version);
+            ref.invalidate(matchingConsentProvider);
+          }
           await ref
               .read(apiProvider)
               .saveProfile(
@@ -61,6 +88,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 city: _draft.city,
                 preferences: _draft.toPreferences(),
               );
+          // Sind Fotos, Prompts und Standort schon da (z. B. nach erneuter Einwilligung), geht es direkt in die App
+          ref.invalidate(myStatusProvider);
         }
       case 2:
         if (status.photoCount == 0) problem = l.photoRequired;
@@ -88,7 +117,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final theme = Theme.of(context);
     final content = switch (_step) {
       0 => BasicsSection(draft: _draft, onChanged: () {}, showBirthdate: !status.hasProfile),
-      1 => PreferencesSection(draft: _draft, onChanged: () {}),
+      1 => PreferencesSection(
+        draft: _draft,
+        onChanged: () {},
+        showConsent: ref.watch(matchingConsentProvider).value == null,
+      ),
       2 => const PhotosEditor(),
       3 => const PromptsEditor(),
       _ => LocationSection(hasLocation: status.hasLocation),

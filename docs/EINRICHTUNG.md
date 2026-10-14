@@ -35,6 +35,9 @@ Im Claude-Code-Fenster oben im Titel das Cloud-Environment öffnen → **Edit** 
 
 Danach eine **neue Sitzung** starten und mir sagen: „Deploy Lotus“.
 
+**Backups:** Für die tägliche Sicherung zusätzlich einen EU-Objektspeicher anlegen und die Backup-Secrets direkt
+in GitHub hinterlegen – Schritt für Schritt in `docs/BACKUP.md`.
+
 ## 3. Das erledigt `scripts/deploy.sh`
 
 1. Datenbank-Migrationen einspielen (`supabase db push`)

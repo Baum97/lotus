@@ -447,5 +447,30 @@
   "smokingRegularly": "Raucher:in",
   "smokingDealbreaker": "Keine Raucher:innen zeigen",
   "lifestylePublicLabel": "Kinderwunsch & Rauchen im Profil anzeigen",
-  "lifestylePublicHint": "Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen."
+  "lifestylePublicHint": "Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.",
+  "consentTitle": "Deine Einwilligung",
+  "consentText": "Ich willige ausdrücklich ein, dass Lotus meine Angabe, wen ich kennenlernen möchte, verarbeitet. Diese Angabe kann Rückschlüsse auf meine sexuelle Orientierung zulassen. Sie wird ausschließlich genutzt, um mir passende Menschen vorzuschlagen, und niemandem angezeigt. Ich kann die Einwilligung jederzeit unter Profil → Datenschutz widerrufen; dann werden meine Suchangaben gelöscht und ich bekomme keine Vorschläge mehr.",
+  "consentRequired": "Ohne diese Einwilligung kann Lotus dir keine passenden Menschen vorschlagen.",
+  "privacyTitle": "Datenschutz",
+  "privacyConsentGiven": "Eingewilligt am {date} (Version {version})",
+  "@privacyConsentGiven": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyConsentMissing": "Keine Einwilligung – du bekommst keine Vorschläge.",
+  "privacyWithdraw": "Einwilligung widerrufen",
+  "privacyWithdrawTitle": "Einwilligung widerrufen?",
+  "privacyWithdrawBody": "Deine Suchangaben (wen du kennenlernen möchtest, Alter, Entfernung, Dating-Ziel, Kinderwunsch, Rauchen) werden sofort gelöscht. Du wirst niemandem mehr vorgeschlagen und bekommst keine Vorschläge, bis du erneut einwilligst. Deine Matches und Chats bleiben erhalten.",
+  "privacyGiveConsent": "Einwilligen und Suche einrichten",
+  "privacyExport": "Meine Daten herunterladen",
+  "privacyExportHint": "Alle Daten, die Lotus über dich gespeichert hat, als JSON-Datei (Art. 15 und 20 DSGVO) – inklusive Download-Links zu deinen Fotos, 24 Stunden gültig.",
+  "privacyExportDone": "Deine Datei ist bereit.",
+  "privacyWithdrawn": "Einwilligung widerrufen. Deine Suchangaben wurden gelöscht.",
+  "errorConsentRequired": "Bitte bestätige zuerst die Einwilligung."
 }

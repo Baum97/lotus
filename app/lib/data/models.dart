@@ -551,6 +551,16 @@ class MyStats {
   );
 }
 
+class Consent {
+  const Consent({required this.version, required this.grantedAt});
+
+  final String version;
+  final DateTime grantedAt;
+
+  factory Consent.fromJson(Map<String, dynamic> json) =>
+      Consent(version: json['version'] as String, grantedAt: _date(json['granted_at'])!);
+}
+
 class NotificationSettings {
   const NotificationSettings({this.messages = true, this.matches = true, this.likes = true});
 

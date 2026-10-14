@@ -880,4 +880,54 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lifestylePublicHint => 'Zählt immer fürs Matching. Ausschlusskriterien wirken in beide Richtungen.';
+
+  @override
+  String get consentTitle => 'Deine Einwilligung';
+
+  @override
+  String get consentText =>
+      'Ich willige ausdrücklich ein, dass Lotus meine Angabe, wen ich kennenlernen möchte, verarbeitet. Diese Angabe kann Rückschlüsse auf meine sexuelle Orientierung zulassen. Sie wird ausschließlich genutzt, um mir passende Menschen vorzuschlagen, und niemandem angezeigt. Ich kann die Einwilligung jederzeit unter Profil → Datenschutz widerrufen; dann werden meine Suchangaben gelöscht und ich bekomme keine Vorschläge mehr.';
+
+  @override
+  String get consentRequired => 'Ohne diese Einwilligung kann Lotus dir keine passenden Menschen vorschlagen.';
+
+  @override
+  String get privacyTitle => 'Datenschutz';
+
+  @override
+  String privacyConsentGiven(String date, String version) {
+    return 'Eingewilligt am $date (Version $version)';
+  }
+
+  @override
+  String get privacyConsentMissing => 'Keine Einwilligung – du bekommst keine Vorschläge.';
+
+  @override
+  String get privacyWithdraw => 'Einwilligung widerrufen';
+
+  @override
+  String get privacyWithdrawTitle => 'Einwilligung widerrufen?';
+
+  @override
+  String get privacyWithdrawBody =>
+      'Deine Suchangaben (wen du kennenlernen möchtest, Alter, Entfernung, Dating-Ziel, Kinderwunsch, Rauchen) werden sofort gelöscht. Du wirst niemandem mehr vorgeschlagen und bekommst keine Vorschläge, bis du erneut einwilligst. Deine Matches und Chats bleiben erhalten.';
+
+  @override
+  String get privacyGiveConsent => 'Einwilligen und Suche einrichten';
+
+  @override
+  String get privacyExport => 'Meine Daten herunterladen';
+
+  @override
+  String get privacyExportHint =>
+      'Alle Daten, die Lotus über dich gespeichert hat, als JSON-Datei (Art. 15 und 20 DSGVO) – inklusive Download-Links zu deinen Fotos, 24 Stunden gültig.';
+
+  @override
+  String get privacyExportDone => 'Deine Datei ist bereit.';
+
+  @override
+  String get privacyWithdrawn => 'Einwilligung widerrufen. Deine Suchangaben wurden gelöscht.';
+
+  @override
+  String get errorConsentRequired => 'Bitte bestätige zuerst die Einwilligung.';
 }

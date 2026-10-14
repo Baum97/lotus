@@ -366,6 +366,52 @@ class LotusApi {
     return DateTime.parse(until as String).toLocal();
   });
 
+  // --- Datenschutz --------------------------------------------------------------
+
+  /// Aktive Einwilligung (oder null) für [kind].
+  Future<Consent?> activeConsent(String kind) => _guard(() async {
+    final row = await _client
+        .from('consents')
+        .select('version, granted_at')
+        .eq('kind', kind)
+        .isFilter('withdrawn_at', null)
+        .order('granted_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+    return row == null ? null : Consent.fromJson(row);
+  });
+
+  Future<void> giveConsent(String kind, String version) =>
+      _guard(() => _client.rpc('give_consent', params: {'p_kind': kind, 'p_version': version}));
+
+  Future<void> withdrawConsent(String kind) => _guard(() => _client.rpc('withdraw_consent', params: {'p_kind': kind}));
+
+  /// Datenauskunft (Art. 15/20 DSGVO) als JSON. Fotos und Selfies bekommen zusätzlich
+  /// 24 Stunden gültige Download-Links.
+  Future<Map<String, dynamic>> exportMyData() => _guard(() async {
+    final data = Map<String, dynamic>.from(await _client.rpc('export_my_data') as Map);
+    final photoPaths = [for (final p in data['photos'] as List) (p as Map)['storage_path'] as String];
+    final selfiePaths = [
+      for (final v in data['verification'] as List)
+        if ((v as Map)['selfie_path'] != null) v['selfie_path'] as String,
+    ];
+    Future<Map<String, String>> links(String bucket, List<String> paths) async {
+      if (paths.isEmpty) return {};
+      final results = await _client.storage.from(bucket).createSignedUrlsResult(paths, 24 * 60 * 60);
+      return {
+        for (final r in results)
+          if (r is SignedUrlSuccess) r.path: r.signedUrl,
+      };
+    }
+
+    data['file_downloads'] = {
+      'valid_for': '24 Stunden ab Erstellung',
+      'photos': await links('photos', photoPaths),
+      'verification_selfies': await links('selfies', selfiePaths),
+    };
+    return data;
+  });
+
   // --- Benachrichtigungen -------------------------------------------------------
 
   Future<NotificationSettings> notificationSettings() => _guard(() async {

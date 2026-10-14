@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'data/lotus_api.dart';
 import 'data/models.dart';
+import 'legal/consent.dart';
 import 'services/store.dart';
 
 final apiProvider = Provider<LotusApi>((ref) => LotusApi(Supabase.instance.client));
@@ -63,6 +64,10 @@ final storeProvider = Provider<Store>((ref) {
 });
 
 final storeProductsProvider = FutureProvider((ref) => ref.watch(storeProvider).products());
+
+final matchingConsentProvider = FutureProvider<Consent?>(
+  (ref) => ref.watch(apiProvider).activeConsent(MatchingConsent.kind),
+);
 
 final myStatsProvider = FutureProvider<MyStats>((ref) => ref.watch(apiProvider).myStats());
 

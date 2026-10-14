@@ -213,4 +213,45 @@ void main() {
     expect(find.text('Habe Kinder'), findsOneWidget);
     expect(find.text('Nichtraucher:in'), findsOneWidget);
   });
+
+  testWidgets('Einwilligung (Art. 9 DSGVO) ist Pflicht, solange keine besteht', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final draft = ProfileDraft()
+      ..interestedIn = {Gender.woman}
+      ..intention = Intention.relationship;
+    late AppLocalizations l;
+    await tester.pumpWidget(
+      wrap(
+        Builder(
+          builder: (context) {
+            l = AppLocalizations.of(context);
+            return SingleChildScrollView(
+              child: PreferencesSection(draft: draft, onChanged: () {}, showConsent: true),
+            );
+          },
+        ),
+      ),
+    );
+    expect(find.textContaining('Rückschlüsse auf meine sexuelle Orientierung'), findsOneWidget);
+    expect(draft.validatePreferences(l, needsConsent: true), l.consentRequired);
+    expect(draft.validatePreferences(l), isNull, reason: 'mit bestehender Einwilligung keine erneute Abfrage');
+
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    expect(draft.consent, isTrue);
+    expect(draft.validatePreferences(l, needsConsent: true), isNull);
+  });
+
+  testWidgets('ohne showConsent erscheint keine Einwilligung', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        SingleChildScrollView(
+          child: PreferencesSection(draft: ProfileDraft(), onChanged: () {}),
+        ),
+      ),
+    );
+    expect(find.byType(CheckboxListTile), findsNothing);
+  });
 }

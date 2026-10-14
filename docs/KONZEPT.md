@@ -340,6 +340,9 @@ Angepasst an ein Hobbyprojekt: kleine, abgeschlossene Schritte, jeder für sich 
 | 23 | Lotus Plus | Reisemodus + eigene Statistiken; Spenden & Beitrag bei Erfolg über Google Play |
 | 24 | Preise | Plus 3,99 €/Monat · Spenden 3 €, 5 €, 10 € · Beitrag bei Erfolg 15 € |
 | 25 | Weitere Kriterien | Kinderwunsch und Rauchen: optional, Anzeige im Profil optional, optionale Ausschlusskriterien (wirken gegenseitig) |
+| 26 | Orientierung & Einwilligung | „Wen möchtest du kennenlernen?“ ist die einzige Abfrage dazu, nie sichtbar, nur fürs Matching; ausdrückliche, versionierte, widerrufbare Einwilligung (Art. 9 DSGVO); Widerruf löscht die Suchangaben |
+| 27 | Datenauskunft | in der App als JSON-Datei (Art. 15/20 DSGVO) mit Pflichtinformationen, ohne Daten über Melder:innen |
+| 28 | Backups | täglich, verschlüsselt, in EU-Objektspeicher, 30 Tage Aufbewahrung; Wiederherstellung getestet |
 
 ### Noch offen
 

@@ -356,6 +356,10 @@ grant execute on function test.n() to authenticated;
 set role authenticated;
 select test.login(test.n());
 select test.ok((select not has_profile from public.get_my_status()), 'neue Person hat noch kein Profil');
+select test.throws($$select public.save_profile('Nina', '1995-04-02', 'woman', null, 'Ulm',
+  '{man}', 'relationship', true, 25, 40, 50)$$, 'consent_required',
+  'ohne Einwilligung keine Suchangaben (Art. 9 DSGVO)');
+select public.give_consent('sensitive_matching', 'v1');
 select test.throws($$select public.save_profile('Nina', current_date - 365 * 17, 'woman', null, 'Ulm',
   '{man}', 'relationship', true, 25, 40, 50)$$, 'too_young', 'unter 18 wird abgelehnt');
 select public.save_profile('Nina', '1995-04-02', 'woman', 'Ich wandere gern.', 'Ulm',
@@ -499,6 +503,7 @@ select test.ok((select found_someone from private.account_deletions) and
 
 set role authenticated;
 select test.login(test.uid('D'));
+select public.give_consent('sensitive_matching', 'v1');
 select test.throws($$select public.save_profile('D', null, 'man', null, 'Stuttgart', '{man}', 'relationship', true, 18, 99, 151)$$,
   'max_distance_km', 'Radius über 150 km wird abgelehnt');
 select public.save_profile('D', null, 'man', null, 'Stuttgart', '{man}', 'relationship', true, 18, 99, 150);
@@ -653,6 +658,7 @@ select test.login(test.uid('50'));
 select test.ok((select children is null and smoking is null from public.get_candidates(50) where id = test.uid('51')),
   'private Angaben bleiben verborgen, zählen aber fürs Matching');
 select test.ok((select children = 'want' from public.get_profile(test.uid('50'))), 'eigene Angaben sind sichtbar');
+select public.give_consent('sensitive_matching', 'v1');
 select public.save_profile('Fünfzig', null, 'woman', null, 'Karlsruhe', '{man}', 'relationship', true, 25, 45, 50,
                            'open', 'sometimes', false, false, false);
 reset role;
@@ -686,3 +692,52 @@ where user_id = test.uid('40');  -- Zustand wie kurz nach Ablauf, bevor der Job 
 select test.ok(private.refresh_expired_travel() = 1, 'Cron-Job findet abgelaufene Reise');
 select test.ok((select travel_until is null and extensions.st_y(location::extensions.geometry) > 53
                 from private.discovery where user_id = test.uid('40')), 'Suchstandort wieder Hamburg');
+
+-- ---------------------------------------------------------------------------
+-- Einwilligung (Art. 9 DSGVO) & Datenauskunft (Art. 15/20 DSGVO)
+-- ---------------------------------------------------------------------------
+
+set role authenticated;
+select test.login(test.uid('50'));
+select test.ok((select count(*) from public.consents where withdrawn_at is null) = 1, 'Einwilligung ist nachweisbar gespeichert');
+select public.give_consent('sensitive_matching', 'v1');
+select test.ok((select count(*) from public.consents) = 1, 'erneutes Einwilligen legt keinen Doppel-Eintrag an');
+select test.login(test.uid('51'));
+select test.ok((select count(*) from public.consents) = 0, 'Einwilligungen anderer sind nicht lesbar');
+
+-- Datenauskunft
+select test.login(test.uid('B'));
+create temp table b_export as select public.export_my_data() as data;
+grant select on b_export to authenticated;
+select test.ok((select data -> 'profile' ->> 'display_name' = 'User B' from b_export), 'Auskunft enthält das Profil');
+select test.ok((select data -> 'search_preferences' -> 'interested_in' is not null from b_export),
+  'Auskunft enthält auch die private Orientierung (eigene Daten)');
+select test.ok((select jsonb_array_length(data -> 'matches') >= 1 from b_export), 'Auskunft enthält Matches');
+select test.ok((select data -> 'matches' -> 0 -> 'messages' -> 0 ? 'from_me' from b_export), 'mit Nachrichtenverlauf');
+select test.ok((select data -> 'information' ? 'recipients' and data -> 'information' ? 'storage_period'
+                       and data -> 'information' ? 'automated_decisions' from b_export),
+  'Pflichtinformationen nach Art. 15 Abs. 1 enthalten');
+select test.ok((select data::text not like '%' || test.uid('D') || '%' from b_export),
+  'keine Melder:innen in der Auskunft (Art. 15 Abs. 4)');
+reset role;
+select test.ok((select data -> 'moderation' -> 'reports_against_you' = '[]'::jsonb from b_export),
+  'Meldungen gegen B: keine');
+set role authenticated;
+select test.login(test.uid('H'));
+select test.ok((select jsonb_array_length(public.export_my_data() -> 'moderation' -> 'reports_against_you')) = 1,
+  'Meldungen gegen eine Person erscheinen ohne Melder:in');
+select test.ok((select public.export_my_data() -> 'moderation' -> 'reports_against_you' -> 0 ->> 'reason') = 'scam',
+  'mit Grund');
+
+-- Widerruf löscht die Suchangaben und macht unauffindbar
+select test.login(test.uid('50'));
+select public.withdraw_consent('sensitive_matching');
+reset role;
+select test.ok(not exists (select 1 from public.match_preferences where user_id = test.uid('50')), 'Widerruf löscht die Suchangaben');
+select test.ok(not exists (select 1 from private.discovery where user_id = test.uid('50')), 'und entfernt aus der Suche');
+set role authenticated;
+select test.login(test.uid('50'));
+select test.ok((select count(*) from public.get_candidates(10)) = 0, 'ohne Suchangaben keine Vorschläge');
+select test.throws($$select public.save_profile('Fünfzig', null, 'woman', null, 'Karlsruhe', '{man}', 'relationship', true, 25, 45, 50)$$,
+  'consent_required', 'nach Widerruf erst wieder mit neuer Einwilligung');
+reset role;

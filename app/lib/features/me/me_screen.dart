@@ -7,6 +7,7 @@ import '../../providers.dart';
 import '../../widgets/common.dart';
 import '../../legal/impressum_screen.dart';
 import '../admin/admin_screen.dart';
+import '../privacy/privacy_screen.dart';
 import '../settings/notification_settings_screen.dart';
 import '../support/support_screen.dart';
 import '../profile/location_section.dart';
@@ -125,6 +126,7 @@ class MeScreen extends ConsumerWidget {
             ),
           ],
           const Divider(height: 24),
+          _Tile(icon: Icons.shield_outlined, title: l.privacyTitle, onTap: () => _open(context, const PrivacyScreen())),
           _Tile(icon: Icons.info_outline, title: l.imprint, onTap: () => _open(context, const ImpressumScreen())),
           _Tile(icon: Icons.logout, title: l.signOut, onTap: () => ref.read(apiProvider).signOut()),
           _Tile(

@@ -10,6 +10,7 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 - **Backend (Supabase: Postgres/PostGIS, Auth, Storage, Realtime):** [`supabase/`](supabase/)
 - **Einrichtung – wer macht was:** [`docs/EINRICHTUNG.md`](docs/EINRICHTUNG.md) · Deploy: `scripts/deploy.sh`
 - **Skalierung & Lasttest:** [`docs/SKALIERUNG.md`](docs/SKALIERUNG.md)
+- **Backup & Wiederherstellung:** [`docs/BACKUP.md`](docs/BACKUP.md) – täglich, verschlüsselt, EU-Speicher
 
 ## Regeln, die die Datenbank durchsetzt
 
@@ -21,7 +22,8 @@ Arbeitstitel; Beta in Stuttgart und Ulm.
 | Aktive Chats | max. 6, weitere Matches warten in einer Warteschlange |
 | Chatten | erst nach Selfie-Verifizierung (in der Beta manuell im Admin-Bereich geprüft) |
 | Eingeschlafene Chats | werden nach 7 Tagen ohne Nachricht geschlossen |
-| Orientierung („Wen möchtest du kennenlernen?“) | privat, nur fürs Matching |
+| Orientierung („Wen möchtest du kennenlernen?“) | nie sichtbar, nur fürs Matching; nur mit ausdrücklicher, widerrufbarer Einwilligung (Art. 9 DSGVO) |
+| Datenauskunft | „Meine Daten herunterladen“ (Art. 15/20 DSGVO) als JSON inkl. Pflichtinformationen |
 | Dating-Ziel | immer fürs Matching, Anzeige optional privat |
 | Geburtsdatum, Standort | nie für andere sichtbar (nur Alter, gerundete Entfernung) |
 | Fotos | sofort sichtbar, bis ein Admin sie ablehnt |
@@ -46,6 +48,8 @@ supabase/templates/                E-Mail-Vorlage für den Anmeldecode
 supabase/tests/local/              Datenbank-Tests (laufen auf normalem Postgres + PostGIS)
 scripts/test-db.sh                 Migrationen einspielen + Datenbank-Tests ausführen
 scripts/bench-db.sh                Lasttest der Vorschläge mit vielen Profilen
+scripts/backup-db.sh               Datenbank sichern und verschlüsseln (täglich per backup.yml)
+scripts/restore-backup.sh          Backup in ein neues Projekt zurückspielen
 .github/workflows/ci.yml           CI: Datenbank, Lasttest, Edge Functions, App, Android-Build, Skripte
 scripts/seed-demo.py               Demo-Profile in Stuttgart/Ulm für die lokale Entwicklung
 ```
@@ -70,7 +74,7 @@ cd app && flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 \
 ## Tests
 
 ```bash
-PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 149 Datenbank-Prüfungen
+PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/test-db.sh   # 166 Datenbank-Prüfungen
 PGHOST=localhost PGPORT=5432 PGUSER=postgres scripts/bench-db.sh  # Lasttest (50.000 Profile)
 cd app && dart format lib test && flutter analyze && flutter test # App
 cd supabase/functions && deno fmt && deno lint                    # Edge Functions

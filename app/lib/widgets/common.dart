@@ -21,6 +21,7 @@ String errorText(BuildContext context, Object error) {
     'already_verified' => l.errorAlreadyVerified,
     'not_allowed' => l.errorNotAllowed,
     'plus_required' => l.errorPlusRequired,
+    'consent_required' => l.errorConsentRequired,
     'profile_not_found' => l.errorProfileNotFound,
     'purchase_failed' ||
     'purchase_not_found' ||

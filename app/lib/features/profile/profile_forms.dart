@@ -68,7 +68,11 @@ class ProfileDraft {
     return null;
   }
 
-  String? validatePreferences(AppLocalizations l) {
+  /// Ausdrückliche Einwilligung (Art. 9 DSGVO) im Formular – nur relevant, solange keine aktive besteht.
+  bool consent = false;
+
+  String? validatePreferences(AppLocalizations l, {bool needsConsent = false}) {
+    if (needsConsent && !consent) return l.consentRequired;
     if (interestedIn.isEmpty || intention == null) return l.interestedInRequired;
     return null;
   }
@@ -249,10 +253,13 @@ class _BasicsSectionState extends State<BasicsSection> {
 
 /// Wen man kennenlernen möchte (privat), Dating-Ziel (Anzeige optional), Alter und Entfernung.
 class PreferencesSection extends StatefulWidget {
-  const PreferencesSection({super.key, required this.draft, required this.onChanged});
+  const PreferencesSection({super.key, required this.draft, required this.onChanged, this.showConsent = false});
 
   final ProfileDraft draft;
   final VoidCallback onChanged;
+
+  /// Zeigt die Einwilligung (Art. 9 DSGVO) vor der Frage, wen man kennenlernen möchte.
+  final bool showConsent;
 
   @override
   State<PreferencesSection> createState() => _PreferencesSectionState();
@@ -271,6 +278,22 @@ class _PreferencesSectionState extends State<PreferencesSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.showConsent)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Material(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: CheckboxListTile(
+                value: draft.consent,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(l.consentTitle, style: Theme.of(context).textTheme.titleSmall),
+                subtitle: Text(l.consentText),
+                onChanged: (value) => _update(() => draft.consent = value ?? false),
+              ),
+            ),
+          ),
         _SectionLabel(l.interestedInLabel, hint: l.interestedInHint),
         Wrap(
           spacing: 8,

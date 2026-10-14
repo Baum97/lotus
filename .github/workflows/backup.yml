@@ -1,0 +1,77 @@
+name: Backup
+
+# Tägliche, verschlüsselte Sicherung der Supabase-Datenbank (siehe docs/BACKUP.md).
+on:
+  schedule:
+    - cron: "23 2 * * *" # 02:23 UTC = 03:23 (Winter) bzw. 04:23 (Sommer) deutscher Zeit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Datenbank sichern
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      BACKUP_S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+      BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.BACKUP_S3_REGION || 'eu-central-1' }}
+      RETENTION_DAYS: 30
+      REPO_IS_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - name: Konfiguration prüfen
+        id: config
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::notice::Noch kein Supabase-Projekt eingerichtet (Secrets SUPABASE_DB_URL / BACKUP_PASSPHRASE fehlen) – nichts zu sichern."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$BACKUP_S3_ENDPOINT" ] && [ -n "$BACKUP_S3_BUCKET" ]; then
+            echo "target=s3" >> "$GITHUB_OUTPUT"
+          elif [ "$REPO_IS_PRIVATE" = "true" ]; then
+            echo "target=artifact" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Das Repository ist öffentlich – Backups dürfen nicht als GitHub-Artefakt gespeichert werden. Bitte einen EU-Speicher (BACKUP_S3_*) einrichten oder das Repository privat stellen. Siehe docs/BACKUP.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.skip != 'true'
+
+      - name: Sichern und verschlüsseln
+        if: steps.config.outputs.skip != 'true'
+        run: scripts/backup-db.sh backups
+
+      - name: In EU-Speicher hochladen
+        if: steps.config.outputs.target == 's3'
+        run: |
+          aws s3 cp backups/ "s3://$BACKUP_S3_BUCKET/lotus/" --recursive --endpoint-url "$BACKUP_S3_ENDPOINT"
+          # Backups älter als RETENTION_DAYS löschen (Datum steht im Dateinamen)
+          cutoff=$(date -u -d "-$RETENTION_DAYS days" +%F)
+          aws s3 ls "s3://$BACKUP_S3_BUCKET/lotus/" --endpoint-url "$BACKUP_S3_ENDPOINT" | awk '{print $4}' |
+            while read -r name; do
+              day=$(echo "$name" | sed -n 's/^lotus-\([0-9-]\{10\}\)T.*/\1/p')
+              if [ -n "$day" ] && [[ "$day" < "$cutoff" ]]; then
+                aws s3 rm "s3://$BACKUP_S3_BUCKET/lotus/$name" --endpoint-url "$BACKUP_S3_ENDPOINT"
+              fi
+            done
+
+      - name: Als Artefakt speichern (nur privates Repository)
+        if: steps.config.outputs.target == 'artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lotus-backup-${{ github.run_id }}
+          path: backups/
+          retention-days: 30
+          if-no-files-found: error
