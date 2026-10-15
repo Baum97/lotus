@@ -10,7 +10,7 @@ Zeitaufwand für deinen Teil: etwa 1–2 Stunden, dazu Wartezeit für die Identi
 
 | # | Konto | Kosten | Wofür | Hinweise |
 |---|---|---|---|---|
-| 1 | **Supabase** – supabase.com | 0 € | Datenbank, Login, Fotos, Chat | Mit GitHub anmelden. Neues Projekt: Name `lotus`, Region **Central EU (Frankfurt)**, ein starkes Datenbank-Passwort (im Passwortmanager speichern). Unter Organization → Legal den **AV-Vertrag (DPA)** abschließen. |
+| 1 | **Supabase** – supabase.com | 0 € | Datenbank, Login, Fotos, Chat | Mit GitHub anmelden. Neues Projekt: Name `lotus`, Region **Central EU (Frankfurt)**, ein starkes Datenbank-Passwort (im Passwortmanager speichern). Der **AV-Vertrag (DPA)** gilt automatisch über die Nutzungsbedingungen (Organization settings → Legal Documents → *View DPA*, PDF für die eigenen Unterlagen speichern). |
 | 2 | **Google Play Console** – play.google.com/console | 25 $ einmalig | App verteilen, Abo & Spenden | Kontotyp „Privatperson“. Google prüft deinen Ausweis. Für Plus/Spenden zusätzlich das **Händlerkonto** (Zahlungsprofil) einrichten; Name und Adresse werden dann im Store angezeigt. |
 | 3 | **Firebase** – console.firebase.google.com | 0 € | Push-Benachrichtigungen | Projekt anlegen (Google Analytics **aus**), Android-App mit Paketname `app.lotusdating.lotus` hinzufügen. |
 | 4 | **E-Mail-Versand (SMTP)** | 0 € im Gratis-Kontingent | Anmeldecodes verschicken | Ohne eigenen SMTP verschickt Supabase nur wenige Mails pro Stunde. Ein EU-Anbieter mit Gratis-Kontingent (z. B. Brevo oder Mailjet) reicht. Absenderadresse bestätigen, AV-Vertrag abschließen. |
