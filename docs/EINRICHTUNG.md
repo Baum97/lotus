@@ -38,6 +38,27 @@ Danach eine **neue Sitzung** starten und mir sagen: „Deploy Lotus“.
 **Backups:** Für die tägliche Sicherung zusätzlich einen EU-Objektspeicher anlegen und die Backup-Secrets direkt
 in GitHub hinterlegen – Schritt für Schritt in `docs/BACKUP.md`.
 
+## 2a. Stand Oktober 2026 – so ist es tatsächlich eingerichtet
+
+Die Cloud-Umgebung bietet **Network Secrets**: Der Wert wird automatisch an Anfragen an einen Host angehängt,
+Claude sieht ihn nie. Deshalb gilt statt der Tabelle oben:
+
+| Wert | Wo |
+|---|---|
+| Supabase Access Token | Network Secret, Typ *Bearer*, Host `api.supabase.com` |
+| `FIREBASE_SERVICE_ACCOUNT` | direkt in Supabase: Edge Functions → Secrets |
+| SMTP-Zugang (später) | direkt in Supabase: Authentication → SMTP Settings |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT` (später) | direkt in Supabase: Edge Functions → Secrets |
+| Projekt-Ref, Firebase-App-Werte | öffentlich, in `config/public.env` |
+| DB-Passwort | nicht nötig |
+
+**Für die Deploy-Sitzung (Claude):** `scripts/deploy.sh` erwartet noch Umgebungsvariablen und das DB-Passwort.
+Vor dem ersten Deploy auf reine Management-API umstellen (`api.supabase.com`, Authorization kommt vom Proxy):
+Migrationen über `/database/query` mit eigener Versionstabelle, Auth-Config per `PATCH /config/auth`,
+`NOTIFY_WEBHOOK_SECRET` per `POST /secrets` (Wert selbst erzeugen), Edge Functions per Deploy-Endpunkt bzw.
+`supabase functions deploy --use-api`, Publishable Key per `GET /api-keys`. Zuerst mit einem harmlosen
+`GET /v1/projects` prüfen, ob der Proxy den Token anhängt. `FIREBASE_SERVICE_ACCOUNT` nicht setzen – der liegt schon in Supabase.
+
 ## 3. Das erledigt `scripts/deploy.sh`
 
 1. Datenbank-Migrationen einspielen (`supabase db push`)
