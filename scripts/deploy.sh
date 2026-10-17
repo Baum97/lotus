@@ -1,76 +1,126 @@
 #!/usr/bin/env bash
 # Spielt Lotus in das Supabase-Projekt ein (siehe docs/EINRICHTUNG.md).
 #
-# Erwartet als Umgebungsvariablen (nie in Dateien im Repo!):
-#   SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF, SUPABASE_DB_PASSWORD
-# Optional:
-#   FIREBASE_SERVICE_ACCOUNT        → Push-Benachrichtigungen
-#   GOOGLE_PLAY_SERVICE_ACCOUNT     → Kaufprüfung für Plus & Spenden
-#   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SENDER → eigener E-Mail-Versand
+# Läuft nur über die Supabase-Management-API (api.supabase.com) – kein DB-Passwort, keine Supabase-CLI.
+# Der Access Token kommt entweder als Network Secret vom Proxy der Cloud-Umgebung (dann nichts setzen)
+# oder lokal aus SUPABASE_ACCESS_TOKEN. Der Projekt-Ref steht in config/public.env.
 #
-#   scripts/deploy.sh                       # alles einspielen
-#   scripts/deploy.sh --admin du@example.de # zusätzlich dieses Konto zum Admin machen
+# FIREBASE_SERVICE_ACCOUNT, GOOGLE_PLAY_SERVICE_ACCOUNT und SMTP liegen direkt in Supabase und werden
+# hier nicht gesetzt.
+#
+#   scripts/deploy.sh                          # alles einspielen
+#   scripts/deploy.sh --admin du@example.de    # zusätzlich dieses Konto zum Admin machen
+#   scripts/deploy.sh --with-purchases         # zusätzlich verify-purchase deployen (braucht Play-Secret)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-: "${SUPABASE_ACCESS_TOKEN:?fehlt – siehe docs/EINRICHTUNG.md}"
-: "${SUPABASE_PROJECT_REF:?fehlt – siehe docs/EINRICHTUNG.md}"
-: "${SUPABASE_DB_PASSWORD:?fehlt – siehe docs/EINRICHTUNG.md}"
+# shellcheck source=/dev/null
+source config/public.env
+: "${SUPABASE_PROJECT_REF:?fehlt in config/public.env}"
 
 admin_email=""
-if [[ "${1:-}" == "--admin" ]]; then admin_email="${2:?E-Mail-Adresse fehlt}"; fi
+with_purchases=false
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --admin) admin_email="${2:?E-Mail-Adresse fehlt}"; shift 2 ;;
+    --with-purchases) with_purchases=true; shift ;;
+    *) echo "Unbekannte Option: $1" >&2; exit 1 ;;
+  esac
+done
 
-supabase() { npx -y supabase@latest "$@"; }
+api_base="https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}"
+auth=()
+if [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]]; then auth=(-H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}"); fi
 
-# SQL über die Supabase-Management-API; gibt den ersten Wert der ersten Zeile aus (oder nichts).
+# api METHODE PFAD [curl-Argumente …] – gibt bei Fehlern Status und Antwort aus
+api() {
+  local method="$1" path="$2"; shift 2
+  local out status
+  out=$(mktemp)
+  status=$(curl -sS -o "$out" -w '%{http_code}' -X "$method" "${api_base}${path}" "${auth[@]}" "$@")
+  if [[ "$status" != 2* ]]; then
+    echo "  ! $method $path → HTTP $status: $(head -c 500 "$out")" >&2
+    rm -f "$out"; return 1
+  fi
+  cat "$out"; rm -f "$out"
+}
+
+# SQL ausführen; gibt den ersten Wert der ersten Zeile aus (oder nichts).
 sql() {
-  curl -sSf -X POST "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/database/query" \
-    -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H "Content-Type: application/json" \
+  api POST /database/query -H "Content-Type: application/json" \
     -d "$(python3 -c 'import json,sys; print(json.dumps({"query": sys.argv[1]}))' "$1")" |
     python3 -c 'import json,sys; rows=json.load(sys.stdin); print(next(iter(rows[0].values())) if rows and rows[0] else "")'
 }
 
-echo "→ Projekt verknüpfen"
-supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+echo "→ Zugang prüfen"
+api GET "" > /dev/null || { echo "Kein Zugriff auf Projekt $SUPABASE_PROJECT_REF – Token prüfen (docs/EINRICHTUNG.md)" >&2; exit 1; }
 
 echo "→ Datenbank-Migrationen"
-supabase db push --password "$SUPABASE_DB_PASSWORD"
+# Dieselbe Versionstabelle wie die Supabase-CLI, damit `supabase migration list` weiter stimmt.
+sql "create schema if not exists supabase_migrations;
+     create table if not exists supabase_migrations.schema_migrations
+       (version text primary key, statements text[], name text)" > /dev/null
+for migration in supabase/migrations/*.sql; do
+  file=$(basename "$migration" .sql)
+  version=${file%%_*}
+  name=${file#*_}
+  if [[ -n "$(sql "select 1 from supabase_migrations.schema_migrations where version = '$version'")" ]]; then
+    echo "  = $file"
+    continue
+  fi
+  echo "  + $file"
+  # Migration und Versionseintrag in einer Transaktion
+  sql "begin;
+       $(cat "$migration")
+       ;
+       insert into supabase_migrations.schema_migrations (version, name) values ('$version', '$name');
+       commit;" > /dev/null
+done
 
-echo "→ Auth-Einstellungen (E-Mail-Vorlage)"
-supabase config push --project-ref "$SUPABASE_PROJECT_REF" <<< "y" || \
-  echo "  ! config push fehlgeschlagen – Vorlage supabase/templates/login_code.html bitte im Dashboard eintragen"
+echo "→ Auth-Einstellungen (Anmeldung per Code)"
+api PATCH /config/auth -H "Content-Type: application/json" -d "$(python3 -c 'import json,sys
+template = open("supabase/templates/login_code.html").read()
+print(json.dumps({
+  "mailer_subjects_magic_link": "Dein Lotus-Code", "mailer_templates_magic_link_content": template,
+  "mailer_subjects_confirmation": "Dein Lotus-Code", "mailer_templates_confirmation_content": template,
+  "mailer_otp_length": 6, "mailer_otp_exp": 3600, "mailer_autoconfirm": True,
+  "disable_signup": False, "external_anonymous_users_enabled": False}))')" > /dev/null
 
-if [[ -n "${SMTP_HOST:-}" ]]; then
-  echo "→ SMTP für Anmeldecodes"
-  curl -sSf -X PATCH "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/config/auth" \
-    -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -H "Content-Type: application/json" \
-    -d "$(python3 -c 'import json,os; print(json.dumps({
-      "smtp_host": os.environ["SMTP_HOST"], "smtp_port": os.environ.get("SMTP_PORT", "587"),
-      "smtp_user": os.environ["SMTP_USER"], "smtp_pass": os.environ["SMTP_PASS"],
-      "smtp_admin_email": os.environ["SMTP_SENDER"], "smtp_sender_name": "Lotus",
-      "rate_limit_email_sent": 100}))')" > /dev/null
+echo "→ Push-Benachrichtigungen"
+secret_names=$(api GET /secrets | python3 -c 'import json,sys; print(" ".join(s["name"] for s in json.load(sys.stdin)))')
+if [[ " $secret_names " != *" FIREBASE_SERVICE_ACCOUNT "* ]]; then
+  echo "  ! FIREBASE_SERVICE_ACCOUNT fehlt in Supabase (Edge Functions → Secrets) – Push funktioniert erst danach"
 fi
+# Bestehendes Secret weiterverwenden, sonst neues erzeugen
+notify_secret=$(sql "select value from private.settings where key = 'notify_secret'" || true)
+notify_secret=${notify_secret:-$(openssl rand -hex 32)}
+api POST /secrets -H "Content-Type: application/json" \
+  -d "[{\"name\": \"NOTIFY_WEBHOOK_SECRET\", \"value\": \"${notify_secret}\"}]" > /dev/null
 
-notify_secret=""
-if [[ -n "${FIREBASE_SERVICE_ACCOUNT:-}" ]]; then
-  echo "→ Push-Benachrichtigungen"
-  # Bestehendes Secret weiterverwenden, sonst neues erzeugen
-  notify_secret=$(sql "select value from private.settings where key = 'notify_secret'" || true)
-  notify_secret=${notify_secret:-$(openssl rand -hex 32)}
-  supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" \
-    FIREBASE_SERVICE_ACCOUNT="$FIREBASE_SERVICE_ACCOUNT" NOTIFY_WEBHOOK_SECRET="$notify_secret"
-  supabase functions deploy notify --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
-  sql "insert into private.settings (key, value) values
-         ('notify_url', 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/notify'),
-         ('notify_secret', '${notify_secret}')
-       on conflict (key) do update set value = excluded.value"
-fi
+# deploy_function NAME VERIFY_JWT – lädt die Function samt _shared hoch
+deploy_function() {
+  local name="$1" verify_jwt="$2" files=()
+  for f in supabase/functions/"$name"/*.ts supabase/functions/_shared/*.ts; do
+    files+=(-F "file=@${f};filename=${f#supabase/functions/}")
+  done
+  api POST "/functions/deploy?slug=${name}" \
+    -F "metadata={\"name\": \"${name}\", \"entrypoint_path\": \"${name}/index.ts\", \"verify_jwt\": ${verify_jwt}};type=application/json" \
+    "${files[@]}" > /dev/null
+}
+deploy_function notify false
+sql "insert into private.settings (key, value) values
+       ('notify_url', 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/notify'),
+       ('notify_secret', '${notify_secret}')
+     on conflict (key) do update set value = excluded.value" > /dev/null
 
-if [[ -n "${GOOGLE_PLAY_SERVICE_ACCOUNT:-}" ]]; then
+if $with_purchases; then
   echo "→ Kaufprüfung (Lotus Plus & Spenden)"
-  supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" \
-    GOOGLE_PLAY_SERVICE_ACCOUNT="$GOOGLE_PLAY_SERVICE_ACCOUNT" ANDROID_PACKAGE_NAME=app.lotusdating.lotus
-  supabase functions deploy verify-purchase --project-ref "$SUPABASE_PROJECT_REF"
+  if [[ " $secret_names " != *" GOOGLE_PLAY_SERVICE_ACCOUNT "* ]]; then
+    echo "  ! GOOGLE_PLAY_SERVICE_ACCOUNT fehlt in Supabase (Edge Functions → Secrets)"
+  fi
+  api POST /secrets -H "Content-Type: application/json" \
+    -d '[{"name": "ANDROID_PACKAGE_NAME", "value": "app.lotusdating.lotus"}]' > /dev/null
+  deploy_function verify-purchase true
 fi
 
 if [[ -n "$admin_email" ]]; then
@@ -82,8 +132,11 @@ if [[ -n "$admin_email" ]]; then
   echo "→ Admin: $admin_email"
   sql "insert into private.admins (user_id)
        select id from auth.users where lower(email) = lower('$admin_email')
-       on conflict do nothing"
+       on conflict do nothing" > /dev/null
 fi
 
+publishable_key=$(api GET "/api-keys?reveal=false" |
+  python3 -c 'import json,sys; keys=json.load(sys.stdin); print(next((k["api_key"] for k in keys if k.get("type")=="publishable"), "<Publishable Key aus dem Dashboard>"))')
+
 echo "✓ Fertig. App bauen mit:"
-echo "  cd app && flutter build appbundle --dart-define=SUPABASE_URL=https://${SUPABASE_PROJECT_REF}.supabase.co --dart-define=SUPABASE_KEY=<Publishable Key>"
+echo "  cd app && flutter build appbundle --dart-define=SUPABASE_URL=https://${SUPABASE_PROJECT_REF}.supabase.co --dart-define=SUPABASE_KEY=${publishable_key}"

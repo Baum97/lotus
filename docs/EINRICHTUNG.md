@@ -52,19 +52,18 @@ Claude sieht ihn nie. Deshalb gilt statt der Tabelle oben:
 | Projekt-Ref, Firebase-App-Werte | öffentlich, in `config/public.env` |
 | DB-Passwort | nicht nötig |
 
-**Für die Deploy-Sitzung (Claude):** `scripts/deploy.sh` erwartet noch Umgebungsvariablen und das DB-Passwort.
-Vor dem ersten Deploy auf reine Management-API umstellen (`api.supabase.com`, Authorization kommt vom Proxy):
-Migrationen über `/database/query` mit eigener Versionstabelle, Auth-Config per `PATCH /config/auth`,
-`NOTIFY_WEBHOOK_SECRET` per `POST /secrets` (Wert selbst erzeugen), Edge Functions per Deploy-Endpunkt bzw.
-`supabase functions deploy --use-api`, Publishable Key per `GET /api-keys`. Zuerst mit einem harmlosen
-`GET /v1/projects` prüfen, ob der Proxy den Token anhängt. `FIREBASE_SERVICE_ACCOUNT` nicht setzen – der liegt schon in Supabase.
+**Für die Deploy-Sitzung (Claude):** `scripts/deploy.sh` läuft nur über die Management-API (`api.supabase.com`,
+Authorization kommt vom Proxy) und braucht weder Umgebungsvariablen noch DB-Passwort: Migrationen über
+`/database/query` (Versionstabelle `supabase_migrations.schema_migrations` wie bei der CLI), Auth-Config per
+`PATCH /config/auth`, `NOTIFY_WEBHOOK_SECRET` per `POST /secrets`, Edge Functions per Deploy-Endpunkt,
+Publishable Key per `GET /api-keys`. Das Skript prüft zuerst mit `GET /v1/projects/<ref>`, ob der Token ankommt.
 
 ## 3. Das erledigt `scripts/deploy.sh`
 
-1. Datenbank-Migrationen einspielen (`supabase db push`)
-2. E-Mail-Vorlage für den Anmeldecode und SMTP setzen
-3. Secrets für die Edge Functions setzen
-4. Edge Functions `notify` und `verify-purchase` deployen
+1. Datenbank-Migrationen einspielen (nur noch nicht eingespielte)
+2. E-Mail-Vorlage für den Anmeldecode setzen (SMTP direkt im Dashboard)
+3. `NOTIFY_WEBHOOK_SECRET` setzen
+4. Edge Function `notify` deployen, `verify-purchase` mit `--with-purchases`
 5. Datenbank mit der Push-Function verbinden (`private.settings`)
 6. Dich als Admin eintragen (`--admin du@example.de`, nachdem du dich einmal in der App angemeldet hast)
 
